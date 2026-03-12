@@ -12,7 +12,7 @@ export default function Navbar() {
     <header className="border-b border-black/10 bg-white/85 backdrop-blur">
       <nav className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
         <Link href="/" className="text-lg font-semibold tracking-tight">
-          Fit3048 App
+          Ability To Thrive
         </Link>
 
         <div className="flex items-center gap-5 text-sm font-medium">
