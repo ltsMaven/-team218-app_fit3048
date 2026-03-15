@@ -1,4 +1,5 @@
 import { Heart, Users, MessageCircle, ArrowRight, Sun } from "lucide-react";
+import Link from 'next/link';
 
 const services = [
   {
@@ -258,10 +259,13 @@ export default function Home() {
           </p>
 
           <div className="mt-10">
-            <button className="inline-flex items-center gap-2 rounded-xl bg-[#657357] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#556248]">
+            <Link 
+              href="/book"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#657357] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#556248]"
+            >
               Book Your Session Now
               <ArrowRight className="h-4 w-4" />
-            </button>
+            </Link>
           </div>
         </div>
       </section>
