@@ -9,13 +9,11 @@ export default function BookAppointment() {
       const inviteeUri = e.data.payload.invitee.uri;
       const eventUri = e.data.payload.event.uri;
 
-      await fetch('/api/save-booking', {
+      await fetch('/api/calendly-to-supabase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ inviteeUri, eventUri })
       });
-      
-      alert("Success! Your session is booked and saved to our database.");
     },
   });
 
@@ -28,7 +26,7 @@ export default function BookAppointment() {
 
       <div className="w-full max-w-4xl h-[700px] bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <InlineWidget 
-          url="https://calendly.com/myliver-323/online-counselling" 
+          url="https://calendly.com/fit3048/online-counselling" 
           styles={{ height: '100%' }}
         />
       </div>

@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Fit3048 App",
-  description: "Starter app built with Next.js",
+  title: "Ability to Thrive | Counselling & Life Coaching",
+  description: "Professional counselling, life coaching, and NDIS support services to help you navigate life's challenges.",
 };
 
 export default function RootLayout({ children }) {

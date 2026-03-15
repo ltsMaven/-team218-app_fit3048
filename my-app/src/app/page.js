@@ -1,5 +1,5 @@
-import { Heart, Users, MessageCircle, ArrowRight, Sun } from "lucide-react";
 import Link from 'next/link';
+import { Heart, Users, MessageCircle, ArrowRight, Sun } from "lucide-react";
 
 const services = [
   {
@@ -81,9 +81,11 @@ export default function Home() {
             </p>
 
             <div className="pt-4">
-              <button className="rounded-full border border-white/70 px-6 py-3 text-sm font-medium text-white transition hover:bg-white hover:text-black">
+              <Link 
+                href="/book"
+                className="inline-block rounded-full border border-white/70 px-6 py-3 text-sm font-medium text-white transition hover:bg-white hover:text-black">
                 Get Started
-              </button>
+              </Link>
             </div>
           </div>
         </div>
