@@ -373,7 +373,7 @@ export default function Home() {
           <div className="mt-10">
             <Link
               href="/book"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#7ea6d8] px-6 py-3 text-sm font-medium text-[#1f2937] transition hover:bg-[#98bbe4]"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#926ab9] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
             >
               Book Your Session Now
               <ArrowRight className="h-4 w-4" />
