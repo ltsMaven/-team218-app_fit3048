@@ -18,13 +18,13 @@ export default function BookAppointment() {
   });
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-8 bg-slate-50">
+    <main className="flex min-h-screen flex-col items-center bg-[linear-gradient(180deg,#f7f8fb_0%,#eeeff2_100%)] p-8">
       <div className="w-full max-w-4xl text-center mb-8">
-        <h1 className="text-4xl font-extrabold text-slate-900 mb-4">Book Your Session</h1>
-        <p className="text-lg text-slate-600">Select a time that works for you.</p>
+        <h1 className="mb-4 text-4xl font-extrabold text-[#42454c]">Book Your Session</h1>
+        <p className="text-lg text-[#5d6169]">Select a time that works for you.</p>
       </div>
 
-      <div className="w-full max-w-4xl h-[700px] bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="h-[700px] w-full max-w-4xl overflow-hidden rounded-xl border border-[#cfd6e2] bg-white shadow-[0_24px_60px_rgba(66,69,76,0.08)]">
         <InlineWidget 
           url="https://calendly.com/fit3048/online-counselling" 
           styles={{ height: '100%' }}

@@ -9,9 +9,9 @@ const navItems = [
 
 export default function Navbar() {
   return (
-    <header className="border-b border-black/10 bg-white/85 backdrop-blur">
+    <header className="border-b border-white/30 bg-[#eeeff2]/80 backdrop-blur">
       <nav className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-semibold tracking-tight">
+        <Link href="/" className="text-lg font-semibold tracking-tight text-[#42454c]">
           Ability To Thrive
         </Link>
 
@@ -20,7 +20,7 @@ export default function Navbar() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-neutral-700 transition hover:text-black"
+              className="text-[#5f6470] transition hover:text-[#926ab9]"
             >
               {item.label}
             </Link>
