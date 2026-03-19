@@ -79,12 +79,6 @@ export default function Navbar() {
             <div className="hidden items-center gap-3 md:flex">
               <Link
                 href="/book"
-                className="rounded-full border border-[#cfd6e2] px-4 py-2 text-sm font-medium text-[#4b8e9a] transition hover:border-[#4b8e9a] hover:bg-white/80"
-              >
-                Bookings
-              </Link>
-              <Link
-                href="/book"
                 className="rounded-full bg-[#926ab9] px-5 py-2.5 text-sm font-medium text-white shadow-[0_14px_30px_rgba(146,106,185,0.25)] transition hover:bg-[#7d58a3]"
               >
                 Book a Session
@@ -136,13 +130,6 @@ export default function Navbar() {
               ))}
 
               <div className="flex flex-col gap-3 pt-2">
-                <Link
-                  href="/book"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="rounded-full border border-[#cfd6e2] px-4 py-3 text-center text-sm font-medium text-[#4b8e9a] transition hover:border-[#4b8e9a] hover:bg-white/80"
-                >
-                  Bookings
-                </Link>
                 <Link
                   href="/book"
                   onClick={() => setIsMobileMenuOpen(false)}

@@ -1,22 +1,36 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+
+const heroVideos = [
+  "/assets/videos/forrest.webm",
+  "/assets/videos/mountains.webm",
+  "/assets/videos/wave.webm",
+];
 
 export default function HeroSlider() {
+  const [activeVideo, setActiveVideo] = useState(0);
+
+  const handleVideoEnded = () => {
+    setActiveVideo((current) => (current + 1) % heroVideos.length);
+  };
+
   return (
     <section
       id="home"
       className="relative isolate flex min-h-[calc(100vh-145px)] items-center overflow-hidden bg-[#42454c]"
     >
       <video
+        key={heroVideos[activeVideo]}
         className="absolute inset-0 h-full w-full object-cover"
         autoPlay
-        loop
         muted
         playsInline
         preload="auto"
+        onEnded={handleVideoEnded}
       >
-        <source src="/assets/videos/forrest.webm" type="video/webm" />
+        <source src={heroVideos[activeVideo]} type="video/webm" />
       </video>
 
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(66,69,76,0.74),rgba(75,142,154,0.42),rgba(109,123,187,0.28))]" />

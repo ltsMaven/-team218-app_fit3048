@@ -17,7 +17,7 @@ const services = [
     icon: Users,
   },
   {
-    title: "Family Therapy",
+    title: "General Counseling",
     description:
       "Strengthen family bonds and develop healthier patterns of interaction and communication.",
     icon: MessageCircle,
@@ -220,9 +220,17 @@ export default function Home() {
                     Your Journey to Freedom Starts Here.
                   </h3>
                   <p className="mt-4 max-w-2xl text-base leading-8 text-[#5d6169]">
-                    Support clients to build resilience, restore confidence, and
-                    move toward goals that reflect their own needs, strengths,
-                    and personal direction, one realistic step at a time.
+                    At Ability To Thrive Counselling and Recovery Coaching, our
+                    mission is to empower individuals to feel supported,
+                    understood, and confident as they work toward the life they
+                    truly want. Guided by our core values—kindness,
+                    encouragement, optimism, patience, and inclusion we create a
+                    safe, respectful, and collaborative environment where every
+                    client feels heard and valued. Through professional care and
+                    genuine connection, we help build the strength, skills, and
+                    confidence needed for meaningful progress. Our commitment is
+                    simple: to provide support that helps you not just cope, but
+                    truly thrive.
                   </p>
                 </article>
 
@@ -235,9 +243,14 @@ export default function Home() {
                     From Overwhelmed to Empowered.
                   </h3>
                   <p className="mt-4 max-w-2xl text-base leading-8 text-[#5d6169]">
-                    Create a space that is safe, non-judgmental, and
-                    collaborative, where each person feels heard, supported, and
-                    empowered in the work they are doing.
+                    Our vision is to create a world where every individual feels
+                    empowered to overcome challenges and embrace their full
+                    potential. At Ability To Thrive Counselling and Recovery
+                    Coaching, we strive to be a trusted source of hope and
+                    growth—fostering resilience, confidence, and inclusion in
+                    every life we touch. We envision a future where support is
+                    accessible, compassionate, and transformative, helping
+                    people not just survive, but truly thrive.
                   </p>
                 </article>
 
@@ -250,9 +263,18 @@ export default function Home() {
                     Optimism That Inspires Change.
                   </h3>
                   <p className="mt-4 max-w-2xl text-base leading-8 text-white/78">
-                    Help people recognise their ability to thrive and develop
-                    the emotional, mental, and social foundations needed for a
-                    more balanced and fulfilling life.
+                    At Ability To Thrive Counselling and Recovery Coaching,
+                    everything we do is guided by five essential values: 🌸
+                    Kindness - Compassion in every interaction. We create a
+                    safe, welcoming space where care and understanding come
+                    first. 🌟 Encouragement - Your potential, our belief. We
+                    motivate and support you every step of the way. ☀️ Optimism
+                    - Hope leads to progress. We focus on possibilities and
+                    positive outcomes, even in challenging times. 🕊 Patience -
+                    Your pace, your journey. We respect your timeline and
+                    provide space for growth without pressure. 🌍 Inclusion -
+                    Everyone belongs here. We celebrate diversity and ensure
+                    every voice is valued and heard.
                   </p>
                 </article>
               </div>
