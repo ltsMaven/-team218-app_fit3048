@@ -3,6 +3,26 @@ import Image from "next/image";
 import { Heart, Users, MessageCircle, ArrowRight, Sun } from "lucide-react";
 import HeroSlider from "../components/HeroSlider";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.SITE_URL ||
+  "http://localhost:3000";
+
+export const metadata = {
+  title: "Counselling, Coaching & NDIS Support",
+  description:
+    "Explore Ability to Thrive for counselling, life coaching, clinical supervision, and supportive care tailored to your goals and wellbeing.",
+  alternates: {
+    canonical: siteUrl,
+  },
+  openGraph: {
+    title: "Ability to Thrive | Counselling, Coaching & NDIS Support",
+    description:
+      "Explore Ability to Thrive for counselling, life coaching, clinical supervision, and supportive care tailored to your goals and wellbeing.",
+    url: siteUrl,
+  },
+};
+
 const services = [
   {
     title: "Individual Therapy",
@@ -59,8 +79,32 @@ function getTestimonialPreview(quote) {
 }
 
 export default function Home() {
+  const organizationStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    name: "Ability to Thrive",
+    url: siteUrl,
+    image: `${siteUrl}/assets/abilityToThriveLogo.webp`,
+    description:
+      "Counselling, life coaching, clinical supervision, and NDIS support focused on compassionate, client-centred wellbeing.",
+    areaServed: "Australia",
+    serviceType: [
+      "Counselling",
+      "Life Coaching",
+      "Clinical Supervision",
+      "NDIS Support",
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationStructuredData),
+        }}
+      />
+
       <HeroSlider />
 
       <section id="about-me" className="bg-transparent px-6 py-24 lg:py-28">
