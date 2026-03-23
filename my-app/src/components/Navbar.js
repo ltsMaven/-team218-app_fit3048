@@ -8,6 +8,7 @@ const navItems = [
   { href: "/#about-me", label: "About" },
   { href: "/#my-work", label: "Services" },
   { href: "/#blogs", label: "Testimonials" },
+  { href: "/#enquiry", label: "Enquiry" },
 ];
 
 export default function Navbar() {
