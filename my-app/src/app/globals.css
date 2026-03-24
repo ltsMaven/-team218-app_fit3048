@@ -14,8 +14,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Segoe UI";
+  --font-mono: "SFMono-Regular";
 }
 
 body {
@@ -23,7 +23,7 @@ body {
     radial-gradient(circle at top, rgba(126, 166, 216, 0.16), transparent 36%),
     linear-gradient(180deg, #f7f8fb 0%, var(--background) 100%);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
 html {

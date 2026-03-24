@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Heart, Users, MessageCircle, ArrowRight, Sun } from "lucide-react";
 import HeroSlider from "../components/HeroSlider";
+import EnquiryForm from "../components/EnquiryForm";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -399,6 +400,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <EnquiryForm />
     </>
   );
 }
