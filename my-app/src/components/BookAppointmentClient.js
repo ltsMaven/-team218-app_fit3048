@@ -17,9 +17,9 @@ export default function BookAppointmentClient() {
   });
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-[linear-gradient(180deg,#f7f8fb_0%,#eeeff2_100%)] p-8">
-      <div className="mb-8 w-full max-w-4xl text-center">
-        <h1 className="mb-4 text-4xl font-extrabold text-[#42454c]">
+    <main className="flex min-h-screen flex-col items-center bg-[linear-gradient(180deg,rgba(146,106,185,0.05)_0%,rgba(238,239,242,1)_100%)] p-8">
+      <div className="mb-8 w-full max-w-6xl text-center">
+        <h1 className="mb-4 text-4xl font-extrabold text-[#926ab9]">
           Book Your Session
         </h1>
         <p className="text-lg text-[#5d6169]">
@@ -27,9 +27,14 @@ export default function BookAppointmentClient() {
         </p>
       </div>
 
-      <div className="h-[700px] w-full max-w-4xl overflow-hidden rounded-xl border border-[#cfd6e2] bg-white shadow-[0_24px_60px_rgba(66,69,76,0.08)]">
+      <div className="h-[700px] w-full max-w-6xl overflow-hidden rounded-xl border border-[#cfd6e2] bg-white shadow-[0_24px_60px_rgba(66,69,76,0.08)]">
         <InlineWidget
-          url="https://calendly.com/fit3048/online-counselling"
+          url="https://calendly.com/samsthrive2026/consulling"
+          pageSettings={{
+            primaryColor: "926ab9",
+            textColor: "42454c",
+            backgroundColor: "ffffff",
+          }}
           styles={{ height: "100%" }}
         />
       </div>
