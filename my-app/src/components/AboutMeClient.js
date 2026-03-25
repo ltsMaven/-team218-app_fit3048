@@ -1,11 +1,6 @@
 import Link from "next/link";
 import { Quote, ArrowRight, Sparkles } from "lucide-react";
 
-export const metadata = {
-  title: "About Me",
-  description: "Learn about the lived experience and professional approach behind Ability to Thrive Counselling and Life Coaching.",
-};
-
 const TEXT_PREVIEW_LENGTH = 160;
 
 function getPreview(text) {

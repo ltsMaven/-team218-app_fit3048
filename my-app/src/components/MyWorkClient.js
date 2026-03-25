@@ -1,16 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Sparkles, GraduationCap, HeartHandshake } from "lucide-react";
 
-export const metadata = {
-  title: "My Background & Expertise",
-  description: "Over 15 years of experience in substance abuse counselling, relationship counselling, NDIS support, and LGBTQIA+ counselling.",
-};
-
 export default function ExpertisePage() {
   return (
     <div className="min-h-screen bg-transparent pb-24">
       
-      {/* 1. Clean, Centered Hero Section */}
       <section className="px-6 pt-24 pb-16 lg:pt-32">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#926ab9]/30 bg-white/60 px-5 py-2 backdrop-blur-sm">
@@ -29,12 +23,10 @@ export default function ExpertisePage() {
         </div>
       </section>
 
-      {/* 2. The Bento Box Grid (Background & Philosophy) */}
       <section className="px-6">
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             
-            {/* Left Card: My Philosophy (Takes up 5 columns, taller) */}
             <article className="md:col-span-5 rounded-[2rem] border border-white/60 bg-[linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,239,242,0.6))] p-10 shadow-sm backdrop-blur-md flex flex-col justify-between transition hover:shadow-md">
               <div>
                 <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eaf3f5]">
@@ -53,10 +45,8 @@ export default function ExpertisePage() {
               </div>
             </article>
 
-            {/* Right Side Stack */}
             <div className="md:col-span-7 flex flex-col gap-6">
               
-              {/* Top Right Card: My Background (Wide) */}
               <article className="flex-grow rounded-[2rem] border border-[#d8dfeb] bg-white/70 p-10 shadow-sm backdrop-blur-md transition hover:shadow-md">
                 <div className="mb-6 flex items-center gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f4eff8]">
@@ -71,7 +61,6 @@ export default function ExpertisePage() {
                 </p>
               </article>
 
-              {/* Bottom Right Card: Quick Focus Tags */}
               <div className="rounded-[2rem] border border-white/40 bg-[#dce9f8]/40 p-8 backdrop-blur-sm">
                 <p className="text-sm font-semibold uppercase tracking-wider text-[#6d7bbb] mb-4">Core Focus Areas</p>
                 <div className="flex flex-wrap gap-3">
@@ -88,11 +77,9 @@ export default function ExpertisePage() {
         </div>
       </section>
 
-      {/* 3. The 3-Pillar Experience Section */}
       <section className="px-6 pt-24">
         <div className="mx-auto max-w-6xl">
           <div className="rounded-[2.5rem] bg-[#42454c] p-10 md:p-16 shadow-lg relative overflow-hidden">
-            {/* Decorative background glow inside the dark card */}
             <div className="absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full bg-[#6d7bbb] opacity-20 blur-3xl pointer-events-none" />
             
             <div className="mb-12 flex items-center gap-4">
@@ -102,7 +89,6 @@ export default function ExpertisePage() {
               </h2>
             </div>
 
-            {/* We break the 3 paragraphs into a clean 3-column grid for easy reading */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
               
               <div className="space-y-4">

@@ -2,7 +2,7 @@ import MyWorkClient from "@/components/MyWorkClient";
 
 export const metadata = {
   title: "My Work | Ability to Thrive",
-  description: "Learn about the lived experience and professional approach behind Ability to Thrive Counselling and Life Coaching.",
+  description: "Discover my expertise and professional approach, including over 15 years of experience in substance abuse counselling, relationship counselling, NDIS support, and LGBTQIA+ counselling.",
 };
 
 export default function MyWorkPage() {
