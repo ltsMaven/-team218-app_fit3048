@@ -1,5 +1,8 @@
 import { Resend } from "resend";
-import { EmailTemplate } from "../components/email-template";
+import {
+  buildEnquiryEmailHtml,
+  buildEnquiryEmailText,
+} from "../components/email-template";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -53,7 +56,13 @@ export async function sendEnquiryEmail(payload) {
     to: [to],
     replyTo: email,
     subject: `New enquiry from ${name}`,
-    react: EmailTemplate({
+    html: buildEnquiryEmailHtml({
+      name,
+      email,
+      phone,
+      message,
+    }),
+    text: buildEnquiryEmailText({
       name,
       email,
       phone,
