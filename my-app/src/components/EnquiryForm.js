@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const initialFormState = {
   name: "",
@@ -137,6 +138,14 @@ export default function EnquiryForm() {
               />
             </label>
           </div>
+
+          <div className="mt-6">
+              <ReCAPTCHA
+                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+                hl="en"
+                onChange={(token) => setCaptchaToken(token)}
+              />
+            </div>
 
           <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <button
