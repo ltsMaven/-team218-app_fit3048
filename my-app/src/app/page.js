@@ -391,7 +391,7 @@ export default function Home() {
 
           <div className="mt-10">
             <Link
-              href="/book"
+              href="/booking"
               className="inline-flex items-center gap-2 rounded-xl bg-[#926ab9] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
             >
               Book Your Session Now

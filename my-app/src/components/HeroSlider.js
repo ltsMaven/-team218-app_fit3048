@@ -57,7 +57,7 @@ export default function HeroSlider() {
 
           <div className="pt-4">
             <Link
-              href="/book"
+              href="/booking"
               className="inline-block rounded-full bg-[#926ab9] px-6 py-3 text-sm font-medium text-white shadow-[0_18px_40px_rgba(146,106,185,0.35)] transition hover:bg-[#7d58a3]"
             >
               Get Started
