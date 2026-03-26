@@ -4,7 +4,8 @@ import { useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 
 const initialFormState = {
-  name: "",
+  f_name: "",
+  l_name: "",
   email: "",
   phone: "",
   message: "",
@@ -12,6 +13,7 @@ const initialFormState = {
 
 export default function EnquiryForm() {
   const [formData, setFormData] = useState(initialFormState);
+  const [captchaToken, setCaptchaToken] = useState(null);
   const [status, setStatus] = useState({
     type: "idle",
     message: "",
@@ -37,7 +39,10 @@ export default function EnquiryForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          captchaToken,
+        }),
       });
 
       const result = await response.json();
@@ -72,8 +77,8 @@ export default function EnquiryForm() {
             Reach out for support that fits your situation.
           </h2>
           <p className="mt-6 max-w-xl text-lg leading-8 text-[#5d6169]">
-            Share a few details about what you need and we will respond with
-            the best next step for counselling, coaching, supervision, or NDIS
+            Share a few details about what you need and we will respond with the
+            best next step for counselling, coaching, supervision, or NDIS
             support.
           </p>
         </div>
@@ -82,15 +87,15 @@ export default function EnquiryForm() {
           onSubmit={handleSubmit}
           className="rounded-[2rem] border border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(238,239,242,0.92))] p-8 shadow-[0_24px_60px_rgba(66,69,76,0.08)]"
         >
-          <div className="grid gap-6 sm:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-[#42454c]">
-                Name
+                First name *
               </span>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                name="f_name"
+                value={formData.f_name}
                 onChange={handleChange}
                 required
                 className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
@@ -99,19 +104,19 @@ export default function EnquiryForm() {
 
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-[#42454c]">
-                Email
+                Last name *
               </span>
               <input
-                type="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                name="l_name"
+                value={formData.l_name}
                 onChange={handleChange}
                 required
                 className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
               />
             </label>
 
-            <label className="block sm:col-span-2">
+            <label className="block">
               <span className="mb-2 block text-sm font-medium text-[#42454c]">
                 Phone
               </span>
@@ -124,7 +129,21 @@ export default function EnquiryForm() {
               />
             </label>
 
-            <label className="block sm:col-span-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-[#42454c]">
+                Email *
+              </span>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
+              />
+            </label>
+
+            <label className="block md:col-span-2">
               <span className="mb-2 block text-sm font-medium text-[#42454c]">
                 Message
               </span>
@@ -140,12 +159,12 @@ export default function EnquiryForm() {
           </div>
 
           <div className="mt-6">
-              <ReCAPTCHA
-                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-                hl="en"
-                onChange={(token) => setCaptchaToken(token)}
-              />
-            </div>
+            <ReCAPTCHA
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+              hl="en"
+              onChange={(token) => setCaptchaToken(token)}
+            />
+          </div>
 
           <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <button
@@ -159,9 +178,7 @@ export default function EnquiryForm() {
             {status.message ? (
               <p
                 className={`text-sm ${
-                  status.type === "error"
-                    ? "text-[#b94a48]"
-                    : "text-[#4b8e9a]"
+                  status.type === "error" ? "text-[#b94a48]" : "text-[#4b8e9a]"
                 }`}
               >
                 {status.message}

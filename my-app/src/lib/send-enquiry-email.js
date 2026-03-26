@@ -7,7 +7,13 @@ import {
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 function validateEnquiry(payload = {}) {
-  const name = typeof payload.name === "string" ? payload.name.trim() : "";
+  const firstName =
+    typeof payload.f_name === "string" ? payload.f_name.trim() : "";
+  const lastName =
+    typeof payload.l_name === "string" ? payload.l_name.trim() : "";
+  const fallbackName =
+    typeof payload.name === "string" ? payload.name.trim() : "";
+  const name = [firstName, lastName].filter(Boolean).join(" ") || fallbackName;
   const email = typeof payload.email === "string" ? payload.email.trim() : "";
   const phone = typeof payload.phone === "string" ? payload.phone.trim() : "";
   const message =
