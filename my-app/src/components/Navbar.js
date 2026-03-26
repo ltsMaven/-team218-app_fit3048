@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/about-me", label: "About Me" },
-  { href: "/my-work", label: "Expertise" },
-  { href: "/enquiry", label: "Contact" },
+  { href: "/my-work", label: "Services" },
+  { href: "/enquiry", label: "Enquiry" },
 ];
 
 export default function Navbar() {
