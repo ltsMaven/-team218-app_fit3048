@@ -5,6 +5,19 @@ import {
 } from "../components/email-template";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const MAX_MESSAGE_WORDS = 300;
+const namePattern = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function countWords(value) {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return 0;
+  }
+
+  return trimmedValue.split(/\s+/).length;
+}
 
 function validateEnquiry(payload = {}) {
   const firstName =
@@ -15,13 +28,31 @@ function validateEnquiry(payload = {}) {
     typeof payload.name === "string" ? payload.name.trim() : "";
   const name = [firstName, lastName].filter(Boolean).join(" ") || fallbackName;
   const email = typeof payload.email === "string" ? payload.email.trim() : "";
-  const phone = typeof payload.phone === "string" ? payload.phone.trim() : "";
   const message =
     typeof payload.message === "string" ? payload.message.trim() : "";
 
-  if (!name || !email || !message) {
+  if (!firstName || !lastName || !email || !message) {
     return {
-      error: "Name, email, and message are required.",
+      error: "First name, last name, email, and message are required.",
+    };
+  }
+
+  if (!namePattern.test(firstName) || !namePattern.test(lastName)) {
+    return {
+      error:
+        "First name and last name may only include letters, spaces, apostrophes, and hyphens.",
+    };
+  }
+
+  if (!emailPattern.test(email)) {
+    return {
+      error: "Enter a valid email address.",
+    };
+  }
+
+  if (countWords(message) > MAX_MESSAGE_WORDS) {
+    return {
+      error: `Message must be ${MAX_MESSAGE_WORDS} words or fewer.`,
     };
   }
 
@@ -29,7 +60,6 @@ function validateEnquiry(payload = {}) {
     data: {
       name,
       email,
-      phone,
       message,
     },
   };
@@ -52,7 +82,7 @@ export async function sendEnquiryEmail(payload) {
     };
   }
 
-  const { name, email, phone, message } = validated.data;
+  const { name, email, message } = validated.data;
   const from =
     process.env.RESEND_FROM_EMAIL || "Ability to Thrive <onboarding@resend.dev>";
   const to = process.env.RESEND_TO_EMAIL || "delivered@resend.dev";
@@ -65,13 +95,11 @@ export async function sendEnquiryEmail(payload) {
     html: buildEnquiryEmailHtml({
       name,
       email,
-      phone,
       message,
     }),
     text: buildEnquiryEmailText({
       name,
       email,
-      phone,
       message,
     }),
   });

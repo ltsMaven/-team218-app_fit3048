@@ -3,33 +3,116 @@
 import { useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 
+const MAX_MESSAGE_WORDS = 300;
+const namePattern = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const initialFormState = {
   f_name: "",
   l_name: "",
   email: "",
-  phone: "",
   message: "",
 };
+
+function countWords(value) {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return 0;
+  }
+
+  return trimmedValue.split(/\s+/).length;
+}
+
+function getFieldError(name, value) {
+  const trimmedValue = value.trim();
+
+  if (name === "f_name") {
+    if (!trimmedValue) {
+      return "This field is required.";
+    }
+
+    if (!namePattern.test(trimmedValue)) {
+      return "Use letters only, with spaces, apostrophes, or hyphens if needed.";
+    }
+  }
+
+  if (name === "email") {
+    if (!trimmedValue) {
+      return "Email is required.";
+    }
+
+    if (!emailPattern.test(trimmedValue)) {
+      return "Enter a valid email address.";
+    }
+  }
+
+  if (name === "message") {
+    const wordCount = countWords(trimmedValue);
+
+    if (!trimmedValue) {
+      return "Message is required.";
+    }
+
+    if (wordCount > MAX_MESSAGE_WORDS) {
+      return `Message must be ${MAX_MESSAGE_WORDS} words or fewer.`;
+    }
+  }
+
+  return "";
+}
 
 export default function EnquiryForm() {
   const [formData, setFormData] = useState(initialFormState);
   const [captchaToken, setCaptchaToken] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [status, setStatus] = useState({
     type: "idle",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const messageWordCount = countWords(formData.message);
 
   function handleChange(event) {
     const { name, value } = event.target;
+    const nextValue =
+      name === "message" && countWords(value) > MAX_MESSAGE_WORDS
+        ? formData.message
+        : value;
+
     setFormData((current) => ({
       ...current,
-      [name]: value,
+      [name]: nextValue,
     }));
+    setFieldErrors((current) => ({
+      ...current,
+      [name]: getFieldError(name, nextValue),
+    }));
+  }
+
+  function validateForm() {
+    const nextErrors = {
+      f_name: getFieldError("f_name", formData.f_name),
+      l_name: getFieldError("l_name", formData.l_name),
+      email: getFieldError("email", formData.email),
+      message: getFieldError("message", formData.message),
+    };
+
+    setFieldErrors(nextErrors);
+
+    return Object.values(nextErrors).every((error) => !error);
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (!validateForm()) {
+      setStatus({
+        type: "error",
+        message: "Please correct the highlighted fields.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     setStatus({ type: "idle", message: "" });
 
@@ -56,6 +139,8 @@ export default function EnquiryForm() {
         message: "Your enquiry has been sent. We will be in touch soon.",
       });
       setFormData(initialFormState);
+      setFieldErrors({});
+      setCaptchaToken(null);
     } catch (error) {
       setStatus({
         type: "error",
@@ -98,38 +183,36 @@ export default function EnquiryForm() {
                 value={formData.f_name}
                 onChange={handleChange}
                 required
+                autoComplete="given-name"
                 className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
               />
+              {fieldErrors.f_name ? (
+                <span className="mt-2 block text-sm text-[#b94a48]">
+                  {fieldErrors.f_name}
+                </span>
+              ) : null}
             </label>
 
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-[#42454c]">
-                Last name *
+                Last name
               </span>
               <input
                 type="text"
                 name="l_name"
                 value={formData.l_name}
                 onChange={handleChange}
-                required
+                autoComplete="family-name"
                 className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
               />
+              {fieldErrors.l_name ? (
+                <span className="mt-2 block text-sm text-[#b94a48]">
+                  {fieldErrors.l_name}
+                </span>
+              ) : null}
             </label>
 
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-[#42454c]">
-                Phone
-              </span>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
-              />
-            </label>
-
-            <label className="block">
+            <label className="block md:col-span-2">
               <span className="mb-2 block text-sm font-medium text-[#42454c]">
                 Email *
               </span>
@@ -139,13 +222,28 @@ export default function EnquiryForm() {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                autoComplete="email"
                 className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
               />
+              {fieldErrors.email ? (
+                <span className="mt-2 block text-sm text-[#b94a48]">
+                  {fieldErrors.email}
+                </span>
+              ) : null}
             </label>
 
             <label className="block md:col-span-2">
-              <span className="mb-2 block text-sm font-medium text-[#42454c]">
-                Message
+              <span className="mb-2 flex items-center justify-between gap-3 text-sm font-medium text-[#42454c]">
+                <span>Message *</span>
+                <span
+                  className={
+                    messageWordCount >= MAX_MESSAGE_WORDS
+                      ? "text-[#b94a48]"
+                      : "text-[#6b7280]"
+                  }
+                >
+                  {messageWordCount}/{MAX_MESSAGE_WORDS}
+                </span>
               </span>
               <textarea
                 name="message"
@@ -155,6 +253,11 @@ export default function EnquiryForm() {
                 rows={6}
                 className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
               />
+              {fieldErrors.message ? (
+                <span className="mt-2 block text-sm text-[#b94a48]">
+                  {fieldErrors.message}
+                </span>
+              ) : null}
             </label>
           </div>
 
