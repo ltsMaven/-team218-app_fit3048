@@ -113,6 +113,14 @@ export default function EnquiryForm() {
       return;
     }
 
+    if (!captchaToken) {
+      setStatus({
+        type: "error",
+        message: "Please complete the reCAPTCHA verification before submitting.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     setStatus({ type: "idle", message: "" });
 
