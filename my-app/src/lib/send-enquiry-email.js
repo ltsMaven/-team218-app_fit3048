@@ -28,6 +28,8 @@ function validateEnquiry(payload = {}) {
     typeof payload.name === "string" ? payload.name.trim() : "";
   const name = [firstName, lastName].filter(Boolean).join(" ") || fallbackName;
   const email = typeof payload.email === "string" ? payload.email.trim() : "";
+  const captchaToken =
+    typeof payload.captchaToken === "string" ? payload.captchaToken.trim() : "";
   const message =
     typeof payload.message === "string" ? payload.message.trim() : "";
 
@@ -53,6 +55,12 @@ function validateEnquiry(payload = {}) {
   if (countWords(message) > MAX_MESSAGE_WORDS) {
     return {
       error: `Message must be ${MAX_MESSAGE_WORDS} words or fewer.`,
+    };
+  }
+
+  if (!captchaToken) {
+    return {
+      error: "Please complete the CAPTCHA.",
     };
   }
 

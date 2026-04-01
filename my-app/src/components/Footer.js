@@ -10,7 +10,8 @@ export default function Footer() {
               Ability to Thrive
             </h3>
             <p className="max-w-md text-lg leading-9 text-[#5d6169]">
-              Guiding you towards a fulfilling life through counselling, coaching, and NDIS support.
+              Guiding you towards a fulfilling life through counselling,
+              coaching, and NDIS support.
             </p>
           </div>
 
@@ -19,11 +20,14 @@ export default function Footer() {
               Quick Links
             </h3>
             <nav className="flex flex-col gap-4 text-lg text-[#5d6169]">
-              <Link href="/about-me" className="transition hover:text-[#926ab9]">
+              <Link
+                href="/about-me"
+                className="transition hover:text-[#926ab9]"
+              >
                 About Us
               </Link>
               <Link href="/my-work" className="transition hover:text-[#6d7bbb]">
-                My Work
+                Services
               </Link>
               <Link href="/enquiry" className="transition hover:text-[#4b8e9a]">
                 Enquiry
