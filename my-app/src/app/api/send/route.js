@@ -4,7 +4,7 @@ export async function POST(request) {
   try {
     const payload = await request.json();
 
-    const { captchaToken, ...emailPayload } = payload;
+    const { captchaToken } = payload;
 
     if (!captchaToken) {
       return Response.json(
@@ -45,8 +45,7 @@ export async function POST(request) {
       );
     }
 
-
-    const result = await sendEnquiryEmail(emailPayload);
+    const result = await sendEnquiryEmail(payload);
 
     if (result.error) {
       return Response.json(

@@ -27,9 +27,9 @@ function countWords(value) {
 function getFieldError(name, value) {
   const trimmedValue = value.trim();
 
-  if (name === "f_name") {
+  if (name === "f_name" || name === "l_name") {
     if (!trimmedValue) {
-      return "This field is required.";
+      return "Can't be blank.";
     }
 
     if (!namePattern.test(trimmedValue)) {
@@ -39,7 +39,7 @@ function getFieldError(name, value) {
 
   if (name === "email") {
     if (!trimmedValue) {
-      return "Email is required.";
+      return "Can't be blank.";
     }
 
     if (!emailPattern.test(trimmedValue)) {
@@ -51,7 +51,7 @@ function getFieldError(name, value) {
     const wordCount = countWords(trimmedValue);
 
     if (!trimmedValue) {
-      return "Message is required.";
+      return "Can't be blank.";
     }
 
     if (wordCount > MAX_MESSAGE_WORDS) {
@@ -96,6 +96,9 @@ export default function EnquiryForm() {
       l_name: getFieldError("l_name", formData.l_name),
       email: getFieldError("email", formData.email),
       message: getFieldError("message", formData.message),
+      captcha: captchaToken
+        ? ""
+        : "Please complete the reCAPTCHA verification.",
     };
 
     setFieldErrors(nextErrors);
@@ -116,7 +119,8 @@ export default function EnquiryForm() {
     if (!captchaToken) {
       setStatus({
         type: "error",
-        message: "Please complete the reCAPTCHA verification before submitting.",
+        message:
+          "Please complete the reCAPTCHA verification before submitting.",
       });
       return;
     }
@@ -178,6 +182,7 @@ export default function EnquiryForm() {
 
         <form
           onSubmit={handleSubmit}
+          noValidate
           className="rounded-[2rem] border border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(238,239,242,0.92))] p-8 shadow-[0_24px_60px_rgba(66,69,76,0.08)]"
         >
           <div className="grid gap-6 md:grid-cols-2">
@@ -273,14 +278,41 @@ export default function EnquiryForm() {
             <ReCAPTCHA
               sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
               hl="en"
-              onChange={(token) => setCaptchaToken(token)}
+              onChange={(token) => {
+                setCaptchaToken(token);
+                setFieldErrors((current) => ({
+                  ...current,
+                  captcha: token
+                    ? ""
+                    : "Please complete the reCAPTCHA verification.",
+                }));
+              }}
+              onExpired={() => {
+                setCaptchaToken(null);
+                setFieldErrors((current) => ({
+                  ...current,
+                  captcha: "Please complete the reCAPTCHA verification.",
+                }));
+              }}
+              onErrored={() => {
+                setCaptchaToken(null);
+                setFieldErrors((current) => ({
+                  ...current,
+                  captcha: "reCAPTCHA could not be verified. Please try again.",
+                }));
+              }}
             />
+            {fieldErrors.captcha ? (
+              <p className="mt-2 text-sm text-[#b94a48]">
+                {fieldErrors.captcha}
+              </p>
+            ) : null}
           </div>
 
           <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !captchaToken}
               className="inline-flex items-center justify-center rounded-2xl bg-[#926ab9] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#7d58a3] disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSubmitting ? "Sending..." : "Send enquiry"}
