@@ -5,7 +5,7 @@ export const metadata = {
   description: "Discover my expertise and professional approach, including over 15 years of experience in substance abuse counselling, relationship counselling, NDIS support, and LGBTQIA+ counselling.",
 };
 
-export default function ServiceClient() {
+export default function ServicePage() {
   return (
     <div className="min-h-screen bg-[#f8f8f6]">
       <ServiceClient />
