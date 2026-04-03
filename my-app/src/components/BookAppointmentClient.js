@@ -19,7 +19,7 @@ const SERVICES = [
     title: 'Couples Counselling',
     price: '150.00',
     duration: '60 mins',
-    url: 'https://calendly.com/your-link/couples',
+    url: 'https://calendly.com/samsthrive2026/couples-counselling',
     description: 'Support for partners to navigate challenges and strengthen connection.'
   },
   {
@@ -27,7 +27,7 @@ const SERVICES = [
     title: 'Clinical Supervision',
     price: '82.50',
     duration: '60 mins',
-    url: 'https://calendly.com/your-link/supervision',
+    url: 'https://calendly.com/samsthrive2026/clinical-supervision',
     description: 'Professional supervision for practitioners and students.'
   },
   {
@@ -35,7 +35,7 @@ const SERVICES = [
     title: 'Psychosocial Recovery Coaching',
     price: '99.00',
     duration: '60 mins',
-    url: 'https://calendly.com/your-link/recovery',
+    url: 'https://calendly.com/samsthrive2026/psychosocial-recovery-coaching',
     description: 'Collaborative coaching for NDIS participants focused on recovery.'
   },
   {
@@ -43,7 +43,7 @@ const SERVICES = [
     title: 'Free Discovery Call',
     price: 'Free',
     duration: '15 mins',
-    url: 'https://calendly.com/your-link/discovery',
+    url: 'https://calendly.com/samsthrive2026/free-discovery-call',
     description: 'A brief chat to see if our services are the right fit for you.'
   }
 ];
