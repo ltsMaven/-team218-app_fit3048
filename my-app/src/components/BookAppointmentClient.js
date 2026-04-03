@@ -1,44 +1,144 @@
 "use client";
 
-import { InlineWidget, useCalendlyEventListener } from "react-calendly";
+import React from 'react';
+import { InlineWidget } from "react-calendly";
+import { ChevronLeft, Clock, DollarSign } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation'; // Added for routing
 
-export default function BookAppointmentClient() {
-  useCalendlyEventListener({
-    onEventScheduled: async (e) => {
-      const inviteeUri = e.data.payload.invitee.uri;
-      const eventUri = e.data.payload.event.uri;
+const SERVICES = [
+  {
+    id: 'individual',
+    title: 'Individual Counselling',
+    price: '85.00',
+    duration: '60 mins',
+    url: 'https://calendly.com/samsthrive2026/individual-counselling',
+    description: 'One-on-one support tailored to your personal journey.'
+  },
+  {
+    id: 'couples',
+    title: 'Couples Counselling',
+    price: '150.00',
+    duration: '60 mins',
+    url: 'https://calendly.com/your-link/couples',
+    description: 'Support for partners to navigate challenges and strengthen connection.'
+  },
+  {
+    id: 'supervision',
+    title: 'Clinical Supervision',
+    price: '82.50',
+    duration: '60 mins',
+    url: 'https://calendly.com/your-link/supervision',
+    description: 'Professional supervision for practitioners and students.'
+  },
+  {
+    id: 'recovery',
+    title: 'Psychosocial Recovery Coaching',
+    price: '99.00',
+    duration: '60 mins',
+    url: 'https://calendly.com/your-link/recovery',
+    description: 'Collaborative coaching for NDIS participants focused on recovery.'
+  },
+  {
+    id: 'discovery',
+    title: 'Free Discovery Call',
+    price: 'Free',
+    duration: '15 mins',
+    url: 'https://calendly.com/your-link/discovery',
+    description: 'A brief chat to see if our services are the right fit for you.'
+  }
+];
 
-      await fetch("/api/calendly-to-supabase", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inviteeUri, eventUri }),
-      });
-    },
-  });
+export default function BookingPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Instead of local useState, we get the service from the URL
+  const serviceId = searchParams.get('service');
+  const selectedService = SERVICES.find(s => s.id === serviceId);
+
+  const handleSelect = (id) => {
+    // This adds the selection to the browser history
+    router.push(`?service=${id}`);
+  };
+
+  const handleBack = () => {
+    // This takes them back to the list
+    router.push('/booking');
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-[linear-gradient(180deg,rgba(146,106,185,0.05)_0%,rgba(238,239,242,1)_100%)] p-8">
-      <div className="mb-8 w-full max-w-6xl text-center">
+      
+      {/* Header */}
+      <div className="mb-12 w-full max-w-6xl text-center">
         <h1 className="mb-4 text-4xl font-extrabold text-[#926ab9]">
-          Book Your Session
+          {selectedService ? selectedService.title : "Book Your Session"}
         </h1>
         <p className="text-lg text-[#5d6169]">
-          Select a time that works for you.
+          {selectedService 
+            ? "Select a date and time that suits your schedule." 
+            : "Choose the service that best meets your needs to view availability."}
         </p>
       </div>
 
-      <div className="h-[700px] w-full max-w-6xl overflow-hidden rounded-xl border border-[#cfd6e2] bg-white shadow-[0_24px_60px_rgba(66,69,76,0.08)]">
-        <InlineWidget
-          url="https://calendly.com/d/cxs3-cd5-vc4"
-          pageSettings={{
-            primaryColor: "926ab9",
-            textColor: "42454c",
-            backgroundColor: "ffffff",
-          }}
-          styles={{ height: "100%" }}
-        />
+      <div className="w-full max-w-6xl">
+        {!selectedService ? (
+          /* Service Selection Grid */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {SERVICES.map((service) => (
+              <button
+                key={service.id}
+                onClick={() => handleSelect(service.id)}
+                className="group flex flex-col text-left rounded-2xl border border-[#cfd6e2] bg-white p-6 shadow-sm transition-all hover:border-[#926ab9] hover:shadow-xl active:scale-[0.98]"
+              >
+                <h3 className="mb-2 text-xl font-bold text-[#42454c] group-hover:text-[#926ab9]">
+                  {service.title}
+                </h3>
+                <p className="mb-6 flex-grow text-sm text-[#5d6169]">
+                  {service.description}
+                </p>
+                <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
+                  <div className="flex items-center text-sm font-medium text-[#42454c]">
+                    <Clock className="mr-1 h-4 w-4 text-[#926ab9]" />
+                    {service.duration}
+                  </div>
+                  <div className="flex items-center text-sm font-medium text-[#42454c]">
+                    <DollarSign className="mr-1 h-4 w-4 text-[#926ab9]" />
+                    {service.price}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        ) : (
+          /* Booking Widget View */
+          <div className="relative">
+            <button 
+              onClick={handleBack}
+              className="mb-4 flex items-center gap-2 text-sm font-medium text-[#926ab9] hover:underline"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back to all services
+            </button>
+            
+            <div className="h-[700px] w-full overflow-hidden rounded-xl border border-[#cfd6e2] bg-white shadow-2xl">
+              <InlineWidget
+                // Added parameters to hide the Calendly "Profile" links
+                url={`${selectedService.url}?hide_landing_page_details=1&hide_gdpr_banner=1`}
+                pageSettings={{
+                  primaryColor: "926ab9",
+                  textColor: "42454c",
+                  backgroundColor: "ffffff",
+                }}
+                styles={{ height: "100%" }}
+              />
+            </div>
+          </div>
+        )}
       </div>
-    <div className="mt-12 w-full max-w-6xl rounded-xl border border-red-100 bg-white/50 p-8 shadow-sm">
+
+      {/* Emergency Section */}
+      <div className="mt-12 w-full max-w-6xl rounded-xl border border-red-100 bg-white/50 p-8 shadow-sm">
         <h2 className="mb-4 text-2xl font-bold text-[#42454c]">
           Crisis and Emergency Support
         </h2>
@@ -73,5 +173,5 @@ export default function BookAppointmentClient() {
         </div>
       </div>
     </div>
-    );
+  );
 }
