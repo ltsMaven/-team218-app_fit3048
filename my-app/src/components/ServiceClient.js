@@ -92,7 +92,7 @@ export default function ServiceClient() {
   return (
     <div className="min-h-screen bg-transparent pb-24">
       <section className="px-6 pb-20 mt-5">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-4xl font-semibold leading-tight text-[#42454c] sm:text-5xl lg:text-6xl">
               Services
@@ -103,7 +103,7 @@ export default function ServiceClient() {
             </p>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="mt-16 flex flex-wrap justify-center gap-6">
             {services.map((service, index) => {
               const Icon = service.icon;
               const isFeatured = index === 1 || index === 3;
@@ -111,7 +111,7 @@ export default function ServiceClient() {
               return (
                 <article
                   key={service.title}
-                  className={`relative flex h-full flex-col rounded-[2rem] border p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${isFeatured
+                  className={`relative flex w-full md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333%-1rem)] xl:max-w-[24rem] flex-col rounded-[2rem] border p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${isFeatured
                     ? "border-[#926ab9]/30 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,239,248,0.94))]"
                     : "border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(238,239,242,0.82))]"
                     }`}

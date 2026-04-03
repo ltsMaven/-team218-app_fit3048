@@ -93,7 +93,6 @@ export default function EnquiryForm() {
   function validateForm() {
     const nextErrors = {
       f_name: getFieldError("f_name", formData.f_name),
-      l_name: getFieldError("l_name", formData.l_name),
       email: getFieldError("email", formData.email),
       message: getFieldError("message", formData.message),
       captcha: captchaToken
@@ -188,7 +187,7 @@ export default function EnquiryForm() {
           <div className="grid gap-6 md:grid-cols-2">
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-[#42454c]">
-                First name *
+                First name <span className="text-[#b94a48]">*</span>
               </span>
               <input
                 type="text"
@@ -227,7 +226,7 @@ export default function EnquiryForm() {
 
             <label className="block md:col-span-2">
               <span className="mb-2 block text-sm font-medium text-[#42454c]">
-                Email *
+                Email <span className="text-[#b94a48]">*</span>
               </span>
               <input
                 type="email"
@@ -247,7 +246,9 @@ export default function EnquiryForm() {
 
             <label className="block md:col-span-2">
               <span className="mb-2 flex items-center justify-between gap-3 text-sm font-medium text-[#42454c]">
-                <span>Message *</span>
+                <span>
+                  Message <span className="text-[#b94a48]">*</span>
+                </span>
                 <span
                   className={
                     messageWordCount >= MAX_MESSAGE_WORDS
@@ -303,7 +304,7 @@ export default function EnquiryForm() {
               }}
             />
             {fieldErrors.captcha ? (
-              <p className="mt-2 text-sm text-[#b94a48]">
+              <p className="mt-3 text-base font-medium text-[#b94a48]">
                 {fieldErrors.captcha}
               </p>
             ) : null}
@@ -320,7 +321,7 @@ export default function EnquiryForm() {
 
             {status.message ? (
               <p
-                className={`text-sm ${
+                className={`text-base font-medium sm:text-lg ${
                   status.type === "error" ? "text-[#b94a48]" : "text-[#4b8e9a]"
                 }`}
               >

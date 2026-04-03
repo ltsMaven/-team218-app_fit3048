@@ -42,7 +42,7 @@ export default function Footer() {
             <h3 className="text-xl font-semibold text-[#42454c]">Quick Links</h3>
             <nav className="flex flex-col gap-3 text-base text-[#5d6169]">
               <Link href="/about-me" className="transition hover:text-[#926ab9]">About Me</Link>
-              <Link href="/service" className="transition hover:text-[#6d7bbb]">Services</Link>
+              <Link href="/services" className="transition hover:text-[#6d7bbb]">Services</Link>
               <Link href="/enquiry" className="transition hover:text-[#4b8e9a]">Enquiry</Link>
               <Link href="/booking" className="transition hover:text-[#926ab9]">Book a Session</Link>
             </nav>
