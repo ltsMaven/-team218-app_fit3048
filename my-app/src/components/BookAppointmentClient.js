@@ -3,7 +3,7 @@
 import React from 'react';
 import { InlineWidget } from "react-calendly";
 import { ChevronLeft, Clock, DollarSign } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation'; // Added for routing
+import { useRouter, useSearchParams } from 'next/navigation'; 
 
 const SERVICES = [
   {
@@ -52,24 +52,20 @@ export default function BookingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Instead of local useState, we get the service from the URL
   const serviceId = searchParams.get('service');
   const selectedService = SERVICES.find(s => s.id === serviceId);
 
   const handleSelect = (id) => {
-    // This adds the selection to the browser history
     router.push(`?service=${id}`);
   };
 
   const handleBack = () => {
-    // This takes them back to the list
     router.push('/booking');
   };
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-[linear-gradient(180deg,rgba(146,106,185,0.05)_0%,rgba(238,239,242,1)_100%)] p-8">
       
-      {/* Header */}
       <div className="mb-12 w-full max-w-6xl text-center">
         <h1 className="mb-4 text-4xl font-extrabold text-[#926ab9]">
           {selectedService ? selectedService.title : "Book Your Session"}
@@ -83,7 +79,6 @@ export default function BookingPage() {
 
       <div className="w-full max-w-6xl">
         {!selectedService ? (
-          /* Service Selection Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {SERVICES.map((service) => (
               <button
@@ -111,7 +106,7 @@ export default function BookingPage() {
             ))}
           </div>
         ) : (
-          /* Booking Widget View */
+   
           <div className="relative">
             <button 
               onClick={handleBack}
@@ -123,7 +118,7 @@ export default function BookingPage() {
             
             <div className="h-[700px] w-full overflow-hidden rounded-xl border border-[#cfd6e2] bg-white shadow-2xl">
               <InlineWidget
-                // Added parameters to hide the Calendly "Profile" links
+      
                 url={`${selectedService.url}?hide_landing_page_details=1&hide_gdpr_banner=1`}
                 pageSettings={{
                   primaryColor: "926ab9",
@@ -137,7 +132,7 @@ export default function BookingPage() {
         )}
       </div>
 
-      {/* Emergency Section */}
+   
       <div className="mt-12 w-full max-w-6xl rounded-xl border border-red-100 bg-white/50 p-8 shadow-sm">
         <h2 className="mb-4 text-2xl font-bold text-[#42454c]">
           Crisis and Emergency Support

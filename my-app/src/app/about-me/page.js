@@ -5,7 +5,7 @@ export const metadata = {
   description: "Learn about the lived experience and professional approach behind Ability to Thrive Counselling and Life Coaching.",
 };
 
-export default function AboutPage() {
+export default function AboutMeClient() {
   return (
     <div className="min-h-screen bg-[#f8f8f6]">
       <AboutMeClient />
