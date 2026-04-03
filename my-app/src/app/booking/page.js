@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import BookAppointmentClient from "../../components/BookAppointmentClient";
 
 const siteUrl =
@@ -10,16 +11,20 @@ export const metadata = {
   description:
     "Schedule an online counselling session with Ability to Thrive using the integrated booking calendar.",
   alternates: {
-    canonical: `${siteUrl}/book`,
+    canonical: `${siteUrl}/booking`,
   },
   openGraph: {
     title: "Book a Session | Ability to Thrive",
     description:
       "Schedule an online counselling session with Ability to Thrive using the integrated booking calendar.",
-    url: `${siteUrl}/book`,
+    url: `${siteUrl}/booking`,
   },
 };
 
 export default function BookAppointmentPage() {
-  return <BookAppointmentClient />;
+  return (
+    <Suspense fallback={<div>Loading booking page...</div>}>
+      <BookAppointmentClient />
+    </Suspense>
+  );
 }
