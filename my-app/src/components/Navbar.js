@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useUser } from "@auth0/nextjs-auth0/client";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -10,7 +11,8 @@ const navItems = [
   { href: "/enquiry", label: "Enquiry" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ authEnabled = false }) {
+  const { user, isLoading } = useUser();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -83,6 +85,29 @@ export default function Navbar() {
               >
                 Book a Session
               </Link>
+              {!authEnabled || isLoading ? null : user ? (
+                <>
+                  <Link
+                    href="/admin"
+                    className="rounded-full border border-[#d8dfeb] bg-white/70 px-5 py-2.5 text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                  >
+                    Admin
+                  </Link>
+                  <a
+                    href="/auth/logout"
+                    className="rounded-full border border-[#d8dfeb] bg-white/70 px-5 py-2.5 text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                  >
+                    Logout
+                  </a>
+                </>
+              ) : (
+                <a
+                  href="/auth/login?returnTo=/admin"
+                  className="rounded-full border border-[#d8dfeb] bg-white/70 px-5 py-2.5 text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                >
+                  Login
+                </a>
+              )}
             </div>
 
             <button
@@ -137,6 +162,32 @@ export default function Navbar() {
                 >
                   Book a Session
                 </Link>
+                {!authEnabled || isLoading ? null : user ? (
+                  <>
+                    <Link
+                      href="/admin"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="rounded-full border border-[#d8dfeb] bg-white/70 px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                    >
+                      Admin
+                    </Link>
+                    <a
+                      href="/auth/logout"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="rounded-full border border-[#d8dfeb] bg-white/70 px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                    >
+                      Logout
+                    </a>
+                  </>
+                ) : (
+                  <a
+                    href="/auth/login?returnTo=/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="rounded-full border border-[#d8dfeb] bg-white/70 px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                  >
+                    Login
+                  </a>
+                )}
               </div>
             </div>
           </div>
