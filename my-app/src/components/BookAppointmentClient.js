@@ -23,6 +23,14 @@ const SERVICES = [
     description: 'Support for partners to navigate challenges and strengthen connection.'
   },
   {
+    id: 'general',
+    title: 'General Counselling',
+    price: '85.00',
+    duration: '60 mins',
+    url: 'https://calendly.com/samsthrive2026/general-counselling',
+    description: 'Compassionate support for a broad range of life challenges and emotional wellbeing.'
+  },
+  {
     id: 'supervision',
     title: 'Clinical Supervision',
     price: '82.50',
