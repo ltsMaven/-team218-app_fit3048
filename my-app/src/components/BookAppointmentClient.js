@@ -1,9 +1,9 @@
 "use client";
 
-import React from 'react';
-import { InlineWidget } from "react-calendly";
-import { ChevronLeft, Clock, DollarSign } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation'; 
+import React, { useRef, useState } from "react";
+import { InlineWidget, useCalendlyEventListener } from "react-calendly";
+import { ChevronLeft, Clock, DollarSign } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const SERVICES = [
   {
@@ -51,17 +51,80 @@ const SERVICES = [
 export default function BookingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const syncedInviteesRef = useRef(new Set());
+  const [syncStatus, setSyncStatus] = useState({
+    type: "idle",
+    message: "",
+  });
 
-  const serviceId = searchParams.get('service');
-  const selectedService = SERVICES.find(s => s.id === serviceId);
+  const serviceId = searchParams.get("service");
+  const selectedService = SERVICES.find((s) => s.id === serviceId);
 
   const handleSelect = (id) => {
     router.push(`?service=${id}`);
   };
 
   const handleBack = () => {
-    router.push('/booking');
+    setSyncStatus({ type: "idle", message: "" });
+    router.push("/booking");
   };
+
+  useCalendlyEventListener({
+    onEventScheduled: async (event) => {
+      const eventUri = event.data?.payload?.event?.uri;
+      const inviteeUri = event.data?.payload?.invitee?.uri;
+
+      if (!eventUri || !inviteeUri) {
+        setSyncStatus({
+          type: "error",
+          message: "Booking was created, but the database sync payload was incomplete.",
+        });
+        return;
+      }
+
+      if (syncedInviteesRef.current.has(inviteeUri)) {
+        return;
+      }
+
+      syncedInviteesRef.current.add(inviteeUri);
+      setSyncStatus({
+        type: "loading",
+        message: "Saving your booking details...",
+      });
+
+      try {
+        const response = await fetch("/api/calendly-to-supabase", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            eventUri,
+            inviteeUri,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || "Unable to sync booking to the database.");
+        }
+
+        setSyncStatus({
+          type: "success",
+          message: result.duplicate
+            ? "Booking already exists in the database."
+            : "Booking saved successfully.",
+        });
+      } catch (error) {
+        syncedInviteesRef.current.delete(inviteeUri);
+        setSyncStatus({
+          type: "error",
+          message: error.message || "Booking completed, but database sync failed.",
+        });
+      }
+    },
+  });
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-[linear-gradient(180deg,rgba(146,106,185,0.05)_0%,rgba(238,239,242,1)_100%)] p-8">
@@ -128,6 +191,20 @@ export default function BookingPage() {
                 styles={{ height: "100%" }}
               />
             </div>
+
+            {syncStatus.type !== "idle" ? (
+              <div
+                className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
+                  syncStatus.type === "success"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                    : syncStatus.type === "error"
+                      ? "border-red-200 bg-red-50 text-red-700"
+                      : "border-[#d8dfeb] bg-white text-[#42454c]"
+                }`}
+              >
+                {syncStatus.message}
+              </div>
+            ) : null}
           </div>
         )}
       </div>
