@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { auth0, hasAuth0Config } from "@/lib/auth0";
-import { isAdminUser } from "@/lib/admin";
+import { hasAuth0Config } from "@/lib/auth0";
+import { requireAdminSession } from "@/lib/admin-access";
 import { getCalendlyReport } from "@/lib/calendly";
 
 export const metadata = {
@@ -23,7 +22,7 @@ function formatDateTime(value) {
 }
 
 export default async function AdminPage() {
-  if (!hasAuth0Config || !auth0) {
+  if (!hasAuth0Config) {
     return (
       <section className="min-h-screen bg-[#f8f8f6] px-6 py-20">
         <div className="mx-auto max-w-3xl rounded-[2rem] border border-[#d8dfeb] bg-white/90 p-10 shadow-[0_24px_60px_rgba(66,69,76,0.08)] backdrop-blur">
@@ -42,15 +41,7 @@ export default async function AdminPage() {
     );
   }
 
-  const session = await auth0.getSession();
-
-  if (!session) {
-    redirect("/auth/login?returnTo=/admin");
-  }
-
-  if (!isAdminUser(session.user)) {
-    redirect("/");
-  }
+  const session = await requireAdminSession("/admin");
 
   let report = null;
   let reportError = "";
