@@ -1,5 +1,17 @@
 import Link from "next/link";
-import {ArrowRight, ShieldCheck, Sparkles, GraduationCap, HeartHandshake, Check, Heart, HandHeart, Users, Briefcase, Rainbow} from "lucide-react";
+import {
+  ArrowRight,
+  ShieldCheck,
+  Sparkles,
+  GraduationCap,
+  HeartHandshake,
+  Check,
+  Heart,
+  HandHeart,
+  Users,
+  Briefcase,
+  Rainbow,
+} from "lucide-react";
 
 const services = [
   {
@@ -37,7 +49,7 @@ const services = [
   {
     title: "General Counselling",
     label: "Emotional Wellbeing",
-    price: "$80",
+    price: "$85",
     priceDetail: "per 60 min session",
     description:
       "Compassionate counselling support for a wide range of life experiences, including trauma, grief, domestic and family violence, stress, and emotional overwhelm. The focus is on creating a safe and grounded space where you feel heard, supported, and empowered.",
@@ -111,10 +123,11 @@ export default function ServiceClient() {
               return (
                 <article
                   key={service.title}
-                  className={`relative flex w-full md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333%-1rem)] xl:max-w-[24rem] flex-col rounded-[2rem] border p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${isFeatured
-                    ? "border-[#926ab9]/30 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,239,248,0.94))]"
-                    : "border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(238,239,242,0.82))]"
-                    }`}
+                  className={`relative flex w-full md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333%-1rem)] xl:max-w-[24rem] flex-col rounded-[2rem] border p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${
+                    isFeatured
+                      ? "border-[#926ab9]/30 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,239,248,0.94))]"
+                      : "border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(238,239,242,0.82))]"
+                  }`}
                 >
                   {isFeatured ? (
                     <span className="absolute right-6 top-6 rounded-full bg-[#926ab9] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">
