@@ -65,6 +65,72 @@ function addDays(date, days) {
   return next;
 }
 
+function getDateInputValue(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function parseDateInput(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) {
+    return null;
+  }
+
+  const [year, monthIndex, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, monthIndex - 1, day, 0, 0, 0));
+
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== monthIndex - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
+function formatReportDate(date) {
+  return new Intl.DateTimeFormat("en-AU", {
+    dateStyle: "medium",
+    timeZone: "UTC",
+  }).format(date);
+}
+
+function getDefaultReportPeriod() {
+  const now = new Date();
+  const start = addDays(now, -29);
+
+  return {
+    start,
+    end: now,
+    label: "Last 30 days",
+    selectedStartDate: getDateInputValue(start),
+    selectedEndDate: getDateInputValue(now),
+  };
+}
+
+function getRangeReportPeriod({ startDate, endDate } = {}) {
+  const start = parseDateInput(startDate);
+  const selectedEnd = parseDateInput(endDate);
+
+  if (!start || !selectedEnd || start > selectedEnd) {
+    return getDefaultReportPeriod();
+  }
+
+  const end = addDays(selectedEnd, 1);
+
+  return {
+    start,
+    end,
+    label: `${formatReportDate(start)} to ${formatReportDate(selectedEnd)}`,
+    selectedStartDate: startDate,
+    selectedEndDate: endDate,
+  };
+}
+
 function getEventName(event) {
   return event.name || event.event_type_name || "Unnamed event";
 }
@@ -136,9 +202,8 @@ async function fetchScopedScheduledEvents({ scopeKey, scopeValue, start, end }) 
   return [...activeEvents, ...canceledEvents];
 }
 
-async function fetchReportEvents(user) {
+async function fetchReportEvents(user, period) {
   const now = new Date();
-  const pastThirtyDays = addDays(now, -29);
   const nextThirtyDays = addDays(now, 30);
 
   try {
@@ -146,8 +211,8 @@ async function fetchReportEvents(user) {
       history: await fetchScopedScheduledEvents({
         scopeKey: "organization",
         scopeValue: user.current_organization,
-        start: pastThirtyDays,
-        end: now,
+        start: period.start,
+        end: period.end,
       }),
       upcoming: await fetchScopedScheduledEvents({
         scopeKey: "organization",
@@ -162,8 +227,8 @@ async function fetchReportEvents(user) {
       history: await fetchScopedScheduledEvents({
         scopeKey: "user",
         scopeValue: user.uri,
-        start: pastThirtyDays,
-        end: now,
+        start: period.start,
+        end: period.end,
       }),
       upcoming: await fetchScopedScheduledEvents({
         scopeKey: "user",
@@ -176,11 +241,12 @@ async function fetchReportEvents(user) {
   }
 }
 
-export async function getCalendlyReport() {
+export async function getCalendlyReport({ startDate, endDate } = {}) {
   const mePayload = await calendlyFetch("/users/me");
   const user = mePayload.resource;
   const now = new Date();
-  const { history, upcoming, scope } = await fetchReportEvents(user);
+  const period = getRangeReportPeriod({ startDate, endDate });
+  const { history, upcoming, scope } = await fetchReportEvents(user, period);
   const recentHistory = await enrichRecentHistory(
     [...history]
       .sort(
@@ -226,6 +292,7 @@ export async function getCalendlyReport() {
     userUri: user.uri,
     organizationUri: user.current_organization,
     scope,
+    period,
     summary: {
       createdEvents,
       completedEvents: completedEvents.length,

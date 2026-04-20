@@ -3,6 +3,7 @@ import { hasAuth0Config } from "@/lib/auth0";
 import { requireAdminSession } from "@/lib/admin-access";
 import { getCalendlyReport } from "@/lib/calendly";
 import AdminRecentEvents from "@/components/AdminRecentEvents";
+import PopularServicesChart from "@/components/PopularServicesChart";
 
 export const metadata = {
   title: "Admin Dashboard",
@@ -22,13 +23,13 @@ function formatDateTime(value) {
   }).format(new Date(value));
 }
 
-function getPopularEventColor(index) {
-  const colors = ["#926ab9", "#6d7bbb", "#6d7bbb", "#4b8e9a", "#4b8e9a"];
+function getSearchParamValue(searchParams, key) {
+  const value = searchParams?.[key];
 
-  return colors[index % colors.length];
+  return Array.isArray(value) ? value[0] : value || "";
 }
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }) {
   if (!hasAuth0Config) {
     return (
       <section className="min-h-screen bg-[#f8f8f6] px-6 py-20">
@@ -49,12 +50,21 @@ export default async function AdminPage() {
   }
 
   const session = await requireAdminSession("/admin");
+  const resolvedSearchParams = await searchParams;
+  const selectedStartDate = getSearchParamValue(
+    resolvedSearchParams,
+    "startDate"
+  );
+  const selectedEndDate = getSearchParamValue(resolvedSearchParams, "endDate");
 
   let report = null;
   let reportError = "";
 
   try {
-    report = await getCalendlyReport();
+    report = await getCalendlyReport({
+      startDate: selectedStartDate,
+      endDate: selectedEndDate,
+    });
   } catch (error) {
     reportError =
       error instanceof Error
@@ -63,10 +73,7 @@ export default async function AdminPage() {
   }
 
   const nextEvent = report?.upcomingEvents?.[0] || null;
-  const maxPopularEventCount = Math.max(
-    ...((report?.popularEvents || []).map((item) => item.count) || []),
-    1
-  );
+  const popularEvents = report?.popularEvents || [];
 
   return (
     <section className="rounded-[2rem] border border-[#d8dfeb] bg-white/90 p-8 shadow-[0_24px_60px_rgba(66,69,76,0.08)] backdrop-blur sm:p-10">
@@ -90,7 +97,7 @@ export default async function AdminPage() {
               {report?.summary?.createdEvents ?? 0}
             </p>
             <p className="mt-2 text-sm leading-7 text-[#5d6169]">
-              Scheduled events with start times in the last 30 days.
+              Scheduled events in {report?.period?.label || "the selected period"}.
             </p>
           </div>
 
@@ -114,7 +121,7 @@ export default async function AdminPage() {
               {report?.summary?.canceledEvents ?? 0}
             </p>
             <p className="mt-2 text-sm leading-7 text-[#5d6169]">
-              Canceled events with start times in the last 30 days.
+              Canceled events in {report?.period?.label || "the selected period"}.
             </p>
           </div>
         </div>
@@ -158,44 +165,69 @@ export default async function AdminPage() {
               </div>
 
               <div className="mt-8 rounded-3xl border border-[#d8dfeb] bg-white/80 p-6">
-                <h3 className="text-2xl font-semibold text-[#42454c]">
-                  Popular Services
-                </h3>
-                <p className="mt-2 text-sm text-[#5d6169]">
-                  Booking volume by service type.
-                </p>
-                <div className="mt-8 space-y-6">
-                  {report.popularEvents.length ? (
-                    report.popularEvents.map((item, index) => (
-                      <div key={item.name}>
-                        <div className="mb-2 flex items-center justify-between gap-4">
-                          <p className="text-lg font-medium text-[#42454c]">
-                            {item.name}
-                          </p>
-                          <span className="text-lg font-medium text-[#42454c]">
-                            {item.count}
-                          </span>
-                        </div>
-                        <div className="h-3 overflow-hidden rounded-full bg-[#edf0f7]">
-                          <div
-                            className="h-full rounded-full"
-                            style={{
-                              backgroundColor: getPopularEventColor(index),
-                              width: `${Math.max(
-                                (item.count / maxPopularEventCount) * 100,
-                                12
-                              )}%`,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-[#5d6169]">
-                      No event history was returned for the last 30 days.
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-2xl font-semibold text-[#42454c]">
+                      Popular Services
+                    </h3>
+                    <p className="mt-2 text-sm text-[#5d6169]">
+                      Booking volume by service type for{" "}
+                      {report.period.label.toLowerCase()}.
                     </p>
-                  )}
+                  </div>
+                  <form
+                    action="/admin"
+                    className="grid w-full gap-3 rounded-3xl border border-[#d8dfeb] bg-[#f8f8fb] p-4 sm:grid-cols-2 lg:w-auto lg:grid-cols-[10rem_10rem_auto]"
+                  >
+                    <label className="block">
+                      <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.16em] text-[#6d7bbb]">
+                        Start Date
+                      </span>
+                      <input
+                        id="popular-services-start-date"
+                        type="date"
+                        name="startDate"
+                        defaultValue={report.period.selectedStartDate}
+                        className="w-full rounded-full border border-[#d8dfeb] bg-white px-4 py-2 text-sm font-medium text-[#42454c] outline-none transition focus:border-[#926ab9]"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.16em] text-[#6d7bbb]">
+                        End Date
+                      </span>
+                      <input
+                        id="popular-services-end-date"
+                        type="date"
+                        name="endDate"
+                        defaultValue={report.period.selectedEndDate}
+                        className="w-full rounded-full border border-[#d8dfeb] bg-white px-4 py-2 text-sm font-medium text-[#42454c] outline-none transition focus:border-[#926ab9]"
+                      />
+                    </label>
+                    <div className="flex items-end gap-2">
+                      <button
+                        type="submit"
+                        className="rounded-full bg-[#926ab9] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
+                      >
+                        Apply
+                      </button>
+                      <Link
+                        href="/admin"
+                        className="rounded-full border border-[#d8dfeb] bg-white px-5 py-2 text-sm font-medium text-[#42454c] transition hover:bg-[#f4f6fa]"
+                      >
+                        Reset
+                      </Link>
+                    </div>
+                  </form>
                 </div>
+
+                {popularEvents.length ? (
+                  <PopularServicesChart events={popularEvents} />
+                ) : (
+                  <p className="mt-8 text-sm text-[#5d6169]">
+                    No service bookings were returned for{" "}
+                    {report.period.label.toLowerCase()}.
+                  </p>
+                )}
               </div>
 
               <div className="mt-6 rounded-3xl border border-[#d8dfeb] bg-white/80 p-6">
@@ -203,7 +235,9 @@ export default async function AdminPage() {
                   <h3 className="text-xl font-semibold text-[#42454c]">
                     Recent Event History
                   </h3>
-                  <p className="text-sm text-[#5d6169]">Last 30 days</p>
+                  <p className="text-sm text-[#5d6169]">
+                    {report.period.label}
+                  </p>
                 </div>
                 <div className="mt-5">
                   <AdminRecentEvents events={report.recentHistory} />

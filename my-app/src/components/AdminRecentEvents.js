@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+const RECENT_EVENTS_PAGE_SIZE = 5;
+
 function formatDateTime(value) {
   if (!value) {
     return "Unavailable";
@@ -107,6 +109,7 @@ function DetailItem({ label, value, isLink = false }) {
 
 export default function AdminRecentEvents({ events }) {
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (!selectedEvent) {
@@ -143,11 +146,18 @@ export default function AdminRecentEvents({ events }) {
     selectedEvent &&
     typeof locationLabel === "string" &&
     /^https?:\/\//.test(locationLabel);
+  const totalPages = Math.ceil(events.length / RECENT_EVENTS_PAGE_SIZE);
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const pageStart = (safeCurrentPage - 1) * RECENT_EVENTS_PAGE_SIZE;
+  const pageEvents = events.slice(
+    pageStart,
+    pageStart + RECENT_EVENTS_PAGE_SIZE,
+  );
 
   return (
     <>
       <div className="space-y-3">
-        {events.map((event) => (
+        {pageEvents.map((event) => (
           <button
             key={event.uri}
             type="button"
@@ -173,6 +183,38 @@ export default function AdminRecentEvents({ events }) {
           </button>
         ))}
       </div>
+
+      {totalPages > 1 ? (
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#d8dfeb] pt-4">
+          <p className="text-sm text-[#5d6169]">
+            Showing {pageStart + 1}-{Math.min(pageStart + pageEvents.length, events.length)} of{" "}
+            {events.length} events
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCurrentPage(Math.max(safeCurrentPage - 1, 1))}
+              disabled={safeCurrentPage === 1}
+              className="rounded-full border border-[#d8dfeb] px-4 py-2 text-sm font-medium text-[#42454c] transition hover:bg-[#f4f6fa] disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              Previous
+            </button>
+            <span className="text-sm font-semibold text-[#6d7bbb]">
+              Page {safeCurrentPage} of {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentPage(Math.min(safeCurrentPage + 1, totalPages))
+              }
+              disabled={safeCurrentPage === totalPages}
+              className="rounded-full border border-[#d8dfeb] px-4 py-2 text-sm font-medium text-[#42454c] transition hover:bg-[#f4f6fa] disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {typeof document !== "undefined" && selectedEvent
         ? createPortal(
