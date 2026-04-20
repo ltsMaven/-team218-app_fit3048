@@ -7,53 +7,49 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const SERVICES = [
   {
-    id: 'individual',
-    title: 'Individual Counselling',
-    price: '85.00',
-    duration: '60 mins',
-    url: 'https://calendly.com/samsthrive2026/individual-counselling',
-    description: 'One-on-one support tailored to your personal journey.'
+    id: "individual",
+    title: "Individual Counselling",
+    price: "85.00",
+    duration: "60 mins",
+    url: "https://calendly.com/samsthrive2026/individual-counselling",
+    description: "One-on-one support tailored to your personal journey.",
   },
   {
-    id: 'couples',
-    title: 'Couples Counselling',
-    price: '150.00',
-    duration: '60 mins',
-    url: 'https://calendly.com/samsthrive2026/couples-counselling',
-    description: 'Support for partners to navigate challenges and strengthen connection.'
+    id: "couples",
+    title: "Couples Counselling",
+    price: "150.00",
+    duration: "60 mins",
+    url: "https://calendly.com/samsthrive2026/couples-counselling",
+    description:
+      "Support for partners to navigate challenges and strengthen connection.",
+  },
+
+  {
+    id: "supervision",
+    title: "Clinical Supervision",
+    price: "82.50",
+    duration: "60 mins",
+    url: "https://calendly.com/samsthrive2026/clinical-supervision",
+    description: "Professional supervision for practitioners and students.",
   },
   {
-    id: 'general',
-    title: 'General Counselling',
-    price: '85.00',
-    duration: '60 mins',
-    url: 'https://calendly.com/samsthrive2026/general-counselling',
-    description: 'Compassionate support for a broad range of life challenges and emotional wellbeing.'
+    id: "recovery",
+    title: "Psychosocial Recovery Coaching",
+    price: "99.00",
+    duration: "60 mins",
+    url: "https://calendly.com/samsthrive2026/psychosocial-recovery-coaching",
+    description:
+      "Collaborative coaching for NDIS participants focused on recovery.",
   },
   {
-    id: 'supervision',
-    title: 'Clinical Supervision',
-    price: '82.50',
-    duration: '60 mins',
-    url: 'https://calendly.com/samsthrive2026/clinical-supervision',
-    description: 'Professional supervision for practitioners and students.'
+    id: "discovery",
+    title: "Free Discovery Call",
+    price: "Free",
+    duration: "15 mins",
+    url: "https://calendly.com/samsthrive2026/free-discovery-call",
+    description:
+      "A brief chat to see if our services are the right fit for you.",
   },
-  {
-    id: 'recovery',
-    title: 'Psychosocial Recovery Coaching',
-    price: '99.00',
-    duration: '60 mins',
-    url: 'https://calendly.com/samsthrive2026/psychosocial-recovery-coaching',
-    description: 'Collaborative coaching for NDIS participants focused on recovery.'
-  },
-  {
-    id: 'discovery',
-    title: 'Free Discovery Call',
-    price: 'Free',
-    duration: '15 mins',
-    url: 'https://calendly.com/samsthrive2026/free-discovery-call',
-    description: 'A brief chat to see if our services are the right fit for you.'
-  }
 ];
 
 export default function BookingPage() {
@@ -85,7 +81,8 @@ export default function BookingPage() {
       if (!eventUri || !inviteeUri) {
         setSyncStatus({
           type: "error",
-          message: "Booking was created, but the database sync payload was incomplete.",
+          message:
+            "Booking was created, but the database sync payload was incomplete.",
         });
         return;
       }
@@ -115,7 +112,9 @@ export default function BookingPage() {
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result.error || "Unable to sync booking to the database.");
+          throw new Error(
+            result.error || "Unable to sync booking to the database.",
+          );
         }
 
         setSyncStatus({
@@ -128,7 +127,8 @@ export default function BookingPage() {
         syncedInviteesRef.current.delete(inviteeUri);
         setSyncStatus({
           type: "error",
-          message: error.message || "Booking completed, but database sync failed.",
+          message:
+            error.message || "Booking completed, but database sync failed.",
         });
       }
     },
@@ -136,14 +136,13 @@ export default function BookingPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-[linear-gradient(180deg,rgba(146,106,185,0.05)_0%,rgba(238,239,242,1)_100%)] p-8">
-      
       <div className="mb-12 w-full max-w-6xl text-center">
         <h1 className="mb-4 text-4xl font-extrabold text-[#926ab9]">
           {selectedService ? selectedService.title : "Book Your Session"}
         </h1>
         <p className="text-lg text-[#5d6169]">
-          {selectedService 
-            ? "Select a date and time that suits your schedule." 
+          {selectedService
+            ? "Select a date and time that suits your schedule."
             : "Choose the service that best meets your needs to view availability."}
         </p>
       </div>
@@ -177,19 +176,17 @@ export default function BookingPage() {
             ))}
           </div>
         ) : (
-   
           <div className="relative">
-            <button 
+            <button
               onClick={handleBack}
               className="mb-4 flex items-center gap-2 text-sm font-medium text-[#926ab9] hover:underline"
             >
               <ChevronLeft className="h-4 w-4" />
               Back to all services
             </button>
-            
+
             <div className="h-[700px] w-full overflow-hidden rounded-xl border border-[#cfd6e2] bg-white shadow-2xl">
               <InlineWidget
-      
                 url={`${selectedService.url}?hide_landing_page_details=1&hide_gdpr_banner=1`}
                 pageSettings={{
                   primaryColor: "926ab9",
@@ -217,20 +214,25 @@ export default function BookingPage() {
         )}
       </div>
 
-   
       <div className="mt-12 w-full max-w-6xl rounded-xl border border-red-100 bg-white/50 p-8 shadow-sm">
         <h2 className="mb-4 text-2xl font-bold text-[#42454c]">
           Crisis and Emergency Support
         </h2>
         <p className="mb-6 text-[#5d6169] leading-relaxed">
-          Please be aware that <strong>Ability To Thrive</strong> is not an emergency or crisis service. 
-          In the event of a mental health-related emergency, please contact your Family Doctor/GP or one of the following services immediately:
+          Please be aware that <strong>Ability To Thrive</strong> is not an
+          emergency or crisis service. In the event of a mental health-related
+          emergency, please contact your Family Doctor/GP or one of the
+          following services immediately:
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
           <div className="flex flex-col border-l-4 border-red-500 pl-4 py-1">
-            <span className="font-bold text-red-600">Emergencies (Police/Ambulance)</span>
-            <a href="tel:000" className="text-lg font-semibold hover:underline">000</a>
+            <span className="font-bold text-red-600">
+              Emergencies (Police/Ambulance)
+            </span>
+            <a href="tel:000" className="text-lg font-semibold hover:underline">
+              000
+            </a>
           </div>
 
           {[
@@ -243,9 +245,15 @@ export default function BookingPage() {
             { name: "Sexual Assault Crisis Line", num: "1800 806 292" },
             { name: "Sane Australia", num: "1800 18 7263" },
           ].map((service) => (
-            <div key={service.name} className="flex flex-col border-l-4 border-[#926ab9] pl-4 py-1 bg-white/30">
+            <div
+              key={service.name}
+              className="flex flex-col border-l-4 border-[#926ab9] pl-4 py-1 bg-white/30"
+            >
               <span className="font-medium text-[#42454c]">{service.name}</span>
-              <a href={`tel:${service.num.replace(/\s/g, '')}`} className="text-[#926ab9] font-bold hover:underline">
+              <a
+                href={`tel:${service.num.replace(/\s/g, "")}`}
+                className="text-[#926ab9] font-bold hover:underline"
+              >
                 {service.num}
               </a>
             </div>

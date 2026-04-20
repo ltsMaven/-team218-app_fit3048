@@ -328,12 +328,6 @@ export default function Home() {
                 key={index}
                 className={`${testimonial.bgClass} rounded-2xl border border-white/60 p-10 shadow-sm backdrop-blur-sm`}
               >
-                <div className="mb-6 flex text-[#926ab9]">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i}>★</span>
-                  ))}
-                </div>
-
                 {testimonial.quote.length > TESTIMONIAL_PREVIEW_LENGTH ? (
                   <details className="group">
                     <summary className="list-none cursor-pointer [&::-webkit-details-marker]:hidden">

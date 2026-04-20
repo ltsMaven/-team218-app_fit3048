@@ -2,6 +2,7 @@ import Link from "next/link";
 import { hasAuth0Config } from "@/lib/auth0";
 import { requireAdminSession } from "@/lib/admin-access";
 import { getCalendlyReport } from "@/lib/calendly";
+import AdminRecentEvents from "@/components/AdminRecentEvents";
 
 export const metadata = {
   title: "Admin Dashboard",
@@ -19,6 +20,12 @@ function formatDateTime(value) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function getPopularEventColor(index) {
+  const colors = ["#926ab9", "#6d7bbb", "#6d7bbb", "#4b8e9a", "#4b8e9a"];
+
+  return colors[index % colors.length];
 }
 
 export default async function AdminPage() {
@@ -56,6 +63,10 @@ export default async function AdminPage() {
   }
 
   const nextEvent = report?.upcomingEvents?.[0] || null;
+  const maxPopularEventCount = Math.max(
+    ...((report?.popularEvents || []).map((item) => item.count) || []),
+    1
+  );
 
   return (
     <section className="rounded-[2rem] border border-[#d8dfeb] bg-white/90 p-8 shadow-[0_24px_60px_rgba(66,69,76,0.08)] backdrop-blur sm:p-10">
@@ -96,7 +107,9 @@ export default async function AdminPage() {
           </div>
 
           <div className="rounded-3xl border border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(238,239,242,0.82))] p-6">
-            <h2 className="text-xl font-semibold text-[#42454c]">Canceled Events</h2>
+            <h2 className="text-xl font-semibold text-[#42454c]">
+              Canceled Events
+            </h2>
             <p className="mt-3 text-4xl font-semibold tracking-tight text-[#926ab9]">
               {report?.summary?.canceledEvents ?? 0}
             </p>
@@ -112,19 +125,10 @@ export default async function AdminPage() {
               <h2 className="text-2xl font-semibold text-[#42454c]">
                 Live Calendly Report
               </h2>
-              <p className="mt-2 text-sm leading-7 text-[#5d6169]">
-                Live server-side data from your Calendly API token. This report
-                uses the last 30 days of scheduled-event history plus the next
-                30 days of upcoming bookings.
-              </p>
             </div>
             {report ? (
               <div className="text-right text-sm text-[#5d6169]">
                 <p>Last fetched: {formatDateTime(report.generatedAt)}</p>
-                <p>
-                  Account: {report.ownerName || report.ownerSlug || "Calendly"}
-                </p>
-                <p>Scope: {report.scope}</p>
               </div>
             ) : null}
           </div>
@@ -137,7 +141,7 @@ export default async function AdminPage() {
 
           {report ? (
             <>
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <div className="mt-6">
                 <div className="rounded-2xl border border-[#d8dfeb] bg-white/80 p-5">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6d7bbb]">
                     Next Booking
@@ -151,99 +155,46 @@ export default async function AdminPage() {
                       : "No active event returned in the next 30 days."}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-[#d8dfeb] bg-white/80 p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6d7bbb]">
-                    Scheduling Link
-                  </p>
-                  <a
-                    href={report.schedulingUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-3 block break-all text-sm font-medium text-[#926ab9] hover:underline"
-                  >
-                    {report.schedulingUrl}
-                  </a>
-                </div>
-                <div className="rounded-2xl border border-[#d8dfeb] bg-white/80 p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6d7bbb]">
-                    Access Scope
-                  </p>
-                  <p className="mt-3 text-sm text-[#5d6169]">
-                    {report.scope === "organization"
-                      ? "Organization-wide scheduled events"
-                      : "User-level scheduled events"}
-                  </p>
-                </div>
               </div>
 
-              <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-                <div className="rounded-3xl border border-[#d8dfeb] bg-white/80 p-6">
-                  <h3 className="text-xl font-semibold text-[#42454c]">
-                    Popular Events
-                  </h3>
-                  <div className="mt-5 space-y-3">
-                    {report.popularEvents.length ? (
-                      report.popularEvents.map((item) => (
-                        <div
-                          key={item.name}
-                          className="flex items-center justify-between rounded-2xl border border-[#d8dfeb] px-4 py-3"
-                        >
-                          <span className="text-sm font-medium text-[#42454c]">
+              <div className="mt-8 rounded-3xl border border-[#d8dfeb] bg-white/80 p-6">
+                <h3 className="text-2xl font-semibold text-[#42454c]">
+                  Popular Services
+                </h3>
+                <p className="mt-2 text-sm text-[#5d6169]">
+                  Booking volume by service type.
+                </p>
+                <div className="mt-8 space-y-6">
+                  {report.popularEvents.length ? (
+                    report.popularEvents.map((item, index) => (
+                      <div key={item.name}>
+                        <div className="mb-2 flex items-center justify-between gap-4">
+                          <p className="text-lg font-medium text-[#42454c]">
                             {item.name}
-                          </span>
-                          <span className="rounded-full bg-[#f4eff8] px-3 py-1 text-sm font-semibold text-[#926ab9]">
+                          </p>
+                          <span className="text-lg font-medium text-[#42454c]">
                             {item.count}
                           </span>
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-[#5d6169]">
-                        No event history was returned for the last 30 days.
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="rounded-3xl border border-[#d8dfeb] bg-white/80 p-6">
-                  <h3 className="text-xl font-semibold text-[#42454c]">
-                    Distribution by Duration
-                  </h3>
-                  <div className="mt-5 space-y-3">
-                    {report.durationBreakdown.length ? (
-                      report.durationBreakdown.map((item) => (
-                        <div key={item.duration}>
-                          <div className="mb-2 flex items-center justify-between text-sm">
-                            <span className="font-medium text-[#42454c]">
-                              {item.duration}
-                            </span>
-                            <span className="text-[#5d6169]">{item.count}</span>
-                          </div>
-                          <div className="h-3 overflow-hidden rounded-full bg-[#edf0f7]">
-                            <div
-                              className="h-full rounded-full bg-[#6d7bbb]"
-                              style={{
-                                width: `${Math.max(
-                                  10,
-                                  (item.count /
-                                    Math.max(
-                                      ...report.durationBreakdown.map(
-                                        (entry) => entry.count
-                                      ),
-                                      1
-                                    )) *
-                                    100
-                                )}%`,
-                              }}
-                            />
-                          </div>
+                        <div className="h-3 overflow-hidden rounded-full bg-[#edf0f7]">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              backgroundColor: getPopularEventColor(index),
+                              width: `${Math.max(
+                                (item.count / maxPopularEventCount) * 100,
+                                12
+                              )}%`,
+                            }}
+                          />
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-[#5d6169]">
-                        No duration data was returned.
-                      </p>
-                    )}
-                  </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-[#5d6169]">
+                      No event history was returned for the last 30 days.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -254,37 +205,8 @@ export default async function AdminPage() {
                   </h3>
                   <p className="text-sm text-[#5d6169]">Last 30 days</p>
                 </div>
-                <div className="mt-5 space-y-3">
-                  {report.recentHistory.length ? (
-                    report.recentHistory.map((event) => (
-                      <div
-                        key={event.uri}
-                        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d8dfeb] px-4 py-3"
-                      >
-                        <div>
-                          <p className="font-medium text-[#42454c]">
-                            {event.name}
-                          </p>
-                          <p className="text-sm text-[#5d6169]">
-                            {formatDateTime(event.start_time)}
-                          </p>
-                        </div>
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${
-                            event.status === "canceled"
-                              ? "bg-[#fff2f2] text-[#b04c4c]"
-                              : "bg-[#eef6f2] text-[#3c7b5b]"
-                          }`}
-                        >
-                          {event.status}
-                        </span>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-[#5d6169]">
-                      No recent event history was returned.
-                    </p>
-                  )}
+                <div className="mt-5">
+                  <AdminRecentEvents events={report.recentHistory} />
                 </div>
               </div>
 

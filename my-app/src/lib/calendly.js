@@ -77,6 +77,43 @@ function countBy(items, getKey) {
   }, {});
 }
 
+async function fetchEventInvitee(event) {
+  if (!event?.uri) {
+    return null;
+  }
+
+  try {
+    const eventPath = new URL(event.uri).pathname;
+    const invitees = await fetchCollection(`${eventPath}/invitees`);
+    const primaryInvitee = invitees[0];
+
+    if (!primaryInvitee) {
+      return null;
+    }
+
+    return {
+      inviteeName: primaryInvitee.name || "",
+      inviteeEmail: primaryInvitee.email || "",
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function enrichRecentHistory(events) {
+  return Promise.all(
+    events.map(async (event) => {
+      const invitee = await fetchEventInvitee(event);
+
+      return {
+        ...event,
+        inviteeName: invitee?.inviteeName || "",
+        inviteeEmail: invitee?.inviteeEmail || "",
+      };
+    }),
+  );
+}
+
 async function fetchScopedScheduledEvents({ scopeKey, scopeValue, start, end }) {
   const commonParams = {
     [scopeKey]: scopeValue,
@@ -144,6 +181,15 @@ export async function getCalendlyReport() {
   const user = mePayload.resource;
   const now = new Date();
   const { history, upcoming, scope } = await fetchReportEvents(user);
+  const recentHistory = await enrichRecentHistory(
+    [...history]
+      .sort(
+        (a, b) =>
+          new Date(b.start_time || b.created_at || 0) -
+          new Date(a.start_time || a.created_at || 0)
+      )
+      .slice(0, 10),
+  );
 
   const completedEvents = history.filter(
     (event) =>
@@ -187,13 +233,7 @@ export async function getCalendlyReport() {
     },
     popularEvents,
     durationBreakdown,
-    recentHistory: history
-      .sort(
-        (a, b) =>
-          new Date(b.start_time || b.created_at || 0) -
-          new Date(a.start_time || a.created_at || 0)
-      )
-      .slice(0, 10),
+    recentHistory,
     upcomingEvents: upcoming
       .filter((event) => event.status === "active")
       .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
