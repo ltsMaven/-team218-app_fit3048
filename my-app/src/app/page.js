@@ -3,6 +3,13 @@ import Image from "next/image";
 import { Heart, Users, MessageCircle, ArrowRight, Sun } from "lucide-react";
 import HeroSlider from "../components/HeroSlider";
 import EnquiryForm from "../components/EnquiryForm";
+import { getServerSupabaseClient } from "@/lib/supabase-server";
+import {
+  HOMEPAGE_CMS_FIELDS,
+  HOMEPAGE_CMS_SLUG,
+  HOMEPAGE_CMS_TABLE,
+  normaliseHomepageContent,
+} from "@/lib/cms-homepage";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -48,13 +55,13 @@ const services = [
 const testimonials = [
   {
     quote:
-      "Sam was my Counsellor during my stay at Fairhaven in Mt Tambourine.  Going to rehab for the first time in my life was extremely daunting, the thought of being alone and not knowing what to expect I was filled with anxiety!  I was introduced to Sam on my first day and she instantly made me feel safe and at ease.  Not once did I feel ashamed or judged, I was met on a level of understanding and care and throughout my 3 month program Sam was able to help me to open up and release some major trauma that I had buried deep down and I learnt so much more about my addiction and more importantly about myself.  She armed me with the tools I needed to continue my healing journey in the real world. The knowledge and kindness Sam has and her ability to share her own life experience has helped me so much in my recovery journey! This enabled me to have such a positive experience and for that Sam I thank you ❤️",
+      "Sam was my Counsellor during my stay at Fairhaven in Mt Tambourine. Going to rehab for the first time in my life was extremely daunting, the thought of being alone and not knowing what to expect I was filled with anxiety. I was introduced to Sam on my first day and she instantly made me feel safe and at ease. Not once did I feel ashamed or judged, I was met on a level of understanding and care and throughout my 3 month program Sam was able to help me to open up and release some major trauma that I had buried deep down and I learnt so much more about my addiction and more importantly about myself. She armed me with the tools I needed to continue my healing journey in the real world. The knowledge and kindness Sam has and her ability to share her own life experience has helped me so much in my recovery journey. This enabled me to have such a positive experience and for that Sam I thank you.",
     author: "Jodie",
     bgClass: "bg-[#eeeff2]",
   },
   {
     quote:
-      "I’m a previous client of Samantha’s, I can't praise her enough and highly recommend her as a counsellor. She went above and beyond to help me through several mental health and addiction issues I was experiencing at this time.  She was kind, understanding and very easy to talk to about anything.  Her ability to empathise and guide me through my darkest days will always be in my gratitude and thoughts.  The best ever ❤️",
+      "I'm a previous client of Samantha's, I can't praise her enough and highly recommend her as a counsellor. She went above and beyond to help me through several mental health and addiction issues I was experiencing at this time. She was kind, understanding and very easy to talk to about anything. Her ability to empathise and guide me through my darkest days will always be in my gratitude and thoughts. The best ever.",
     author: "Jade",
     bgClass: "bg-white/75",
   },
@@ -68,6 +75,58 @@ const testimonials = [
 
 const TESTIMONIAL_PREVIEW_LENGTH = 180;
 
+const fallbackHomepageContent = normaliseHomepageContent({
+  about_badge: "ABOUT MY PRACTICE",
+  about_heading: "Empowering Clients to Thrive",
+  about_intro:
+    "As an NDIS registered Counsellor, Psychosocial Recovery Coach and Clinical Supervisor, I offer a compassionate and empathic approach to help clients navigate life's challenges.",
+  about_highlight:
+    "Through a safe and non-judgmental space, I work collaboratively to empower people to achieve their goals and improve their mental, emotional, physical, and social well-being in line with their personal goals and values.",
+  about_closing: 'I believe we all have within us the "Ability to Thrive."',
+  services_heading: "How I Can Help",
+  services_subheading:
+    "Specialized services tailored to support your mental health and well-being",
+  goals_label: "Goals",
+  goals_heading: "Your Journey to Freedom Starts Here.",
+  goals_body:
+    "At Ability To Thrive Counselling and Recovery Coaching, we provide safe, respectful, and supportive care that helps people feel heard, valued, and empowered. Guided by kindness, encouragement, optimism, patience, and inclusion, we support each person to build confidence, strengthen skills, and move toward a life where they can truly thrive.",
+  vision_label: "Vision",
+  vision_heading: "From Overwhelmed to Empowered.",
+  vision_body:
+    "Our vision is a world where every person feels supported, empowered, and able to reach their full potential. We believe support should be compassionate, accessible, and meaningful helping people build confidence, resilience, and truly thrive.",
+  values_label: "Values",
+  values_heading: "Optimism That Inspires Change.",
+  values_body:
+    "At Ability To Thrive Counselling and Recovery Coaching, everything we do is guided by five core values: Kindness, Encouragement, Optimism, Patience, and Inclusion. These values shape a safe, welcoming, and supportive space where every person feels heard, respected, and empowered to grow at their own pace.",
+  testimonials_heading: "What Clients Say",
+  cta_heading: "Ready to Take the First Step?",
+  cta_body:
+    "Schedule your consultation today and begin your journey toward healing and growth.",
+  cta_button_label: "Book Your Session Now",
+});
+
+async function getHomepageContent() {
+  try {
+    const supabase = getServerSupabaseClient();
+    const { data, error } = await supabase
+      .from(HOMEPAGE_CMS_TABLE)
+      .select(["slug", ...HOMEPAGE_CMS_FIELDS].join(", "))
+      .eq("slug", HOMEPAGE_CMS_SLUG)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return normaliseHomepageContent({
+      ...fallbackHomepageContent,
+      ...data,
+    });
+  } catch {
+    return fallbackHomepageContent;
+  }
+}
+
 function getTestimonialPreview(quote) {
   if (quote.length <= TESTIMONIAL_PREVIEW_LENGTH) {
     return quote;
@@ -79,7 +138,8 @@ function getTestimonialPreview(quote) {
   return `${trimmed.slice(0, lastSpace > 0 ? lastSpace : trimmed.length)}...`;
 }
 
-export default function Home() {
+export default async function Home() {
+  const homepageContent = await getHomepageContent();
   const organizationStructuredData = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -127,40 +187,27 @@ export default function Home() {
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#7ea6d8]/30 bg-white/70 px-5 py-2 backdrop-blur">
               <Sun className="h-[18px] w-[18px] text-[#4b8e9a]" />
               <span className="text-sm font-medium tracking-wide text-[#42454c]">
-                ABOUT MY PRACTICE
+                {homepageContent.about_badge}
               </span>
             </div>
 
             <h2 className="mb-8 text-4xl font-semibold leading-tight text-[#42454c] sm:text-5xl lg:text-6xl">
-              Empowering Clients to{" "}
-              <span className="italic text-[#926ab9]">Thrive</span>
+              {homepageContent.about_heading}
             </h2>
 
             <div className="mb-10 space-y-6">
               <p className="text-xl leading-relaxed text-[#4f5560]">
-                As an{" "}
-                <span className="font-medium text-[#42454c]">
-                  NDIS registered Counsellor, Psychosocial Recovery Coach and
-                  Clinical Supervisor
-                </span>
-                , I offer a compassionate and empathic approach to help clients
-                navigate life&apos;s challenges.
+                {homepageContent.about_intro}
               </p>
 
               <div className="rounded-r-3xl border-l-4 border-[#4b8e9a] bg-white/65 py-4 pl-6 pr-6 shadow-sm">
                 <p className="text-lg leading-relaxed text-[#51555e]">
-                  Through a safe and non-judgmental space, I work
-                  collaboratively to empower people to achieve their goals and
-                  improve their mental, emotional, physical, and social
-                  well-being in line with their personal goals and values.
+                  {homepageContent.about_highlight}
                 </p>
               </div>
 
               <p className="text-xl font-medium leading-relaxed text-[#42454c]">
-                I believe we all have within us the{" "}
-                <span className="text-[#926ab9]">
-                  &quot;Ability to Thrive.&quot;
-                </span>
+                {homepageContent.about_closing}
               </p>
             </div>
 
@@ -197,11 +244,10 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <h2 className="text-3xl font-semibold tracking-tight text-[#42454c] sm:text-4xl">
-              How I Can Help
+              {homepageContent.services_heading}
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base text-[#5c6069]">
-              Specialized services tailored to support your mental health and
-              well-being
+              {homepageContent.services_subheading}
             </p>
           </div>
 
@@ -259,53 +305,39 @@ export default function Home() {
                 <article className="relative rounded-[2rem] bg-white/60 p-8 backdrop-blur-sm md:ml-12">
                   <div className="absolute left-[-3.65rem] top-10 hidden h-6 w-6 rounded-full border-4 border-[#eeeff2] bg-[#926ab9] md:block" />
                   <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#926ab9]">
-                    Goals
+                    {homepageContent.goals_label}
                   </p>
                   <h3 className="mt-3 text-2xl font-semibold text-[#42454c]">
-                    Your Journey to Freedom Starts Here.
+                    {homepageContent.goals_heading}
                   </h3>
                   <p className="mt-4 max-w-2xl text-base leading-8 text-[#5d6169]">
-                    At Ability To Thrive Counselling and Recovery Coaching, we
-                    provide safe, respectful, and supportive care that helps
-                    people feel heard, valued, and empowered. Guided by
-                    kindness, encouragement, optimism, patience, and inclusion,
-                    we support each person to build confidence, strengthen
-                    skills, and move toward a life where they can truly thrive.
+                    {homepageContent.goals_body}
                   </p>
                 </article>
 
                 <article className="relative rounded-[2rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.75),rgba(220,233,248,0.75))] p-8 backdrop-blur-sm md:mr-8 md:ml-24">
                   <div className="absolute left-[-4.4rem] top-10 hidden h-6 w-6 rounded-full border-4 border-[#eeeff2] bg-[#4b8e9a] md:block" />
                   <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#4b8e9a]">
-                    Vision
+                    {homepageContent.vision_label}
                   </p>
                   <h3 className="mt-3 text-2xl font-semibold text-[#42454c]">
-                    From Overwhelmed to Empowered.
+                    {homepageContent.vision_heading}
                   </h3>
                   <p className="mt-4 max-w-2xl text-base leading-8 text-[#5d6169]">
-                    Our vision is a world where every person feels supported,
-                    empowered, and able to reach their full potential. We
-                    believe support should be compassionate, accessible, and
-                    meaningful—helping people build confidence, resilience, and
-                    truly thrive.
+                    {homepageContent.vision_body}
                   </p>
                 </article>
 
                 <article className="relative rounded-[2rem] bg-[#42454c] p-8 text-white md:ml-12">
                   <div className="absolute left-[-3.65rem] top-10 hidden h-6 w-6 rounded-full border-4 border-[#eeeff2] bg-[#7ea6d8] md:block" />
                   <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#7ea6d8]">
-                    Values
+                    {homepageContent.values_label}
                   </p>
                   <h3 className="mt-3 text-2xl font-semibold">
-                    Optimism That Inspires Change.
+                    {homepageContent.values_heading}
                   </h3>
                   <p className="mt-4 max-w-2xl text-base leading-8 text-white/78">
-                    At Ability To Thrive Counselling and Recovery Coaching,
-                    everything we do is guided by five core values: Kindness,
-                    Encouragement, Optimism, Patience, and Inclusion. These
-                    values shape a safe, welcoming, and supportive space where
-                    every person feels heard, respected, and empowered to grow
-                    at their own pace.
+                    {homepageContent.values_body}
                   </p>
                 </article>
               </div>
@@ -318,7 +350,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl">
           <div className="mb-20 text-center">
             <h2 className="text-3xl font-semibold tracking-tight text-[#42454c] sm:text-4xl">
-              What Clients Say
+              {homepageContent.testimonials_heading}
             </h2>
           </div>
 
@@ -330,7 +362,7 @@ export default function Home() {
               >
                 <div className="mb-6 flex text-[#926ab9]">
                   {[...Array(5)].map((_, i) => (
-                    <span key={i}>★</span>
+                    <span key={i}>*</span>
                   ))}
                 </div>
 
@@ -367,12 +399,11 @@ export default function Home() {
       <section className="bg-[#42454c] px-6 py-24 text-center text-white">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Ready to Take the First Step?
+            {homepageContent.cta_heading}
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl text-lg text-white/75">
-            Schedule your consultation today and begin your journey toward
-            healing and growth.
+            {homepageContent.cta_body}
           </p>
 
           <div className="mt-10">
@@ -380,7 +411,7 @@ export default function Home() {
               href="/booking"
               className="inline-flex items-center gap-2 rounded-xl bg-[#926ab9] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
             >
-              Book Your Session Now
+              {homepageContent.cta_button_label}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
