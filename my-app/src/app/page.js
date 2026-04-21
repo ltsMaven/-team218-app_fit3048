@@ -10,6 +10,7 @@ import {
   HOMEPAGE_CMS_TABLE,
   normaliseHomepageContent,
 } from "@/lib/cms-homepage";
+import { getApprovedTestimonials } from "@/lib/testimonial-submissions";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -52,26 +53,7 @@ const services = [
   },
 ];
 
-const testimonials = [
-  {
-    quote:
-      "Sam was my Counsellor during my stay at Fairhaven in Mt Tambourine. Going to rehab for the first time in my life was extremely daunting, the thought of being alone and not knowing what to expect I was filled with anxiety. I was introduced to Sam on my first day and she instantly made me feel safe and at ease. Not once did I feel ashamed or judged, I was met on a level of understanding and care and throughout my 3 month program Sam was able to help me to open up and release some major trauma that I had buried deep down and I learnt so much more about my addiction and more importantly about myself. She armed me with the tools I needed to continue my healing journey in the real world. The knowledge and kindness Sam has and her ability to share her own life experience has helped me so much in my recovery journey. This enabled me to have such a positive experience and for that Sam I thank you.",
-    author: "Jodie",
-    bgClass: "bg-[#eeeff2]",
-  },
-  {
-    quote:
-      "I'm a previous client of Samantha's, I can't praise her enough and highly recommend her as a counsellor. She went above and beyond to help me through several mental health and addiction issues I was experiencing at this time. She was kind, understanding and very easy to talk to about anything. Her ability to empathise and guide me through my darkest days will always be in my gratitude and thoughts. The best ever.",
-    author: "Jade",
-    bgClass: "bg-white/75",
-  },
-  {
-    quote:
-      "I have had the wonderful pleasure of having Samantha as my counselor for a considerable period now. During my time working with Samantha she's been able to guide me through alcoholism and addiction to methamphetamine, broken relationship with my wife and children. She's amazingly empathetic, courteous and professional. Samantha had a far greater idea of my working mind than I did. And it was my absolute pleasure to have her guide me while I was unable to guide myself down the path of the verities of my life.",
-    author: "Barry",
-    bgClass: "bg-[#dce9f8]",
-  },
-];
+const testimonialBgClasses = ["bg-[#eeeff2]", "bg-white/75", "bg-[#dce9f8]"];
 
 const TESTIMONIAL_PREVIEW_LENGTH = 180;
 
@@ -127,6 +109,21 @@ async function getHomepageContent() {
   }
 }
 
+async function getHomepageTestimonials() {
+  try {
+    const approvedTestimonials = await getApprovedTestimonials();
+
+    return approvedTestimonials.map((testimonial, index) => ({
+      id: testimonial.id,
+      quote: testimonial.testimonial,
+      author: testimonial.display_name || testimonial.name,
+      bgClass: testimonialBgClasses[index % testimonialBgClasses.length],
+    }));
+  } catch {
+    return [];
+  }
+}
+
 function getTestimonialPreview(quote) {
   if (quote.length <= TESTIMONIAL_PREVIEW_LENGTH) {
     return quote;
@@ -139,7 +136,10 @@ function getTestimonialPreview(quote) {
 }
 
 export default async function Home() {
-  const homepageContent = await getHomepageContent();
+  const [homepageContent, testimonials] = await Promise.all([
+    getHomepageContent(),
+    getHomepageTestimonials(),
+  ]);
   const organizationStructuredData = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -354,39 +354,45 @@ export default async function Home() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
-            {testimonials.map((testimonial, index) => (
-              <article
-                key={index}
-                className={`${testimonial.bgClass} rounded-2xl border border-white/60 p-10 shadow-sm backdrop-blur-sm`}
-              >
-                {testimonial.quote.length > TESTIMONIAL_PREVIEW_LENGTH ? (
-                  <details className="group">
-                    <summary className="list-none cursor-pointer [&::-webkit-details-marker]:hidden">
-                      <p className="italic leading-relaxed text-[#595d66] group-open:hidden">
-                        &quot;{getTestimonialPreview(testimonial.quote)}&quot;
-                      </p>
-                      <p className="hidden italic leading-relaxed text-[#595d66] group-open:block">
-                        &quot;{testimonial.quote}&quot;
-                      </p>
-                      <span className="mt-5 inline-flex text-sm font-medium text-[#4b8e9a] transition hover:text-[#926ab9] group-open:hidden">
-                        Read more
-                      </span>
-                      <span className="mt-5 hidden text-sm font-medium text-[#4b8e9a] transition hover:text-[#926ab9] group-open:inline-flex">
-                        Show less
-                      </span>
-                    </summary>
-                  </details>
-                ) : (
-                  <p className="italic leading-relaxed text-[#595d66]">
-                    &quot;{testimonial.quote}&quot;
-                  </p>
-                )}
+          {testimonials.length ? (
+            <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+              {testimonials.map((testimonial) => (
+                <article
+                  key={testimonial.id}
+                  className={`${testimonial.bgClass} rounded-2xl border border-white/60 p-10 shadow-sm backdrop-blur-sm`}
+                >
+                  {testimonial.quote.length > TESTIMONIAL_PREVIEW_LENGTH ? (
+                    <details className="group">
+                      <summary className="list-none cursor-pointer [&::-webkit-details-marker]:hidden">
+                        <p className="italic leading-relaxed text-[#595d66] group-open:hidden">
+                          &quot;{getTestimonialPreview(testimonial.quote)}&quot;
+                        </p>
+                        <p className="hidden italic leading-relaxed text-[#595d66] group-open:block">
+                          &quot;{testimonial.quote}&quot;
+                        </p>
+                        <span className="mt-5 inline-flex text-sm font-medium text-[#4b8e9a] transition hover:text-[#926ab9] group-open:hidden">
+                          Read more
+                        </span>
+                        <span className="mt-5 hidden text-sm font-medium text-[#4b8e9a] transition hover:text-[#926ab9] group-open:inline-flex">
+                          Show less
+                        </span>
+                      </summary>
+                    </details>
+                  ) : (
+                    <p className="italic leading-relaxed text-[#595d66]">
+                      &quot;{testimonial.quote}&quot;
+                    </p>
+                  )}
 
-                <p className="mt-6 text-[#4b8e9a]">- {testimonial.author}</p>
-              </article>
-            ))}
-          </div>
+                  <p className="mt-6 text-[#4b8e9a]">- {testimonial.author}</p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-2xl border border-[#d8dfeb] bg-white/70 px-6 py-5 text-center text-sm text-[#5d6169]">
+              No public testimonials have been selected yet.
+            </p>
+          )}
         </div>
       </section>
 

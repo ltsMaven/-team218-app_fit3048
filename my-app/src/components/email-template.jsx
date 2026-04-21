@@ -40,7 +40,6 @@ export function buildTestimonialEmailHtml({
   email,
   displayName,
   service,
-  rating,
   testimonial,
 }) {
   return `
@@ -50,7 +49,6 @@ export function buildTestimonialEmailHtml({
       <p style="margin: 0 0 8px;"><strong>Email:</strong> ${escapeHtml(email)}</p>
       <p style="margin: 0 0 8px;"><strong>Public display name:</strong> ${escapeHtml(displayName || "Not provided")}</p>
       <p style="margin: 0 0 8px;"><strong>Service:</strong> ${escapeHtml(service || "Not provided")}</p>
-      <p style="margin: 0 0 8px;"><strong>Rating:</strong> ${escapeHtml(rating || "Not provided")}</p>
       <p style="margin: 20px 0 8px;"><strong>Testimonial:</strong></p>
       <p style="margin: 0; border-radius: 12px; background-color: #eeeff2; padding: 16px;">
         ${formatMessageHtml(testimonial)}
@@ -64,7 +62,6 @@ export function buildTestimonialEmailText({
   email,
   displayName,
   service,
-  rating,
   testimonial,
 }) {
   return `New testimonial from ${name}
@@ -73,7 +70,6 @@ Name: ${name}
 Email: ${email}
 Public display name: ${displayName || "Not provided"}
 Service: ${service || "Not provided"}
-Rating: ${rating || "Not provided"}
 
 Testimonial:
 ${testimonial}`;

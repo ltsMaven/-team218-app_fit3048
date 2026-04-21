@@ -250,22 +250,44 @@ export default function AddTestimonialForm() {
           <span className="mb-2 block text-sm font-medium text-[#42454c]">
             Service
           </span>
-          <select
-            name="service"
-            value={formData.service}
-            onChange={handleChange}
-            className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
-          >
-            <option value="">Select a service</option>
-            <option value="Free Discovery Call">Free Discovery Call</option>
-            <option value="Individual Counselling">
-              Individual Counselling
-            </option>
-            <option value="Online Counselling">Online Counselling</option>
-            <option value="Clinical Supervision">Clinical Supervision</option>
-            <option value="Couples Counselling">Couples Counselling</option>
-            <option value="Psychosocial Recovery">Psychosocial Recovery</option>
-          </select>
+          <div className="relative">
+            <select
+              name="service"
+              value={formData.service}
+              onChange={handleChange}
+              className="h-[50px] w-full appearance-none rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 pr-11 text-[#42454c] outline-none transition focus:border-[#926ab9]"
+            >
+              <option value="">Select a service</option>
+              <option value="Free Discovery Call">Free Discovery Call</option>
+              <option value="Individual Counselling">
+                Individual Counselling
+              </option>
+              <option value="Online Counselling">Online Counselling</option>
+              <option value="Clinical Supervision">
+                Clinical Supervision
+              </option>
+              <option value="Couples Counselling">Couples Counselling</option>
+              <option value="Psychosocial Recovery">
+                Psychosocial Recovery
+              </option>
+            </select>
+            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#7b869f]">
+              <svg
+                aria-hidden="true"
+                className="h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="none"
+              >
+                <path
+                  d="M5 7.5L10 12.5L15 7.5"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.8"
+                />
+              </svg>
+            </span>
+          </div>
         </label>
 
         <label className="block md:col-span-2">
