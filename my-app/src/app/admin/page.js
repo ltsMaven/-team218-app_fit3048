@@ -53,7 +53,7 @@ export default async function AdminPage({ searchParams }) {
   const resolvedSearchParams = await searchParams;
   const selectedStartDate = getSearchParamValue(
     resolvedSearchParams,
-    "startDate"
+    "startDate",
   );
   const selectedEndDate = getSearchParamValue(resolvedSearchParams, "endDate");
 
@@ -97,7 +97,8 @@ export default async function AdminPage({ searchParams }) {
               {report?.summary?.createdEvents ?? 0}
             </p>
             <p className="mt-2 text-sm leading-7 text-[#5d6169]">
-              Scheduled events in {report?.period?.label || "the selected period"}.
+              Scheduled events in{" "}
+              {report?.period?.label || "the selected period"}.
             </p>
           </div>
 
@@ -121,7 +122,8 @@ export default async function AdminPage({ searchParams }) {
               {report?.summary?.canceledEvents ?? 0}
             </p>
             <p className="mt-2 text-sm leading-7 text-[#5d6169]">
-              Canceled events in {report?.period?.label || "the selected period"}.
+              Canceled events in{" "}
+              {report?.period?.label || "the selected period"}.
             </p>
           </div>
         </div>
@@ -243,30 +245,8 @@ export default async function AdminPage({ searchParams }) {
                   <AdminRecentEvents events={report.recentHistory} />
                 </div>
               </div>
-
-              <div className="mt-6 rounded-2xl border border-[#d8dfeb] bg-[#f8f8fb] px-5 py-4 text-sm leading-7 text-[#5d6169]">
-                This report is derived from live scheduled-event records exposed
-                by the Calendly API. Rescheduled counts are not included here,
-                because Calendly documents reschedules through webhook events
-                rather than a dedicated analytics endpoint.
-              </div>
             </>
           ) : null}
-        </div>
-
-        <div className="mt-10 flex flex-wrap gap-4">
-          <Link
-            href="/"
-            className="rounded-full border border-[#d8dfeb] px-5 py-3 text-sm font-medium text-[#42454c] transition hover:bg-[#f4f6fa]"
-          >
-            Back to site
-          </Link>
-          <a
-            href="/auth/logout"
-            className="rounded-full bg-[#926ab9] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
-          >
-            Log out
-          </a>
         </div>
       </div>
     </section>
