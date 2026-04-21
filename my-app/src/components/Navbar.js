@@ -2,17 +2,28 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useUser } from "@auth0/nextjs-auth0/client";
 
-const navItems = [
+const publicNavItems = [
   { href: "/", label: "Home" },
   { href: "/about-me", label: "About Me" },
   { href: "/services", label: "Services" },
   { href: "/enquiry", label: "Enquiry" },
 ];
 
-export default function Navbar() {
+const adminNavItems = [
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/cms", label: "CMS" },
+  { href: "/admin/testimonial", label: "Testimonial" },
+  { href: "/admin/blogs", label: "Blogs" },
+];
+
+export default function Navbar({ authEnabled = false, isAdmin = false }) {
+  const { user, isLoading } = useUser();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const showAdminNav = authEnabled && !isLoading && Boolean(user) && isAdmin;
+  const navItems = showAdminNav ? adminNavItems : publicNavItems;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,12 +88,39 @@ export default function Navbar() {
             </nav>
 
             <div className="hidden items-center gap-3 md:flex">
-              <Link
-                href="/booking"
-                className="rounded-full bg-[#926ab9] px-5 py-2.5 text-sm font-medium text-white shadow-[0_14px_30px_rgba(146,106,185,0.25)] transition hover:bg-[#7d58a3]"
-              >
-                Book a Session
-              </Link>
+              {showAdminNav ? null : (
+                <Link
+                  href="/booking"
+                  className="rounded-full bg-[#926ab9] px-5 py-2.5 text-sm font-medium text-white shadow-[0_14px_30px_rgba(146,106,185,0.25)] transition hover:bg-[#7d58a3]"
+                >
+                  Book a Session
+                </Link>
+              )}
+              {!authEnabled || isLoading ? null : user ? (
+                <>
+                  {showAdminNav ? null : (
+                    <Link
+                      href="/admin"
+                      className="rounded-full border border-[#d8dfeb] bg-white/70 px-5 py-2.5 text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                    >
+                      Admin
+                    </Link>
+                  )}
+                  <a
+                    href="/auth/logout"
+                    className="rounded-full border border-[#d8dfeb] bg-white/70 px-5 py-2.5 text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                  >
+                    Logout
+                  </a>
+                </>
+              ) : (
+                <a
+                  href="/auth/login?returnTo=/admin"
+                  className="rounded-full border border-[#d8dfeb] bg-white/70 px-5 py-2.5 text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                >
+                  Login
+                </a>
+              )}
             </div>
 
             <button
@@ -130,13 +168,43 @@ export default function Navbar() {
               ))}
 
               <div className="flex flex-col gap-3 pt-2">
-                <Link
-                  href="/booking"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="rounded-full bg-[#926ab9] px-4 py-3 text-center text-sm font-medium text-white transition hover:bg-[#7d58a3]"
-                >
-                  Book a Session
-                </Link>
+                {showAdminNav ? null : (
+                  <Link
+                    href="/booking"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="rounded-full bg-[#926ab9] px-4 py-3 text-center text-sm font-medium text-white transition hover:bg-[#7d58a3]"
+                  >
+                    Book a Session
+                  </Link>
+                )}
+                {!authEnabled || isLoading ? null : user ? (
+                  <>
+                    {showAdminNav ? null : (
+                      <Link
+                        href="/admin"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="rounded-full border border-[#d8dfeb] bg-white/70 px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                      >
+                        Admin
+                      </Link>
+                    )}
+                    <a
+                      href="/auth/logout"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="rounded-full border border-[#d8dfeb] bg-white/70 px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                    >
+                      Logout
+                    </a>
+                  </>
+                ) : (
+                  <a
+                    href="/auth/login?returnTo=/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="rounded-full border border-[#d8dfeb] bg-white/70 px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                  >
+                    Login
+                  </a>
+                )}
               </div>
             </div>
           </div>

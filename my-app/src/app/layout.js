@@ -1,6 +1,9 @@
+import { Auth0Provider } from "@auth0/nextjs-auth0/client";
 import "./globals.css";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
+import { auth0, hasAuth0Config } from "../lib/auth0";
+import { isAdminUser } from "../lib/admin";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -68,15 +71,28 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const session = hasAuth0Config && auth0 ? await auth0.getSession() : null;
+  const isAdmin = isAdminUser(session?.user);
+
   return (
     <html lang="en">
       <body className="antialiased">
-        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-        </div>
+        {hasAuth0Config ? (
+          <Auth0Provider user={session?.user}>
+            <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+              <Navbar authEnabled={hasAuth0Config} isAdmin={isAdmin} />
+              <main>{children}</main>
+              <Footer />
+            </div>
+          </Auth0Provider>
+        ) : (
+          <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+            <Navbar authEnabled={hasAuth0Config} isAdmin={isAdmin} />
+            <main>{children}</main>
+            <Footer />
+          </div>
+        )}
       </body>
     </html>
   );
