@@ -100,6 +100,29 @@ const servicesPageFields = [
   ["cta_button_label", "CTA button label", 2],
 ];
 
+const navItems = [
+  {
+    id: "homepage",
+    label: "Homepage",
+    description: "Main landing page copy",
+  },
+  {
+    id: "about",
+    label: "About Me",
+    description: "Biography, focus areas, and stats",
+  },
+  {
+    id: "services",
+    label: "Services Intro",
+    description: "Services page heading and CTA",
+  },
+  {
+    id: "service-cards",
+    label: "Service Cards",
+    description: "Prices, features, and service details",
+  },
+];
+
 function TextareaField({ label, name, value, rows, onChange }) {
   return (
     <label className="block">
@@ -137,6 +160,7 @@ export default function HomepageCmsForm({
   const [about, setAbout] = useState(initialAboutContent);
   const [services, setServices] = useState(initialServicesContent);
   const [serviceItems, setServiceItems] = useState(initialServiceItems);
+  const [activeSection, setActiveSection] = useState("homepage");
   const [status, setStatus] = useState({ type: "idle", message: "" });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -242,9 +266,9 @@ export default function HomepageCmsForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-10 space-y-8" noValidate>
+    <form onSubmit={handleSubmit} className="mt-10" noValidate>
       {loadError ? (
-        <div className="rounded-3xl border border-[#e7c9c8] bg-[#fff6f5] px-6 py-5 text-[#8b3d3a]">
+        <div className="mb-8 rounded-3xl border border-[#e7c9c8] bg-[#fff6f5] px-6 py-5 text-[#8b3d3a]">
           <p className="text-sm font-semibold uppercase tracking-[0.2em]">
             Load issue
           </p>
@@ -252,118 +276,164 @@ export default function HomepageCmsForm({
         </div>
       ) : null}
 
-      {homepageGroups.map((group) => (
-        <CmsSection key={group.title} title={group.title}>
-          {group.fields.map(([name, label, rows]) => (
-            <TextareaField
-              key={name}
-              label={label}
-              name={name}
-              value={homepage[name]}
-              rows={rows}
-              onChange={(event) =>
-                updateSection(setHomepage, name, event.target.value)
-              }
-            />
-          ))}
-        </CmsSection>
-      ))}
+      <div className="grid gap-8 lg:grid-cols-[18rem_1fr] lg:items-start">
+        <aside className="lg:sticky lg:top-24">
+          <div className="rounded-[2rem] border border-[#d8dfeb] bg-white/90 p-3 shadow-sm">
+            {navItems.map((item) => {
+              const isActive = activeSection === item.id;
 
-      {aboutGroups.map((group) => (
-        <CmsSection key={group.title} title={group.title}>
-          {group.fields.map(([name, label, rows]) => (
-            <TextareaField
-              key={name}
-              label={label}
-              name={name}
-              value={about[name]}
-              rows={rows}
-              onChange={(event) =>
-                updateSection(setAbout, name, event.target.value)
-              }
-            />
-          ))}
-        </CmsSection>
-      ))}
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveSection(item.id)}
+                  className={`mb-2 w-full rounded-3xl px-5 py-4 text-left transition last:mb-0 ${
+                    isActive
+                      ? "bg-[#42454c] text-white shadow-sm"
+                      : "text-[#42454c] hover:bg-[#eeeff2]"
+                  }`}
+                >
+                  <span className="block text-base font-semibold">
+                    {item.label}
+                  </span>
+                  <span
+                    className={`mt-1 block text-sm leading-5 ${
+                      isActive ? "text-white/72" : "text-[#6b7079]"
+                    }`}
+                  >
+                    {item.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </aside>
 
-      <CmsSection title="About Me - Focus Tags">
-        <TextareaField
-          label="Focus tags, one per line"
-          name="focus_tags"
-          value={(about.focus_tags || []).join("\n")}
-          rows={6}
-          onChange={(event) => updateAboutTags(event.target.value)}
-        />
-      </CmsSection>
+        <div className="space-y-8">
+          {activeSection === "homepage"
+            ? homepageGroups.map((group) => (
+                <CmsSection key={group.title} title={group.title}>
+                  {group.fields.map(([name, label, rows]) => (
+                    <TextareaField
+                      key={name}
+                      label={label}
+                      name={name}
+                      value={homepage[name]}
+                      rows={rows}
+                      onChange={(event) =>
+                        updateSection(setHomepage, name, event.target.value)
+                      }
+                    />
+                  ))}
+                </CmsSection>
+              ))
+            : null}
 
-      <CmsSection title="Services Page Intro">
-        {servicesPageFields.map(([name, label, rows]) => (
-          <TextareaField
-            key={name}
-            label={label}
-            name={name}
-            value={services[name]}
-            rows={rows}
-            onChange={(event) =>
-              updateSection(setServices, name, event.target.value)
-            }
-          />
-        ))}
-      </CmsSection>
+          {activeSection === "about" ? (
+            <>
+              {aboutGroups.map((group) => (
+                <CmsSection key={group.title} title={group.title}>
+                  {group.fields.map(([name, label, rows]) => (
+                    <TextareaField
+                      key={name}
+                      label={label}
+                      name={name}
+                      value={about[name]}
+                      rows={rows}
+                      onChange={(event) =>
+                        updateSection(setAbout, name, event.target.value)
+                      }
+                    />
+                  ))}
+                </CmsSection>
+              ))}
 
-      <CmsSection title="Services Cards">
-        {serviceItems.map((service, index) => (
-          <div
-            key={service.id || `${service.title}-${index}`}
-            className="rounded-3xl border border-[#d8dfeb] bg-white/80 p-5"
-          >
-            <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <h3 className="text-xl font-semibold text-[#42454c]">
-                Service {index + 1}: {service.title || "Untitled"}
-              </h3>
-              <p className="text-sm text-[#6d7bbb]">
-                Icon key: {service.icon_key}
-              </p>
-            </div>
+              <CmsSection title="About Me - Focus Tags">
+                <TextareaField
+                  label="Focus tags, one per line"
+                  name="focus_tags"
+                  value={(about.focus_tags || []).join("\n")}
+                  rows={6}
+                  onChange={(event) => updateAboutTags(event.target.value)}
+                />
+              </CmsSection>
+            </>
+          ) : null}
 
-            <div className="grid gap-5">
-              {[
-                ["title", "Title", 2],
-                ["label", "Label", 2],
-                ["price", "Price", 2],
-                ["price_detail", "Price detail", 2],
-                ["description", "Description", 5],
-                ["icon_key", "Icon key", 2],
-                ["tint", "Tint class", 2],
-                ["accent", "Accent class", 2],
-              ].map(([name, label, rows]) => (
+          {activeSection === "services" ? (
+            <CmsSection title="Services Page Intro">
+              {servicesPageFields.map(([name, label, rows]) => (
                 <TextareaField
                   key={name}
                   label={label}
                   name={name}
-                  value={service[name]}
+                  value={services[name]}
                   rows={rows}
                   onChange={(event) =>
-                    updateServiceItem(index, name, event.target.value)
+                    updateSection(setServices, name, event.target.value)
                   }
                 />
               ))}
+            </CmsSection>
+          ) : null}
 
-              <TextareaField
-                label="Features, one per line"
-                name="features"
-                value={(service.features || []).join("\n")}
-                rows={6}
-                onChange={(event) =>
-                  updateServiceFeatures(index, event.target.value)
-                }
-              />
-            </div>
-          </div>
-        ))}
-      </CmsSection>
+          {activeSection === "service-cards" ? (
+            <CmsSection title="Services Cards">
+              {serviceItems.map((service, index) => (
+                <div
+                  key={service.id || `${service.title}-${index}`}
+                  className="rounded-3xl border border-[#d8dfeb] bg-white/80 p-5"
+                >
+                  <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <h3 className="text-xl font-semibold text-[#42454c]">
+                      Service {index + 1}: {service.title || "Untitled"}
+                    </h3>
+                    <p className="text-sm text-[#6d7bbb]">
+                      Icon key: {service.icon_key}
+                    </p>
+                  </div>
 
-      <div className="flex flex-col gap-4 rounded-[2rem] border border-[#d8dfeb] bg-white/90 px-6 py-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                  <div className="grid gap-5">
+                    {[
+                      ["title", "Title", 2],
+                      ["label", "Label", 2],
+                      ["price", "Price", 2],
+                      ["price_detail", "Price detail", 2],
+                      ["description", "Description", 5],
+                      ["icon_key", "Icon key", 2],
+                      ["tint", "Tint class", 2],
+                      ["accent", "Accent class", 2],
+                    ].map(([name, label, rows]) => (
+                      <TextareaField
+                        key={name}
+                        label={label}
+                        name={name}
+                        value={service[name]}
+                        rows={rows}
+                        onChange={(event) =>
+                          updateServiceItem(index, name, event.target.value)
+                        }
+                      />
+                    ))}
+
+                    <TextareaField
+                      label="Features, one per line"
+                      name="features"
+                      value={(service.features || []).join("\n")}
+                      rows={6}
+                      onChange={(event) =>
+                        updateServiceFeatures(index, event.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+              ))}
+            </CmsSection>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="mt-8 flex flex-col gap-4 rounded-[2rem] border border-[#d8dfeb] bg-white/90 px-6 py-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <p
           className={`text-base font-medium ${
             status.type === "error"
