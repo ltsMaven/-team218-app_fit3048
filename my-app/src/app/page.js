@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Sun } from "lucide-react";
 import HeroSlider from "../components/HeroSlider";
+import BlogSlider from "../components/BlogSlider";
 import EnquiryForm from "../components/EnquiryForm";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import {
@@ -10,6 +11,7 @@ import {
   HOMEPAGE_CMS_TABLE,
   normaliseHomepageContent,
 } from "@/lib/cms-homepage";
+import { getPublishedBlogs } from "@/lib/blogs";
 import { getApprovedTestimonials } from "@/lib/testimonial-submissions";
 
 const siteUrl =
@@ -140,6 +142,10 @@ async function getHomepageTestimonials() {
   }
 }
 
+async function getHomepageBlogs() {
+  return getPublishedBlogs({ limit: 6 });
+}
+
 function getTestimonialPreview(quote) {
   if (quote.length <= TESTIMONIAL_PREVIEW_LENGTH) {
     return quote;
@@ -152,9 +158,10 @@ function getTestimonialPreview(quote) {
 }
 
 export default async function Home() {
-  const [homepageContent, testimonials] = await Promise.all([
+  const [homepageContent, testimonials, blogs] = await Promise.all([
     getHomepageContent(),
     getHomepageTestimonials(),
+    getHomepageBlogs(),
   ]);
   const organizationStructuredData = {
     "@context": "https://schema.org",
@@ -398,7 +405,39 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="blogs" className="bg-transparent px-6 py-24">
+      <section className="bg-[linear-gradient(180deg,rgba(255,255,255,0.35),rgba(240,244,248,0.78))] px-6 py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
+                Blogs
+              </p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[#42454c] sm:text-4xl">
+                Practical insights for everyday wellbeing
+              </h2>
+              <p className="mt-4 text-base leading-8 text-[#5d6169]">
+                Read short, grounded articles on counselling, recovery,
+                emotional wellbeing, boundaries, and support that can be used in
+                real life.
+              </p>
+            </div>
+
+            <Link
+              href="/blogs"
+              className="inline-flex items-center gap-2 self-start rounded-full border border-[#d8dfeb] bg-white/80 px-5 py-3 text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+            >
+              View all blogs
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="mt-12">
+            <BlogSlider blogs={blogs} />
+          </div>
+        </div>
+      </section>
+
+      <section id="testimonials" className="bg-transparent px-6 py-24">
         <div className="mx-auto max-w-7xl">
           <div className="mb-20 text-center">
             <h2 className="text-3xl font-semibold tracking-tight text-[#42454c] sm:text-4xl">

@@ -8,6 +8,7 @@ const publicNavItems = [
   { href: "/", label: "Home" },
   { href: "/about-me", label: "About Me" },
   { href: "/services", label: "Services" },
+  { href: "/blogs", label: "Blogs" },
   { href: "/enquiry", label: "Enquiry" },
 ];
 
