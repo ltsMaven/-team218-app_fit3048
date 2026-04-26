@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, Users, MessageCircle, ArrowRight, Sun } from "lucide-react";
+import { ArrowRight, Sun } from "lucide-react";
 import HeroSlider from "../components/HeroSlider";
 import EnquiryForm from "../components/EnquiryForm";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
@@ -32,24 +32,40 @@ export const metadata = {
   },
 };
 
-const services = [
+const primarySupportAreas = [
   {
-    title: "Individual Therapy",
+    number: "01",
+    title: "Counselling & Personal Support",
     description:
-      "One-on-one sessions focused on anxiety, depression, stress management, and personal growth.",
-    icon: Heart,
+      "One-on-one and relationship counselling for stress, trauma, substance misuse, domestic and family violence, emotional challenges, and personal growth.",
+    tags: ["Individual", "Couples", "Trauma"],
   },
   {
-    title: "Couples Counseling",
+    number: "02",
+    title: "Recovery Coaching & NDIS Support",
     description:
-      "Build stronger relationships through improved communication, conflict resolution, and understanding.",
-    icon: Users,
+      "Person-centred support for NDIS participants, people with disabilities, families, and carers, with a focus on recovery, confidence, independence, and everyday wellbeing.",
+    tags: ["NDIS", "Recovery", "Disability Support"],
   },
   {
-    title: "General Counseling",
+    number: "03",
+    title: "Clinical Supervision",
     description:
-      "Strengthen family bonds and develop healthier patterns of interaction and communication.",
-    icon: MessageCircle,
+      "Reflective supervision for professionals, supporting confidence, ethical practice, professional development, boundaries, and work-related challenges.",
+    tags: ["Supervision", "Practice", "Development"],
+  },
+];
+
+const secondarySupportInfo = [
+  {
+    title: "NDIS Registered Provider",
+    description:
+      "Ability to Thrive provides person-centred support for NDIS participants, families, and carers in a safe, respectful, and non-judgemental environment.",
+  },
+  {
+    title: "Appointments & Access",
+    description:
+      "Appointments are available via telehealth. Face-to-face support may be considered depending on location, needs, and availability.",
   },
 ];
 
@@ -65,9 +81,9 @@ const fallbackHomepageContent = normaliseHomepageContent({
   about_highlight:
     "Through a safe and non-judgmental space, I work collaboratively to empower people to achieve their goals and improve their mental, emotional, physical, and social well-being in line with their personal goals and values.",
   about_closing: 'I believe we all have within us the "Ability to Thrive."',
-  services_heading: "How I Can Help",
+  services_heading: "How I Can Support You",
   services_subheading:
-    "Specialized services tailored to support your mental health and well-being",
+    "A summary of the support available through Ability to Thrive.",
   goals_label: "Goals",
   goals_heading: "Your Journey to Freedom Starts Here.",
   goals_body:
@@ -171,9 +187,9 @@ export default async function Home() {
       <section id="about-me" className="bg-transparent px-6 py-24 lg:py-28">
         <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <div className="flex h-[420px] items-center justify-center rounded-[32px] border border-[#d8dfeb] p-6">
+            <div className="flex h-[420px] items-center justify-center rounded-[32px]">
               <Image
-                src="/assets/abilityToThriveLogo.webp"
+                src="/assets/attLogoNB.png"
                 alt="Ability To Thrive logo"
                 width={420}
                 height={420}
@@ -184,12 +200,7 @@ export default async function Home() {
           </div>
 
           <div className="lg:col-span-7">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#7ea6d8]/30 bg-white/70 px-5 py-2 backdrop-blur">
-              <Sun className="h-[18px] w-[18px] text-[#4b8e9a]" />
-              <span className="text-sm font-medium tracking-wide text-[#42454c]">
-                {homepageContent.about_badge}
-              </span>
-            </div>
+
 
             <h2 className="mb-8 text-4xl font-semibold leading-tight text-[#42454c] sm:text-5xl lg:text-6xl">
               {homepageContent.about_heading}
@@ -200,11 +211,11 @@ export default async function Home() {
                 {homepageContent.about_intro}
               </p>
 
-              <div className="rounded-r-3xl border-l-4 border-[#4b8e9a] bg-white/65 py-4 pl-6 pr-6 shadow-sm">
-                <p className="text-lg leading-relaxed text-[#51555e]">
+
+                <p className="text-xl leading-relaxed text-[#4f5560]">
                   {homepageContent.about_highlight}
                 </p>
-              </div>
+              
 
               <p className="text-xl font-medium leading-relaxed text-[#42454c]">
                 {homepageContent.about_closing}
@@ -242,38 +253,79 @@ export default async function Home() {
 
       <section id="my-work" className="bg-white/75 px-6 py-24 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <h2 className="text-3xl font-semibold tracking-tight text-[#42454c] sm:text-4xl">
-              {homepageContent.services_heading}
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-base text-[#5c6069]">
-              {homepageContent.services_subheading}
-            </p>
-          </div>
+          <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+            <div className="lg:sticky lg:top-28">
+              <p className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
+                Services
+              </p>
+              <h2 className="mt-4 text-[1.8rem] font-semibold leading-tight text-[#42454c] sm:text-[2rem] lg:text-[2.35rem]">
+                How I Can Support You
+              </h2>
+              <p className="mt-5 max-w-md text-[0.95rem] leading-7 text-[#5c6069] lg:text-base">
+                A summary of the support available through Ability to Thrive.
+              </p>
+              <p className="mt-5 max-w-md text-[0.92rem] leading-7 text-[#6a6e77] lg:text-[0.98rem]">
+                Support is tailored to your needs, goals, and circumstances,
+                with options for personal counselling, recovery-focused support,
+                and professional supervision.
+              </p>
+            </div>
 
-          <div className="mt-16 grid gap-6 md:grid-cols-3">
-            {services.map((service) => {
-              const Icon = service.icon;
+            <div>
+              <div className="space-y-8">
+                {primarySupportAreas.map((service, index) => (
+                  <article key={service.title}>
+                    <div className="grid gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-6">
+                      <div className="flex items-baseline gap-3 sm:block">
+                        <p className="text-[1.25rem] font-light tracking-[0.08em] text-[#8f72bb] sm:text-[1.5rem]">
+                          {service.number}
+                        </p>
+                        <div className="h-px w-10 bg-[#d7ddea] sm:mt-4 sm:w-12" />
+                      </div>
 
-              return (
-                <article
-                  key={service.title}
-                  className="rounded-3xl border border-[#d9deeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(238,239,242,0.82))] p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-                >
-                  <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#dce9f8]">
-                    <Icon className="h-6 w-6 text-[#4b8e9a]" />
-                  </div>
+                      <div>
+                        <h3 className="text-[1.28rem] font-semibold leading-tight text-[#42454c] sm:text-[1.42rem] lg:text-[1.5rem]">
+                          {service.title}
+                        </h3>
+                        <p className="mt-3 max-w-3xl text-[0.95rem] leading-7 text-[#5d6169] lg:text-base lg:leading-8">
+                          {service.description}
+                        </p>
+                        <div className="mt-4 flex flex-wrap gap-2.5">
+                          {service.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="inline-flex items-center rounded-full bg-[#eef1f6] px-3 py-1.5 text-[0.78rem] font-medium text-[#5c6069]"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
 
-                  <h3 className="text-2xl font-semibold text-[#42454c]">
-                    {service.title}
-                  </h3>
+                    {index < primarySupportAreas.length - 1 && (
+                      <div className="mt-8 h-px bg-[linear-gradient(90deg,rgba(146,106,185,0.18),rgba(109,123,187,0.14),rgba(75,142,154,0.12),transparent)]" />
+                    )}
+                  </article>
+                ))}
+              </div>
 
-                  <p className="mt-4 text-base leading-8 text-[#5d6169]">
-                    {service.description}
-                  </p>
-                </article>
-              );
-            })}
+              <div className="mt-12 grid gap-4 md:grid-cols-2">
+                {secondarySupportInfo.map((item) => (
+                  <article
+                    key={item.title}
+                    className="rounded-[1.6rem] border border-[#d9deeb] bg-[#f7f8fa] px-6 py-6"
+                  >
+                    <p className="text-[1.05rem] font-semibold text-[#42454c] sm:text-[1.12rem]">
+                      {item.title}
+                    </p>
+                    <p className="mt-3 text-[0.92rem] leading-7 text-[#61656d]">
+                      {item.description}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
