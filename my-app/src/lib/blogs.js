@@ -3,6 +3,38 @@ import { fallbackBlogEntries } from "./blogs-content";
 
 export const BLOGS_TABLE = "blogs";
 
+function stripHtml(value = "") {
+  return value
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normaliseBlogContent(value = "") {
+  const trimmedValue = typeof value === "string" ? value.trim() : "";
+
+  if (!trimmedValue) {
+    return "";
+  }
+
+  if (/<[a-z][\s\S]*>/i.test(trimmedValue)) {
+    return trimmedValue;
+  }
+
+  return trimmedValue
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .map((paragraph) => `<p>${paragraph}</p>`)
+    .join("");
+}
+
 export function slugify(value = "") {
   return value
     .toLowerCase()
@@ -31,7 +63,7 @@ function getReadTime(value, explicitReadTime = "") {
     return trimmedReadTime;
   }
 
-  const minutes = Math.max(1, Math.ceil(countWords(value) / 180));
+  const minutes = Math.max(1, Math.ceil(countWords(stripHtml(value)) / 180));
   return `${minutes} min read`;
 }
 
@@ -40,10 +72,11 @@ function normaliseBlogEntry(entry = {}, index = 0) {
     id: entry.id || `fallback-${index}`,
     slug: entry.slug || slugify(entry.title || ""),
     category: entry.category || "General",
-    readTime: entry.read_time || entry.readTime || getReadTime(entry.content || ""),
+    readTime:
+      entry.read_time || entry.readTime || getReadTime(entry.content || ""),
     title: entry.title || "Untitled article",
     excerpt: entry.excerpt || "",
-    content: entry.content || "",
+    content: normaliseBlogContent(entry.content || ""),
     isPublished:
       typeof entry.is_published === "boolean"
         ? entry.is_published
@@ -73,8 +106,11 @@ function validateBlogPayload(payload = {}) {
     typeof payload.category === "string" ? payload.category.trim() : "";
   const excerpt =
     typeof payload.excerpt === "string" ? payload.excerpt.trim() : "";
-  const content =
-    typeof payload.content === "string" ? payload.content.trim() : "";
+  const content = normaliseBlogContent(
+    typeof payload.content === "string" ? payload.content : ""
+  );
+  const contentText = stripHtml(content);
+  const hasImage = /<img[\s\S]*?>/i.test(content);
   const readTime = getReadTime(
     content,
     typeof payload.readTime === "string" ? payload.readTime : ""
@@ -82,7 +118,7 @@ function validateBlogPayload(payload = {}) {
   const isPublished = Boolean(payload.isPublished);
   const sortOrder = Number(payload.sortOrder);
 
-  if (!title || !category || !excerpt || !content) {
+  if (!title || !category || !excerpt || (!contentText && !hasImage)) {
     return {
       error: "Title, category, excerpt, and content are required.",
     };

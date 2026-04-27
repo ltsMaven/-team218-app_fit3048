@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { slugify } from "@/lib/blogs";
+import RichTextEditor from "@/components/RichTextEditor";
 
 function createEmptyBlog() {
   return {
@@ -86,6 +87,13 @@ export default function AdminBlogsManager({
         [name]: name === "sortOrder" ? Number(nextValue) : nextValue,
       };
     });
+  }
+
+  function handleContentChange(nextContent) {
+    setFormData((current) => ({
+      ...current,
+      content: nextContent,
+    }));
   }
 
   async function handleSave(event) {
@@ -349,21 +357,13 @@ export default function AdminBlogsManager({
             />
           </label>
 
-          <label className="block md:col-span-2">
-            <span className="mb-2 block text-sm font-medium text-[#42454c]">
-              Article Content
-            </span>
-            <textarea
-              name="content"
+          <div className="block md:col-span-2">
+            <RichTextEditor
+              label="Article Content"
               value={formData.content}
-              onChange={handleChange}
-              rows={14}
-              className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
+              onChange={handleContentChange}
             />
-            <p className="mt-2 text-sm text-[#6a6e77]">
-              Separate paragraphs with a blank line.
-            </p>
-          </label>
+          </div>
         </div>
 
         <label className="mt-6 flex items-center gap-3 rounded-2xl border border-[#d8dfeb] bg-[#f8f8fb] px-4 py-4">

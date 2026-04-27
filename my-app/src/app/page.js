@@ -207,8 +207,6 @@ export default async function Home() {
           </div>
 
           <div className="lg:col-span-7">
-
-
             <h2 className="mb-8 text-4xl font-semibold leading-tight text-[#42454c] sm:text-5xl lg:text-6xl">
               {homepageContent.about_heading}
             </h2>
@@ -218,11 +216,9 @@ export default async function Home() {
                 {homepageContent.about_intro}
               </p>
 
-
-                <p className="text-xl leading-relaxed text-[#4f5560]">
-                  {homepageContent.about_highlight}
-                </p>
-              
+              <p className="text-xl leading-relaxed text-[#4f5560]">
+                {homepageContent.about_highlight}
+              </p>
 
               <p className="text-xl font-medium leading-relaxed text-[#42454c]">
                 {homepageContent.about_closing}
@@ -401,38 +397,6 @@ export default async function Home() {
                 </article>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[linear-gradient(180deg,rgba(255,255,255,0.35),rgba(240,244,248,0.78))] px-6 py-24">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
-                Blogs
-              </p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[#42454c] sm:text-4xl">
-                Practical insights for everyday wellbeing
-              </h2>
-              <p className="mt-4 text-base leading-8 text-[#5d6169]">
-                Read short, grounded articles on counselling, recovery,
-                emotional wellbeing, boundaries, and support that can be used in
-                real life.
-              </p>
-            </div>
-
-            <Link
-              href="/blogs"
-              className="inline-flex items-center gap-2 self-start rounded-full border border-[#d8dfeb] bg-white/80 px-5 py-3 text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
-            >
-              View all blogs
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="mt-12">
-            <BlogSlider blogs={blogs} />
           </div>
         </div>
       </section>
