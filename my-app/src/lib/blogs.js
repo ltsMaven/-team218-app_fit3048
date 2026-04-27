@@ -109,6 +109,41 @@ function normaliseBlogEntries(entries = []) {
   return entries.map((entry, index) => normaliseBlogEntry(entry, index));
 }
 
+function buildBlogFieldErrors({
+  title,
+  rawSlug,
+  category,
+  excerpt,
+  contentText,
+  hasImage,
+}) {
+  const fieldErrors = {};
+
+  if (!title) {
+    fieldErrors.title = "Title is required.";
+  }
+
+  if (!category) {
+    fieldErrors.category = "Category is required.";
+  }
+
+  if (!excerpt) {
+    fieldErrors.excerpt = "Excerpt is required.";
+  }
+
+  if (!contentText && !hasImage) {
+    fieldErrors.content =
+      "Article content is required. Add text, or insert an image inside the editor.";
+  }
+
+  if (rawSlug && !slugify(rawSlug)) {
+    fieldErrors.slug =
+      "Slug is invalid. Use letters, numbers, or hyphens only.";
+  }
+
+  return fieldErrors;
+}
+
 function validateBlogPayload(payload = {}) {
   const title = typeof payload.title === "string" ? payload.title.trim() : "";
   const rawSlug = typeof payload.slug === "string" ? payload.slug.trim() : "";
@@ -123,10 +158,19 @@ function validateBlogPayload(payload = {}) {
   const contentText = stripHtml(content);
   const hasImage = /<img[\s\S]*?>/i.test(content);
   const isPublished = Boolean(payload.isPublished);
+  const fieldErrors = buildBlogFieldErrors({
+    title,
+    rawSlug,
+    category,
+    excerpt,
+    contentText,
+    hasImage,
+  });
 
-  if (!title || !category || !excerpt || (!contentText && !hasImage)) {
+  if (Object.keys(fieldErrors).length > 0) {
     return {
-      error: "Title, category, excerpt, and content are required.",
+      error: "Please complete the required fields.",
+      fieldErrors,
     };
   }
 
@@ -135,6 +179,9 @@ function validateBlogPayload(payload = {}) {
   if (!slug) {
     return {
       error: "A valid slug could not be generated for this article.",
+      fieldErrors: {
+        slug: "Slug is required or must be able to be generated from the title.",
+      },
     };
   }
 
@@ -310,6 +357,7 @@ export async function createBlog(payload) {
   if (validated.error) {
     return {
       error: validated.error,
+      fieldErrors: validated.fieldErrors,
       status: 400,
     };
   }
@@ -319,6 +367,9 @@ export async function createBlog(payload) {
   if (await slugExists(supabase, validated.data.slug)) {
     return {
       error: "This blog slug already exists. Change the title or slug.",
+      fieldErrors: {
+        slug: "This slug is already in use.",
+      },
       status: 400,
     };
   }
@@ -360,6 +411,7 @@ export async function updateBlog(id, payload) {
   if (validated.error) {
     return {
       error: validated.error,
+      fieldErrors: validated.fieldErrors,
       status: 400,
     };
   }
@@ -369,6 +421,9 @@ export async function updateBlog(id, payload) {
   if (await slugExists(supabase, validated.data.slug, id)) {
     return {
       error: "This blog slug already exists. Change the title or slug.",
+      fieldErrors: {
+        slug: "This slug is already in use.",
+      },
       status: 400,
     };
   }

@@ -38,7 +38,7 @@ export async function PATCH(request, { params }) {
 
     if (result.error) {
       return NextResponse.json(
-        { error: result.error },
+        { error: result.error, fieldErrors: result.fieldErrors || {} },
         { status: result.status || 400 }
       );
     }

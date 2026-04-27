@@ -55,7 +55,7 @@ export async function POST(request) {
 
     if (result.error) {
       return NextResponse.json(
-        { error: result.error },
+        { error: result.error, fieldErrors: result.fieldErrors || {} },
         { status: result.status || 400 }
       );
     }

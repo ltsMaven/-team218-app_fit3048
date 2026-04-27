@@ -6,6 +6,7 @@ export default function RichTextEditor({
   value,
   onChange,
   label = "Content",
+  error = "",
 }) {
   const shellRef = useRef(null);
   const editorRef = useRef(null);
@@ -111,7 +112,9 @@ export default function RichTextEditor({
 
       <div
         ref={shellRef}
-        className="blog-quill-shell rounded-[1.7rem] border border-[#cfd6e2] bg-white shadow-sm"
+        className={`blog-quill-shell rounded-[1.7rem] border bg-white shadow-sm ${
+          error ? "border-[#d96c6c]" : "border-[#cfd6e2]"
+        }`}
       >
         <div
           className="blog-quill-editor"
@@ -123,6 +126,8 @@ export default function RichTextEditor({
         This uses Quill&apos;s Snow toolbar and saves HTML content. Images are
         inserted by URL.
       </p>
+
+      {error ? <p className="mt-2 text-sm text-[#b94a48]">{error}</p> : null}
     </div>
   );
 }

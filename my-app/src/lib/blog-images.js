@@ -1,4 +1,4 @@
-import { getServerSupabaseClient } from "./supabase-server";
+import { getServiceRoleSupabaseClient } from "./supabase-server";
 
 export const BLOG_IMAGES_BUCKET = "blog-images";
 const MAX_BLOG_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
@@ -39,18 +39,6 @@ function getFileExtension(file) {
   }
 }
 
-async function ensureBlogImagesBucket(supabase) {
-  const { error } = await supabase.storage.createBucket(BLOG_IMAGES_BUCKET, {
-    public: true,
-    fileSizeLimit: MAX_BLOG_IMAGE_SIZE_BYTES,
-    allowedMimeTypes: [...ALLOWED_BLOG_IMAGE_TYPES],
-  });
-
-  if (error && !/already exists/i.test(error.message || "")) {
-    throw new Error(`Unable to prepare blog image storage: ${error.message}`);
-  }
-}
-
 export async function uploadBlogImage(file) {
   if (!(file instanceof File)) {
     throw new Error("A valid image file is required.");
@@ -64,8 +52,7 @@ export async function uploadBlogImage(file) {
     throw new Error("Image must be 5MB or smaller.");
   }
 
-  const supabase = getServerSupabaseClient();
-  await ensureBlogImagesBucket(supabase);
+  const supabase = getServiceRoleSupabaseClient();
 
   const extension = getFileExtension(file);
   const baseName = sanitiseFileName(
@@ -83,6 +70,12 @@ export async function uploadBlogImage(file) {
     });
 
   if (uploadError) {
+    if (/bucket/i.test(uploadError.message || "")) {
+      throw new Error(
+        "Blog image storage is not ready. Run the updated blogs.sql migration to create the blog-images bucket."
+      );
+    }
+
     throw new Error(`Unable to upload blog image: ${uploadError.message}`);
   }
 

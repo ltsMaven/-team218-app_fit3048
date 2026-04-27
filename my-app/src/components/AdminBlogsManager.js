@@ -36,6 +36,58 @@ function sortBlogs(blogs) {
   });
 }
 
+function stripEditorHtml(value = "") {
+  return String(value)
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function validateBlogForm(formData) {
+  const fieldErrors = {};
+  const title = String(formData.title || "").trim();
+  const slug = String(formData.slug || "").trim();
+  const category = String(formData.category || "").trim();
+  const excerpt = String(formData.excerpt || "").trim();
+  const contentText = stripEditorHtml(formData.content || "");
+  const hasContentImage = /<img[\s\S]*?>/i.test(String(formData.content || ""));
+
+  if (!title) {
+    fieldErrors.title = "Title is required.";
+  }
+
+  if (!category) {
+    fieldErrors.category = "Category is required.";
+  }
+
+  if (!excerpt) {
+    fieldErrors.excerpt = "Excerpt is required.";
+  }
+
+  if (!contentText && !hasContentImage) {
+    fieldErrors.content =
+      "Article content is required. Add text, or insert an image inside the editor.";
+  }
+
+  if (slug && !slugify(slug)) {
+    fieldErrors.slug =
+      "Slug is invalid. Use letters, numbers, or hyphens only.";
+  }
+
+  return fieldErrors;
+}
+
+function getInputClasses(hasError) {
+  return `w-full rounded-2xl border bg-white px-4 py-3 text-[#42454c] outline-none transition ${
+    hasError
+      ? "border-[#d96c6c] focus:border-[#d96c6c]"
+      : "border-[#cfd6e2] focus:border-[#926ab9]"
+  }`;
+}
+
 export default function AdminBlogsManager({
   initialBlogs = [],
   loadError = "",
@@ -49,12 +101,14 @@ export default function AdminBlogsManager({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [status, setStatus] = useState({ type: "idle", message: "" });
 
   function handleCreateNew() {
     setSelectedBlogId("new");
     setFormData(createEmptyBlog());
     setHasCustomSlug(false);
+    setFieldErrors({});
     setStatus({ type: "idle", message: "" });
   }
 
@@ -65,12 +119,23 @@ export default function AdminBlogsManager({
       setFormData({ ...selectedBlog });
       setHasCustomSlug(true);
     }
+    setFieldErrors({});
     setStatus({ type: "idle", message: "" });
   }
 
   function handleChange(event) {
     const { name, type, value, checked } = event.target;
     const nextValue = type === "checkbox" ? checked : value;
+
+    if (name === "slug") {
+      setHasCustomSlug(true);
+    }
+
+    setFieldErrors((currentErrors) => ({
+      ...currentErrors,
+      [name]: "",
+      ...(name === "title" && !hasCustomSlug ? { slug: "" } : {}),
+    }));
 
     setFormData((current) => {
       if (name === "title") {
@@ -81,10 +146,6 @@ export default function AdminBlogsManager({
         };
       }
 
-      if (name === "slug") {
-        setHasCustomSlug(true);
-      }
-
       return {
         ...current,
         [name]: nextValue,
@@ -93,6 +154,11 @@ export default function AdminBlogsManager({
   }
 
   function handleContentChange(nextContent) {
+    setFieldErrors((currentErrors) => ({
+      ...currentErrors,
+      content: "",
+    }));
+
     setFormData((current) => ({
       ...current,
       content: nextContent,
@@ -127,6 +193,10 @@ export default function AdminBlogsManager({
         ...current,
         imageUrl: result.imageUrl,
       }));
+      setFieldErrors((currentErrors) => ({
+        ...currentErrors,
+        imageUrl: "",
+      }));
       setStatus({
         type: "success",
         message: "Photo uploaded.",
@@ -151,7 +221,19 @@ export default function AdminBlogsManager({
 
   async function handleSave(event) {
     event.preventDefault();
+    const nextFieldErrors = validateBlogForm(formData);
+
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setFieldErrors(nextFieldErrors);
+      setStatus({
+        type: "error",
+        message: "Please complete the required fields before saving.",
+      });
+      return;
+    }
+
     setIsSaving(true);
+    setFieldErrors({});
     setStatus({ type: "idle", message: "" });
 
     try {
@@ -168,6 +250,7 @@ export default function AdminBlogsManager({
       const result = await response.json();
 
       if (!response.ok) {
+        setFieldErrors(result.fieldErrors || {});
         throw new Error(result.error || "Unable to save blog.");
       }
 
@@ -182,6 +265,7 @@ export default function AdminBlogsManager({
       setSelectedBlogId(savedBlog.id);
       setFormData(savedBlog);
       setHasCustomSlug(true);
+      setFieldErrors({});
       setStatus({
         type: "success",
         message: formData.id ? "Blog updated." : "Blog created.",
@@ -337,15 +421,19 @@ export default function AdminBlogsManager({
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <label className="block md:col-span-2">
             <span className="mb-2 block text-sm font-medium text-[#42454c]">
-              Title
+              Title *
             </span>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
+              aria-invalid={Boolean(fieldErrors.title)}
+              className={getInputClasses(Boolean(fieldErrors.title))}
             />
+            {fieldErrors.title ? (
+              <p className="mt-2 text-sm text-[#b94a48]">{fieldErrors.title}</p>
+            ) : null}
           </label>
 
           <label className="block">
@@ -357,21 +445,34 @@ export default function AdminBlogsManager({
               name="slug"
               value={formData.slug}
               onChange={handleChange}
-              className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
+              aria-invalid={Boolean(fieldErrors.slug)}
+              className={getInputClasses(Boolean(fieldErrors.slug))}
             />
+            <p className="mt-2 text-sm text-[#6a6e77]">
+              Optional. Leave it as-is to use the title-based slug.
+            </p>
+            {fieldErrors.slug ? (
+              <p className="mt-2 text-sm text-[#b94a48]">{fieldErrors.slug}</p>
+            ) : null}
           </label>
 
           <label className="block">
             <span className="mb-2 block text-sm font-medium text-[#42454c]">
-              Category
+              Category *
             </span>
             <input
               type="text"
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
+              aria-invalid={Boolean(fieldErrors.category)}
+              className={getInputClasses(Boolean(fieldErrors.category))}
             />
+            {fieldErrors.category ? (
+              <p className="mt-2 text-sm text-[#b94a48]">
+                {fieldErrors.category}
+              </p>
+            ) : null}
           </label>
 
           <label className="block md:col-span-2">
@@ -410,15 +511,22 @@ export default function AdminBlogsManager({
 
           <label className="block md:col-span-2">
             <span className="mb-2 block text-sm font-medium text-[#42454c]">
-              Excerpt
+              Excerpt *
             </span>
             <textarea
               name="excerpt"
               value={formData.excerpt}
               onChange={handleChange}
               rows={4}
-              className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
+              aria-invalid={Boolean(fieldErrors.excerpt)}
+              className={getInputClasses(Boolean(fieldErrors.excerpt))}
             />
+            <p className="mt-2 text-sm text-[#6a6e77]">
+              This is the short preview shown on the blog cards and article header.
+            </p>
+            {fieldErrors.excerpt ? (
+              <p className="mt-2 text-sm text-[#b94a48]">{fieldErrors.excerpt}</p>
+            ) : null}
           </label>
 
           {formData.imageUrl ? (
@@ -436,9 +544,10 @@ export default function AdminBlogsManager({
 
           <div className="block md:col-span-2">
             <RichTextEditor
-              label="Article Content"
+              label="Article Content *"
               value={formData.content}
               onChange={handleContentChange}
+              error={fieldErrors.content}
             />
           </div>
         </div>
