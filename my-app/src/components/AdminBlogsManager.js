@@ -10,10 +10,9 @@ function createEmptyBlog() {
     title: "",
     slug: "",
     category: "",
-    readTime: "",
+    imageUrl: "",
     excerpt: "",
     content: "",
-    sortOrder: 0,
     isPublished: false,
   };
 }
@@ -26,8 +25,11 @@ function getStatusClasses(isPublished) {
 
 function sortBlogs(blogs) {
   return [...blogs].sort((a, b) => {
-    if ((a.sortOrder || 0) !== (b.sortOrder || 0)) {
-      return (a.sortOrder || 0) - (b.sortOrder || 0);
+    const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+    const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+
+    if (dateA !== dateB) {
+      return dateB - dateA;
     }
 
     return String(a.title).localeCompare(String(b.title));
@@ -46,6 +48,7 @@ export default function AdminBlogsManager({
   const [hasCustomSlug, setHasCustomSlug] = useState(Boolean(initialBlogs[0]?.slug));
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [status, setStatus] = useState({ type: "idle", message: "" });
 
   function handleCreateNew() {
@@ -84,7 +87,7 @@ export default function AdminBlogsManager({
 
       return {
         ...current,
-        [name]: name === "sortOrder" ? Number(nextValue) : nextValue,
+        [name]: nextValue,
       };
     });
   }
@@ -93,6 +96,56 @@ export default function AdminBlogsManager({
     setFormData((current) => ({
       ...current,
       content: nextContent,
+    }));
+  }
+
+  async function handleImageUpload(event) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    setIsUploadingImage(true);
+    setStatus({ type: "idle", message: "" });
+
+    try {
+      const uploadPayload = new FormData();
+      uploadPayload.append("file", file);
+
+      const response = await fetch("/api/blog-images", {
+        method: "POST",
+        body: uploadPayload,
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to upload image.");
+      }
+
+      setFormData((current) => ({
+        ...current,
+        imageUrl: result.imageUrl,
+      }));
+      setStatus({
+        type: "success",
+        message: "Photo uploaded.",
+      });
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Unable to upload image.",
+      });
+    } finally {
+      event.target.value = "";
+      setIsUploadingImage(false);
+    }
+  }
+
+  function handleRemoveImage() {
+    setFormData((current) => ({
+      ...current,
+      imageUrl: "",
     }));
   }
 
@@ -269,10 +322,14 @@ export default function AdminBlogsManager({
             </button>
             <button
               type="submit"
-              disabled={isSaving}
+              disabled={isSaving || isUploadingImage}
               className="rounded-full bg-[#4b8e9a] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#3e7882] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isSaving ? "Saving..." : "Save blog"}
+              {isUploadingImage
+                ? "Uploading photo..."
+                : isSaving
+                  ? "Saving..."
+                  : "Save blog"}
             </button>
           </div>
         </div>
@@ -317,31 +374,38 @@ export default function AdminBlogsManager({
             />
           </label>
 
-          <label className="block">
+          <label className="block md:col-span-2">
             <span className="mb-2 block text-sm font-medium text-[#42454c]">
-              Read Time
+              Featured Photo
             </span>
-            <input
-              type="text"
-              name="readTime"
-              value={formData.readTime}
-              onChange={handleChange}
-              placeholder="Auto generated if empty"
-              className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
-            />
-          </label>
+            <div className="rounded-[1.7rem] border border-[#cfd6e2] bg-white p-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-[#926ab9] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#7d58a3]">
+                  {isUploadingImage ? "Uploading..." : "Upload photo"}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleImageUpload}
+                    disabled={isUploadingImage}
+                    className="hidden"
+                  />
+                </label>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-[#42454c]">
-              Sort Order
-            </span>
-            <input
-              type="number"
-              name="sortOrder"
-              value={formData.sortOrder}
-              onChange={handleChange}
-              className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
-            />
+                {formData.imageUrl ? (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="rounded-full border border-[#d8dfeb] px-4 py-2 text-sm font-medium text-[#42454c] transition hover:border-[#b04c4c] hover:text-[#b04c4c]"
+                  >
+                    Remove photo
+                  </button>
+                ) : null}
+              </div>
+
+              <p className="mt-3 text-sm text-[#6a6e77]">
+                Upload a JPG, PNG, WEBP, or GIF image up to 5MB.
+              </p>
+            </div>
           </label>
 
           <label className="block md:col-span-2">
@@ -356,6 +420,19 @@ export default function AdminBlogsManager({
               className="w-full rounded-2xl border border-[#cfd6e2] bg-white px-4 py-3 text-[#42454c] outline-none transition focus:border-[#926ab9]"
             />
           </label>
+
+          {formData.imageUrl ? (
+            <div className="md:col-span-2 rounded-[1.7rem] border border-[#d8dfeb] bg-[#f8f8fb] p-4">
+              <p className="mb-3 text-sm font-medium text-[#42454c]">
+                Photo Preview
+              </p>
+              <img
+                src={formData.imageUrl}
+                alt={formData.title || "Blog photo preview"}
+                className="h-56 w-full rounded-[1.3rem] object-cover"
+              />
+            </div>
+          ) : null}
 
           <div className="block md:col-span-2">
             <RichTextEditor

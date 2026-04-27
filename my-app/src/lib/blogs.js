@@ -16,6 +16,10 @@ function stripHtml(value = "") {
     .trim();
 }
 
+function normaliseImageUrl(value = "") {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 function normaliseBlogContent(value = "") {
   const trimmedValue = typeof value === "string" ? value.trim() : "";
 
@@ -67,11 +71,17 @@ function getReadTime(value, explicitReadTime = "") {
   return `${minutes} min read`;
 }
 
+function getTimestamp(value) {
+  const timestamp = new Date(value || 0).getTime();
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
 function normaliseBlogEntry(entry = {}, index = 0) {
   return {
     id: entry.id || `fallback-${index}`,
     slug: entry.slug || slugify(entry.title || ""),
     category: entry.category || "General",
+    imageUrl: normaliseImageUrl(entry.image_url || entry.imageUrl || ""),
     readTime:
       entry.read_time || entry.readTime || getReadTime(entry.content || ""),
     title: entry.title || "Untitled article",
@@ -104,6 +114,7 @@ function validateBlogPayload(payload = {}) {
   const rawSlug = typeof payload.slug === "string" ? payload.slug.trim() : "";
   const category =
     typeof payload.category === "string" ? payload.category.trim() : "";
+  const imageUrl = normaliseImageUrl(payload.imageUrl);
   const excerpt =
     typeof payload.excerpt === "string" ? payload.excerpt.trim() : "";
   const content = normaliseBlogContent(
@@ -111,12 +122,7 @@ function validateBlogPayload(payload = {}) {
   );
   const contentText = stripHtml(content);
   const hasImage = /<img[\s\S]*?>/i.test(content);
-  const readTime = getReadTime(
-    content,
-    typeof payload.readTime === "string" ? payload.readTime : ""
-  );
   const isPublished = Boolean(payload.isPublished);
-  const sortOrder = Number(payload.sortOrder);
 
   if (!title || !category || !excerpt || (!contentText && !hasImage)) {
     return {
@@ -137,11 +143,11 @@ function validateBlogPayload(payload = {}) {
       title,
       slug,
       category,
+      imageUrl,
       excerpt,
       content,
-      readTime,
+      readTime: getReadTime(content),
       isPublished,
-      sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0,
     },
   };
 }
@@ -151,11 +157,11 @@ function buildBlogRecord(data, currentEntry = null) {
     slug: data.slug,
     title: data.title,
     category: data.category,
+    image_url: data.imageUrl || null,
     excerpt: data.excerpt,
     content: data.content,
     read_time: data.readTime,
     is_published: data.isPublished,
-    sort_order: data.sortOrder,
     published_at: data.isPublished
       ? currentEntry?.published_at || currentEntry?.publishedAt || new Date().toISOString()
       : null,
@@ -173,20 +179,20 @@ export async function getPublishedBlogs({ limit } = {}) {
           "id",
           "slug",
           "category",
+          "image_url",
           "read_time",
           "title",
           "excerpt",
           "content",
           "is_published",
-          "sort_order",
           "published_at",
           "created_at",
           "updated_at",
         ].join(", ")
       )
       .eq("is_published", true)
-      .order("sort_order", { ascending: true })
-      .order("published_at", { ascending: false });
+      .order("published_at", { ascending: false })
+      .order("updated_at", { ascending: false });
 
     if (typeof limit === "number") {
       query = query.limit(limit);
@@ -200,9 +206,13 @@ export async function getPublishedBlogs({ limit } = {}) {
 
     return normaliseBlogEntries(data || []);
   } catch {
-    const fallbackBlogs = normaliseBlogEntries(fallbackBlogEntries).filter(
-      (blog) => blog.isPublished
-    );
+    const fallbackBlogs = normaliseBlogEntries(fallbackBlogEntries)
+      .filter((blog) => blog.isPublished)
+      .sort(
+        (a, b) =>
+          getTimestamp(b.publishedAt || b.updatedAt || b.createdAt) -
+          getTimestamp(a.publishedAt || a.updatedAt || a.createdAt)
+      );
 
     return typeof limit === "number" ? fallbackBlogs.slice(0, limit) : fallbackBlogs;
   }
@@ -218,12 +228,12 @@ export async function getPublishedBlogBySlug(slug) {
           "id",
           "slug",
           "category",
+          "image_url",
           "read_time",
           "title",
           "excerpt",
           "content",
           "is_published",
-          "sort_order",
           "published_at",
           "created_at",
           "updated_at",
@@ -253,19 +263,19 @@ export async function getAdminBlogs() {
         "id",
         "slug",
         "category",
+        "image_url",
         "read_time",
         "title",
         "excerpt",
         "content",
         "is_published",
-        "sort_order",
         "published_at",
         "created_at",
         "updated_at",
       ].join(", ")
     )
-    .order("sort_order", { ascending: true })
-    .order("updated_at", { ascending: false });
+    .order("updated_at", { ascending: false })
+    .order("created_at", { ascending: false });
 
   if (error) {
     throw new Error(`Supabase blog lookup failed: ${error.message}`);
