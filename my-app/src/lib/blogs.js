@@ -20,6 +20,13 @@ function normaliseImageUrl(value = "") {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function stripEmptyParagraphs(value = "") {
+  return value
+    .replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function normaliseBlogContent(value = "") {
   const trimmedValue = typeof value === "string" ? value.trim() : "";
 
@@ -28,15 +35,17 @@ function normaliseBlogContent(value = "") {
   }
 
   if (/<[a-z][\s\S]*>/i.test(trimmedValue)) {
-    return trimmedValue;
+    return stripEmptyParagraphs(trimmedValue);
   }
 
-  return trimmedValue
+  return stripEmptyParagraphs(
+    trimmedValue
     .split(/\n\s*\n/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean)
     .map((paragraph) => `<p>${paragraph}</p>`)
-    .join("");
+    .join("")
+  );
 }
 
 export function slugify(value = "") {

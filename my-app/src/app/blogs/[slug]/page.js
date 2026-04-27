@@ -65,13 +65,24 @@ export default async function BlogArticlePage({ params }) {
             />
           ) : null}
 
-          <p className="mt-6 text-lg leading-8 text-[#5d6169]">{blog.excerpt}</p>
+          <p className="mt-6 text-justify text-lg leading-8 text-[#5d6169]">
+            {blog.excerpt}
+          </p>
 
           <div
-            className="mt-10 text-[#4f5560] [&_a]:text-[#4b8e9a] [&_a]:underline-offset-4 [&_a]:hover:text-[#926ab9] [&_blockquote]:my-8 [&_blockquote]:border-l-4 [&_blockquote]:border-[#d8dfeb] [&_blockquote]:bg-[#f8f8fb] [&_blockquote]:px-5 [&_blockquote]:py-4 [&_blockquote]:italic [&_h2]:mt-10 [&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:text-[#42454c] [&_h3]:mt-8 [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:tracking-tight [&_h3]:text-[#42454c] [&_img]:my-8 [&_img]:w-full [&_img]:rounded-[1.75rem] [&_img]:border [&_img]:border-[#d8dfeb] [&_img]:shadow-sm [&_li]:leading-8 [&_ol]:my-6 [&_ol]:ml-6 [&_ol]:list-decimal [&_p]:my-6 [&_p]:text-base [&_p]:leading-8 sm:[&_p]:text-[1.05rem] [&_ul]:my-6 [&_ul]:ml-6 [&_ul]:list-disc"
+            className="mt-10 text-[#4f5560] [&_a]:text-[#4b8e9a] [&_a]:underline-offset-4 [&_a]:hover:text-[#926ab9] [&_blockquote]:my-8 [&_blockquote]:border-l-4 [&_blockquote]:border-[#d8dfeb] [&_blockquote]:bg-[#f8f8fb] [&_blockquote]:px-5 [&_blockquote]:py-4 [&_blockquote]:italic [&_h2]:mt-10 [&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:text-[#42454c] [&_h3]:mt-8 [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:tracking-tight [&_h3]:text-[#42454c] [&_img]:my-8 [&_img]:w-full [&_img]:rounded-[1.75rem] [&_img]:border [&_img]:border-[#d8dfeb] [&_img]:shadow-sm [&_li]:leading-8 [&_ol]:my-6 [&_ol]:ml-6 [&_ol]:list-decimal [&_p]:my-6 [&_p]:text-base [&_p]:leading-8 [&_p]:text-justify sm:[&_p]:text-[1.05rem] [&_ul]:my-6 [&_ul]:ml-6 [&_ul]:list-disc"
             dangerouslySetInnerHTML={{ __html: blog.content }}
           />
         </div>
+      </div>
+      <div className="mt-12 flex justify-center pt-8">
+        <Link
+          href="/blogs"
+          className="inline-flex items-center gap-2 rounded-full bg-[#926ab9] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to blogs
+        </Link>
       </div>
     </article>
   );
