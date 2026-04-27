@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Sun } from "lucide-react";
 import HeroSlider from "../components/HeroSlider";
+import BlogSlider from "../components/BlogSlider";
 import EnquiryForm from "../components/EnquiryForm";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import {
@@ -10,6 +11,7 @@ import {
   HOMEPAGE_CMS_TABLE,
   normaliseHomepageContent,
 } from "@/lib/cms-homepage";
+import { getPublishedBlogs } from "@/lib/blogs";
 import { getApprovedTestimonials } from "@/lib/testimonial-submissions";
 
 const siteUrl =
@@ -140,6 +142,10 @@ async function getHomepageTestimonials() {
   }
 }
 
+async function getHomepageBlogs() {
+  return getPublishedBlogs({ limit: 6 });
+}
+
 function getTestimonialPreview(quote) {
   if (quote.length <= TESTIMONIAL_PREVIEW_LENGTH) {
     return quote;
@@ -152,9 +158,10 @@ function getTestimonialPreview(quote) {
 }
 
 export default async function Home() {
-  const [homepageContent, testimonials] = await Promise.all([
+  const [homepageContent, testimonials, blogs] = await Promise.all([
     getHomepageContent(),
     getHomepageTestimonials(),
+    getHomepageBlogs(),
   ]);
   const organizationStructuredData = {
     "@context": "https://schema.org",
@@ -200,8 +207,6 @@ export default async function Home() {
           </div>
 
           <div className="lg:col-span-7">
-
-
             <h2 className="mb-8 text-4xl font-semibold leading-tight text-[#42454c] sm:text-5xl lg:text-6xl">
               {homepageContent.about_heading}
             </h2>
@@ -211,11 +216,9 @@ export default async function Home() {
                 {homepageContent.about_intro}
               </p>
 
-
-                <p className="text-xl leading-relaxed text-[#4f5560]">
-                  {homepageContent.about_highlight}
-                </p>
-              
+              <p className="text-xl leading-relaxed text-[#4f5560]">
+                {homepageContent.about_highlight}
+              </p>
 
               <p className="text-xl font-medium leading-relaxed text-[#42454c]">
                 {homepageContent.about_closing}
@@ -398,7 +401,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="blogs" className="bg-transparent px-6 py-24">
+      <section id="testimonials" className="bg-transparent px-6 py-24">
         <div className="mx-auto max-w-7xl">
           <div className="mb-20 text-center">
             <h2 className="text-3xl font-semibold tracking-tight text-[#42454c] sm:text-4xl">
