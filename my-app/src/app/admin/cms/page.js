@@ -22,8 +22,8 @@ const cmsCards = [
     title: "Edit About Page",
     description:
       "Prepare the About page content editor as a separate CMS workspace.",
-    href: "",
-    status: "Coming next",
+    href: "/admin/cms/about",
+    status: "Ready now",
     icon: LayoutTemplate,
     accent: "from-[#f4eff8] to-[#ece6f5]",
   },
