@@ -3,11 +3,25 @@ import { requireAdminSession } from "@/lib/admin-access";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import HomepageCmsForm from "./HomepageCmsForm";
 import {
+  ABOUT_CMS_FIELDS,
+  ABOUT_CMS_SLUG,
+  ABOUT_CMS_TABLE,
   emptyHomepageContent,
+  fallbackAboutContent,
+  fallbackServiceItems,
+  fallbackServicesContent,
   HOMEPAGE_CMS_FIELDS,
   HOMEPAGE_CMS_SLUG,
   HOMEPAGE_CMS_TABLE,
+  normaliseAboutContent,
   normaliseHomepageContent,
+  normaliseServiceItems,
+  normaliseServicesContent,
+  SERVICE_ITEMS_TABLE,
+  SERVICE_ITEM_FIELDS,
+  SERVICES_CMS_FIELDS,
+  SERVICES_CMS_SLUG,
+  SERVICES_CMS_TABLE,
 } from "@/lib/cms-homepage";
 
 export const metadata = {
@@ -15,32 +29,77 @@ export const metadata = {
   description: "Admin content management area for Ability to Thrive.",
 };
 
-async function getHomepageContent() {
+async function getCmsContent() {
   try {
     const supabase = getServerSupabaseClient();
-    const { data, error } = await supabase
-      .from(HOMEPAGE_CMS_TABLE)
-      .select(["slug", ...HOMEPAGE_CMS_FIELDS].join(", "))
-      .eq("slug", HOMEPAGE_CMS_SLUG)
-      .maybeSingle();
+    const [
+      homepageResult,
+      aboutResult,
+      servicesResult,
+      serviceItemsResult,
+    ] = await Promise.all([
+      supabase
+        .from(HOMEPAGE_CMS_TABLE)
+        .select(["slug", ...HOMEPAGE_CMS_FIELDS].join(", "))
+        .eq("slug", HOMEPAGE_CMS_SLUG)
+        .maybeSingle(),
+      supabase
+        .from(ABOUT_CMS_TABLE)
+        .select(["slug", ...ABOUT_CMS_FIELDS].join(", "))
+        .eq("slug", ABOUT_CMS_SLUG)
+        .maybeSingle(),
+      supabase
+        .from(SERVICES_CMS_TABLE)
+        .select(["slug", ...SERVICES_CMS_FIELDS].join(", "))
+        .eq("slug", SERVICES_CMS_SLUG)
+        .maybeSingle(),
+      supabase
+        .from(SERVICE_ITEMS_TABLE)
+        .select(["id", "homepage_slug", ...SERVICE_ITEM_FIELDS].join(", "))
+        .eq("homepage_slug", SERVICES_CMS_SLUG)
+        .eq("is_published", true)
+        .order("sort_order", { ascending: true }),
+    ]);
+
+    const error =
+      homepageResult.error ||
+      aboutResult.error ||
+      servicesResult.error ||
+      serviceItemsResult.error;
 
     if (error) {
       throw new Error(error.message);
     }
 
     return {
-      content: normaliseHomepageContent({
+      homepage: normaliseHomepageContent({
         ...emptyHomepageContent,
-        ...data,
+        ...homepageResult.data,
       }),
+      about: normaliseAboutContent({
+        ...fallbackAboutContent,
+        ...aboutResult.data,
+      }),
+      services: normaliseServicesContent({
+        ...fallbackServicesContent,
+        ...servicesResult.data,
+      }),
+      serviceItems: normaliseServiceItems(
+        serviceItemsResult.data?.length
+          ? serviceItemsResult.data
+          : fallbackServiceItems
+      ),
       loadError: "",
     };
   } catch (error) {
     return {
-      content: emptyHomepageContent,
+      homepage: emptyHomepageContent,
+      about: fallbackAboutContent,
+      services: fallbackServicesContent,
+      serviceItems: fallbackServiceItems,
       loadError:
         error.message ||
-        "Unable to load homepage content. Check that the cms_homepage table exists and Supabase is configured.",
+        "Unable to load CMS content. Check that the CMS tables exist and Supabase is configured.",
     };
   }
 }
@@ -65,7 +124,8 @@ export default async function AdminCmsPage() {
   }
 
   const session = await requireAdminSession("/admin/cms");
-  const { content, loadError } = await getHomepageContent();
+  const { homepage, about, services, serviceItems, loadError } =
+    await getCmsContent();
 
   return (
     <section className="rounded-[2rem] border border-[#d8dfeb] bg-white/90 p-8 shadow-[0_24px_60px_rgba(66,69,76,0.08)] backdrop-blur sm:p-10">
@@ -78,10 +138,17 @@ export default async function AdminCmsPage() {
         </h1>
         <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]">
           Signed in as {session.user.name || session.user.email}. This editor
-          controls the text-only content for the main homepage.
+          controls the text-only content for the homepage, About Me page, and
+          Services page.
         </p>
 
-        <HomepageCmsForm initialContent={content} loadError={loadError} />
+        <HomepageCmsForm
+          initialHomepageContent={homepage}
+          initialAboutContent={about}
+          initialServicesContent={services}
+          initialServiceItems={serviceItems}
+          loadError={loadError}
+        />
       </div>
     </section>
   );

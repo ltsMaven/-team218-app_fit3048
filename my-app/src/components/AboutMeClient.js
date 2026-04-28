@@ -1,112 +1,223 @@
 "use client";
 
 import Link from "next/link";
-import { Quote, ArrowRight, Sparkles, GraduationCap, HeartHandshake, ShieldCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { fallbackAboutContent } from "@/lib/cms-homepage";
 
-const TEXT_PREVIEW_LENGTH = 160;
-
-function getPreview(text) {
-  if (text.length <= TEXT_PREVIEW_LENGTH) return text;
-  const trimmed = text.slice(0, TEXT_PREVIEW_LENGTH);
-  const lastSpace = trimmed.lastIndexOf(" ");
-  return `${trimmed.slice(0, lastSpace > 0 ? lastSpace : trimmed.length)}...`;
-}
-
-export default function AboutMeClient() {
+export default function AboutMeClient({ content = fallbackAboutContent }) {
   return (
-    <div className="min-h-screen bg-transparent pb-24">
-      <section className="px-6 pt-24 pb-12 lg:pt-32">
-        <div className="mx-auto max-w-4xl text-center">
-
-          <h1 className="text-4xl font-semibold leading-tight text-[#42454c] sm:text-5xl lg:text-6xl mb-6">
-            From Struggle to <span className="italic text-[#926ab9]">Success</span>
-          </h1>
-          <p className="text-xl text-[#5c6069] font-medium">
-            "Optimism That Inspires Change."
-          </p>
+    <div className="min-h-screen bg-[#f7f7f6] text-[#42454c] pb-24">
+      {/* HERO IMAGE */}
+      <section className="px-6 pt-24 lg:pt-8">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.5rem]">
+          <img
+            src="/assets/about/about-hero.jpeg"
+            alt="About hero"
+            className="h-[260px] w-full object-cover sm:h-[340px] lg:h-[420px]"
+          />
         </div>
       </section>
 
-      <section className="px-6">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+    {/* HERO TEXT */}
+    <section className="px-6 pt-10 pb-4">
+      <div className="mx-auto max-w-5xl text-center">
+        <h1 className="mb-6 text-4xl font-semibold leading-tight text-[#42454c] sm:text-5xl lg:text-6xl">
+          {content.hero_heading}
+        </h1>
+        <p className="text-xl font-medium text-[#5c6069]">
+          {content.hero_subheading}
+        </p>
+      </div>
+    </section>
 
-            <article className="md:col-span-5 rounded-[2.5rem] border border-[#d9deeb] bg-white p-10 shadow-sm transition hover:shadow-md">
-              <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f4eff8]">
-                <ShieldCheck className="h-6 w-6 text-[#926ab9]" />
-              </div>
-              <h2 className="text-2xl font-semibold text-[#42454c] mb-6">My Philosophy</h2>
-              <p className="text-base leading-8 text-[#5d6169]">
-                I believe that everyone has the potential to live a fulfilling and meaningful life. My mission is to empower you to live authentically, aligned with your values. By identifying and working towards your goals, we unlock your full potential using a holistic approach to counselling and stress management.
-              </p>
-              <div className="mt-6 h-px w-12 bg-[#926ab9]/30" />
-              <p className="mt-6 text-base leading-8 text-[#5d6169]">
-                I provide a safe, non-judgmental space where you can explore challenges through substance abuse counselling, relationship support, and dedicated LGBTQIA+ advocacy.
-              </p>
-            </article>
+      {/* STORY / INTRO EDITORIAL LAYOUT */}
+      <section className="px-6 mt-8">
+        <div className="mx-auto max-w-7xl">
 
-            <div className="md:col-span-7 flex flex-col gap-8">
-              <article className="flex-grow rounded-[2.5rem] border border-[#d8dfeb] bg-white p-10 shadow-sm transition hover:shadow-md">
-                <div className="mb-6 flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eaf3f5]">
-                    <GraduationCap className="h-6 w-6 text-[#4b8e9a]" />
-                  </div>
-                  <h2 className="text-2xl font-semibold text-[#42454c]">Professional Background</h2>
-                </div>
-                <p className="text-base leading-8 text-[#5d6169]">
-                  I have over <span className="font-semibold text-[#926ab9]">15 years of experience</span> as a counsellor and life coach. My expertise spans substance abuse, trauma, and relationship counselling, as well as navigating criminal and legal challenges. I am deeply committed to supporting people with disabilities, their carers, and members of the LGBTQIA+ community to improve overall well-being.
+          <div className="bg-white rounded-[2.5rem] border border-[#d9deeb] shadow-[0_10px_25px_rgba(0,0,0,0.08)] px-10 py-12 lg:px-16 lg:py-14">
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+
+              <div>
+                <h2 className="text-3xl font-semibold text-[#42454c] leading-tight">
+                  {content.story_heading}
+                </h2>
+
+                <p className="mt-4 text-lg text-[#5c6069]">
+                  {content.story_subheading}
                 </p>
-              </article>
-
-              <div className="rounded-[2rem] border border-white/40 bg-[#edf0f7] p-8">
-                <p className="text-sm font-semibold uppercase tracking-wider text-[#6d7bbb] mb-4">Core Focus Areas</p>
-                <div className="flex flex-wrap gap-3">
-                  {["Substance Abuse", "LGBTQIA+ Support", "Trauma", "Relationships", "NDIS / Disabilities", "Legal & Criminal Challenges"].map((tag) => (
-                    <span key={tag} className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-medium text-[#42454c] shadow-sm border border-[#cdd8e7]/50">{tag}</span>
-                  ))}
-                </div>
               </div>
+
+              <div className="space-y-6 text-base leading-8 text-[#5d6169]">
+                <p>{content.story_body_1}</p>
+
+                <div className="h-px w-16 bg-[#d9deeb]"></div>
+
+                <p>{content.story_body_2}</p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* PHILOSOPHY */}
+      <section className="px-6 mt-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="overflow-hidden rounded-[2.5rem]">
+              <img
+                src="/assets/about/about-philosophy.png"
+                alt={content.philosophy_heading}
+                className="h-[320px] w-full object-cover lg:h-[520px]"
+              />
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
+                {content.philosophy_heading}
+              </p>
+
+              <h2 className="mt-4 text-3xl font-semibold leading-tight text-[#42454c] sm:text-4xl">
+                {content.philosophy_heading}
+              </h2>
+
+              <p className="mt-8 text-base leading-9 text-[#5d6169]">
+                {content.philosophy_body_1}
+              </p>
+
+              <div className="mt-6 h-px w-16 bg-[#926ab9]/30" />
+
+              <p className="mt-6 text-base leading-9 text-[#5d6169]">
+                {content.philosophy_body_2}
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="px-6 mt-16">
-        <div className="mx-auto max-w-6xl">
-          <article className="rounded-[2.5rem] border border-[#d9deeb] bg-[#42454c] p-10 md:p-16 text-white shadow-lg relative overflow-hidden">
-            <div className="relative z-10">
-              <h2 className="text-3xl font-semibold mb-2">Survivor — Now Living my Best Life</h2>
-              <p className="text-[#7ea6d8] font-medium mb-8">Child Abuse, Domestic and Family Violence, Substance Misuse</p>
-              <div className="max-w-3xl text-white/80 leading-relaxed">
-                <p className="mb-6">
-                  "Guided by Kindness, Driven by Hope." I have lived experience in all of these areas and more. I don't believe in regret; without the challenges of my past, I would not be where I am today.
-                </p>
-                <p>
-                  For the past 2 years in private practice, I have had the privilege to journey alongside individuals overcoming challenges that held them back. I know through my own journey that with the right support, we all have the <strong>"Ability To Thrive."</strong>
-                </p>
-              </div>
+      {/* BACKGROUND */}
+      <section className="px-6 mt-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="order-2 lg:order-1">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
+                {content.background_heading}
+              </p>
+
+              <h2 className="mt-4 text-3xl font-semibold leading-tight text-[#42454c] sm:text-4xl">
+                {content.background_heading}
+              </h2>
+
+              <p className="mt-8 text-base leading-9 text-[#5d6169]">
+                {content.background_body}
+              </p>
             </div>
-          </article>
+
+            <div className="order-1 overflow-hidden rounded-[2.5rem] lg:order-2">
+              <img
+                src="/assets/about/about-background.png"
+                alt={content.background_heading}
+                className="h-[320px] w-full object-cover lg:h-[520px]"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="px-6 mt-16">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 bg-white border border-[#d9deeb] rounded-[2.5rem] p-12 shadow-sm">
-            <div className="space-y-4">
-              <p className="text-5xl font-light text-[#7ea6d8]">13<span className="text-2xl">yrs</span></p>
-              <h3 className="text-lg font-medium text-[#42454c]">Residential Rehab</h3>
-              <p className="text-[#5d6169] text-sm leading-relaxed">Wealth of skills working with substance misuse, coexisting mental health diagnoses, and related traumas.</p>
+      {/* FOCUS AREAS */}
+      <section className="px-6 mt-24">
+        <div className="mx-auto max-w-7xl rounded-[2.5rem] bg-[#edf0f7] px-8 py-10 lg:px-12 lg:py-12">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
+                {content.focus_label}
+              </p>
             </div>
-            <div className="space-y-4">
-              <p className="text-5xl font-light text-[#926ab9]">2<span className="text-2xl">yrs</span></p>
-              <h3 className="text-lg font-medium text-[#42454c]">NDIS & Advocacy</h3>
-              <p className="text-[#5d6169] text-sm leading-relaxed">Supporting people with disabilities and families, addressing carer burnout and unique systemic challenges.</p>
+
+            <div className="flex flex-wrap gap-3">
+              {(content.focus_tags || []).map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-medium text-[#42454c] shadow-sm"
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-[#42454c]">Wrap-Around Support</h3>
-              <p className="text-[#5d6169] text-sm leading-relaxed">A holistic approach to free yourself from the challenges that keep you stuck. Reach out today.</p>
-              <Link href="/booking" className="inline-flex items-center gap-2 text-[#4b8e9a] font-semibold hover:underline">Book a session <ArrowRight className="h-4 w-4" /></Link>
+          </div>
+        </div>
+      </section>
+
+      {/* STATS / SUPPORT */}
+      <section className="px-6 mt-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.9fr_0.9fr_1.2fr]">
+            <div>
+              <p className="text-5xl font-light text-[#7ea6d8] lg:text-6xl">
+                {content.stat_1_value}
+              </p>
+              <h3 className="mt-4 text-2xl font-medium text-[#42454c]">
+                {content.stat_1_label}
+              </h3>
+              <p className="mt-4 text-base leading-8 text-[#5d6169]">
+                {content.stat_1_body}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-5xl font-light text-[#926ab9] lg:text-6xl">
+                {content.stat_2_value}
+              </p>
+              <h3 className="mt-4 text-2xl font-medium text-[#42454c]">
+                {content.stat_2_label}
+              </h3>
+              <p className="mt-4 text-base leading-8 text-[#5d6169]">
+                {content.stat_2_body}
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] bg-white px-8 py-10 shadow-sm">
+             <div className="h-[35px]" />   
+
+              <h3 className="text-2xl font-medium text-[#42454c]">
+                {content.stat_3_label}
+              </h3>
+              <p className="mt-4 text-base leading-8 text-[#5d6169]">
+                {content.stat_3_body}
+              </p>
+              
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FULL-WIDTH IMAGE TEXT SECTION */}
+      <section className="mt-24">
+        <div className="relative overflow-hidden">
+          <img
+            src="/assets/about/about-cta.jpeg"
+            alt="About closing section"
+            className="h-[620px] w-full object-cover"
+          />
+
+          <div className="absolute inset-0 bg-black/45" />
+
+          <div className="absolute inset-0 flex items-center justify-center px-6">
+            <div className="max-w-4xl text-center text-white">
+            <h1 className="text-4xl lg:text-6xl font-semibold text-white">
+              Ready to take the next step?
+            </h1>
+
+              <div className="mt-20">
+                <Link
+                  href="/booking"
+                  className="inline-flex rounded-full bg-[#9a72c5] px-8 py-4 text-sm font-semibold text-white transition hover:bg-[#865fb0]"
+                >
+                  Book a Session
+                </Link>
+              </div>
             </div>
           </div>
         </div>
