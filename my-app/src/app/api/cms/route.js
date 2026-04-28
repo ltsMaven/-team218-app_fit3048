@@ -6,14 +6,24 @@ import {
   ABOUT_CMS_FIELDS,
   ABOUT_CMS_SLUG,
   ABOUT_CMS_TABLE,
+  BLOGS_CMS_FIELDS,
+  BLOGS_CMS_SLUG,
+  BLOGS_CMS_TABLE,
   emptyHomepageContent,
+  ENQUIRY_CMS_FIELDS,
+  ENQUIRY_CMS_SLUG,
+  ENQUIRY_CMS_TABLE,
   fallbackAboutContent,
+  fallbackBlogsContent,
+  fallbackEnquiryContent,
   fallbackServiceItems,
   fallbackServicesContent,
   HOMEPAGE_CMS_FIELDS,
   HOMEPAGE_CMS_SLUG,
   HOMEPAGE_CMS_TABLE,
   normaliseAboutContent,
+  normaliseBlogsContent,
+  normaliseEnquiryContent,
   normaliseHomepageContent,
   normaliseServiceItems,
   normaliseServicesContent,
@@ -96,6 +106,40 @@ async function fetchServicesContent(supabase) {
   });
 }
 
+async function fetchEnquiryContent(supabase) {
+  const { data, error } = await supabase
+    .from(ENQUIRY_CMS_TABLE)
+    .select(["slug", ...ENQUIRY_CMS_FIELDS].join(", "))
+    .eq("slug", ENQUIRY_CMS_SLUG)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Supabase enquiry lookup failed: ${error.message}`);
+  }
+
+  return normaliseEnquiryContent({
+    ...fallbackEnquiryContent,
+    ...data,
+  });
+}
+
+async function fetchBlogsContent(supabase) {
+  const { data, error } = await supabase
+    .from(BLOGS_CMS_TABLE)
+    .select(["slug", ...BLOGS_CMS_FIELDS].join(", "))
+    .eq("slug", BLOGS_CMS_SLUG)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Supabase blogs lookup failed: ${error.message}`);
+  }
+
+  return normaliseBlogsContent({
+    ...fallbackBlogsContent,
+    ...data,
+  });
+}
+
 async function fetchServiceItems(supabase) {
   const { data, error } = await supabase
     .from(SERVICE_ITEMS_TABLE)
@@ -113,10 +157,12 @@ async function fetchServiceItems(supabase) {
 
 async function fetchAllCmsContent() {
   const supabase = getServerSupabaseClient();
-  const [homepage, about, services, serviceItems] = await Promise.all([
+  const [homepage, about, services, enquiry, blogs, serviceItems] = await Promise.all([
     fetchHomepageContent(),
     fetchAboutContent(supabase),
     fetchServicesContent(supabase),
+    fetchEnquiryContent(supabase),
+    fetchBlogsContent(supabase),
     fetchServiceItems(supabase),
   ]);
 
@@ -124,6 +170,8 @@ async function fetchAllCmsContent() {
     homepage,
     about,
     services,
+    enquiry,
+    blogs,
     serviceItems,
   };
 }
@@ -163,6 +211,8 @@ export async function PUT(request) {
       HOMEPAGE_CMS_FIELDS.some((field) => field in body);
     const hasAboutSection = "about" in body || "aboutContent" in body;
     const hasServicesSection = "services" in body || "servicesContent" in body;
+    const hasEnquirySection = "enquiry" in body || "enquiryContent" in body;
+    const hasBlogsSection = "blogs" in body || "blogsContent" in body;
     const hasServiceItemsSection =
       "serviceItems" in body || "servicesItems" in body;
 
@@ -181,6 +231,18 @@ export async function PUT(request) {
           ...(body.services || body.servicesContent || {}),
         })
       : await fetchServicesContent(supabase);
+    const enquiry = hasEnquirySection
+      ? normaliseEnquiryContent({
+          ...fallbackEnquiryContent,
+          ...(body.enquiry || body.enquiryContent || {}),
+        })
+      : await fetchEnquiryContent(supabase);
+    const blogs = hasBlogsSection
+      ? normaliseBlogsContent({
+          ...fallbackBlogsContent,
+          ...(body.blogs || body.blogsContent || {}),
+        })
+      : await fetchBlogsContent(supabase);
     const serviceItems = hasServiceItemsSection
       ? normaliseServiceItems(
           body.serviceItems || body.servicesItems || fallbackServiceItems
@@ -212,10 +274,28 @@ export async function PUT(request) {
           updated_at: new Date().toISOString(),
         }
       : null;
+    const enquiryPayload = hasEnquirySection
+      ? {
+          slug: ENQUIRY_CMS_SLUG,
+          faq_items: enquiry.faq_items,
+          updated_at: new Date().toISOString(),
+        }
+      : null;
+    const blogsPayload = hasBlogsSection
+      ? {
+          slug: BLOGS_CMS_SLUG,
+          ...Object.fromEntries(
+            BLOGS_CMS_FIELDS.map((field) => [field, blogs[field]])
+          ),
+          updated_at: new Date().toISOString(),
+        }
+      : null;
 
     let homepageData = homepage;
     let aboutData = about;
     let servicesData = services;
+    let enquiryData = enquiry;
+    let blogsData = blogs;
     let serviceItemData = serviceItems;
 
     if (hasHomepageSection) {
@@ -258,6 +338,34 @@ export async function PUT(request) {
       }
 
       servicesData = data;
+    }
+
+    if (hasEnquirySection && enquiryPayload) {
+      const { data, error } = await supabase
+        .from(ENQUIRY_CMS_TABLE)
+        .upsert(enquiryPayload, { onConflict: "slug" })
+        .select(["slug", ...ENQUIRY_CMS_FIELDS].join(", "))
+        .single();
+
+      if (error) {
+        throw new Error(`Supabase enquiry save failed: ${error.message}`);
+      }
+
+      enquiryData = data;
+    }
+
+    if (hasBlogsSection && blogsPayload) {
+      const { data, error } = await supabase
+        .from(BLOGS_CMS_TABLE)
+        .upsert(blogsPayload, { onConflict: "slug" })
+        .select(["slug", ...BLOGS_CMS_FIELDS].join(", "))
+        .single();
+
+      if (error) {
+        throw new Error(`Supabase blogs save failed: ${error.message}`);
+      }
+
+      blogsData = data;
     }
 
     if (hasServiceItemsSection) {
@@ -306,6 +414,8 @@ export async function PUT(request) {
           homepage: normaliseHomepageContent(homepageData),
           about: normaliseAboutContent(aboutData),
           services: normaliseServicesContent(servicesData),
+          enquiry: normaliseEnquiryContent(enquiryData),
+          blogs: normaliseBlogsContent(blogsData),
           serviceItems: normaliseServiceItems(serviceItemData),
         },
       },

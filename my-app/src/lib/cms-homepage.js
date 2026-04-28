@@ -185,6 +185,95 @@ export function normaliseAboutContent(input = {}) {
   return content;
 }
 
+export const ENQUIRY_CMS_TABLE = "cms_enquiry_page";
+export const ENQUIRY_CMS_SLUG = "main";
+export const ENQUIRY_CMS_FIELDS = ["faq_items"];
+
+export const fallbackEnquiryContent = {
+  slug: ENQUIRY_CMS_SLUG,
+  faq_items: [
+    {
+      question: "What happens after I submit an enquiry?",
+      answer:
+        "After you submit the form, we will review your message and respond with the most appropriate next step based on your situation.",
+    },
+    {
+      question: "Do I need to know which service I need before contacting you?",
+      answer:
+        "No. You can briefly explain what support you are looking for, and we can help guide you toward counselling, coaching, supervision, or NDIS-related support.",
+    },
+    {
+      question: "Is my enquiry confidential?",
+      answer:
+        "Your enquiry will be treated with care and respect. Please avoid including highly sensitive or urgent information in the form.",
+    },
+    {
+      question: "Can I ask about NDIS support through this form?",
+      answer:
+        "Yes. You can use the enquiry form to ask about NDIS-related counselling, recovery coaching, or support options.",
+    },
+  ],
+};
+
+export function normaliseEnquiryContent(input = {}) {
+  const faqSource = Array.isArray(input.faq_items)
+    ? input.faq_items
+    : fallbackEnquiryContent.faq_items;
+
+  return {
+    slug:
+      typeof input.slug === "string" && input.slug.trim()
+        ? input.slug.trim()
+        : ENQUIRY_CMS_SLUG,
+    faq_items: faqSource
+      .map((item) => ({
+        question:
+          typeof item?.question === "string" ? item.question.trim() : "",
+        answer: typeof item?.answer === "string" ? item.answer.trim() : "",
+      }))
+      .filter((item) => item.question && item.answer),
+  };
+}
+
+export const BLOGS_CMS_TABLE = "cms_blogs_page";
+export const BLOGS_CMS_SLUG = "main";
+export const BLOGS_CMS_FIELDS = [
+  "eyebrow",
+  "heading",
+  "intro_body_1",
+  "intro_body_2",
+  "highlights_label",
+  "highlights_body",
+];
+
+export const fallbackBlogsContent = {
+  slug: BLOGS_CMS_SLUG,
+  eyebrow: "Blogs",
+  heading: "Articles, reflections, and practical support",
+  intro_body_1:
+    "This space is dedicated to sharing insights, strategies, and stories that inspire growth and resilience. Here, you'll find practical guidance on overcoming addictions, navigating life with disabilities, and fostering personal development.",
+  intro_body_2:
+    "The goal is to offer a supportive, judgment-free place where you can learn, reflect, and take steady steps toward a healthier and more empowered life, whether you're seeking tools for change, understanding for a loved one, or encouragement for your own journey.",
+  highlights_label: "What You'll Find",
+  highlights_body:
+    "A thoughtful mix of reflections and practical reading designed to feel supportive, clear, and easy to return to.",
+};
+
+export function normaliseBlogsContent(input = {}) {
+  return {
+    slug:
+      typeof input.slug === "string" && input.slug.trim()
+        ? input.slug.trim()
+        : BLOGS_CMS_SLUG,
+    ...Object.fromEntries(
+      BLOGS_CMS_FIELDS.map((field) => [
+        field,
+        typeof input[field] === "string" ? input[field] : "",
+      ])
+    ),
+  };
+}
+
 export const SERVICES_CMS_TABLE = "cms_services_page";
 export const SERVICE_ITEMS_TABLE = "cms_service_items";
 export const SERVICES_CMS_SLUG = "main";

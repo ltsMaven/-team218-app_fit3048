@@ -37,23 +37,23 @@ const cmsCards = [
     accent: "from-[#eef1f8] to-[#e0e7f5]",
   },
   {
-    title: "Edit Booking Page",
+    title: "Edit Enquiry FAQ",
     description:
-      "Reserve a separate editor for booking and enquiry instructions later.",
-    href: "",
-    status: "Planned",
+      "Manage the FAQ section shown on the public enquiry page.",
+    href: "/admin/cms/enquiry",
+    status: "Ready now",
     icon: LayoutTemplate,
     accent: "from-[#f7f3ec] to-[#efe6d8]",
   },
   {
-    title: "Manage Testimonials",
+    title: "Edit Blogs Header",
     description:
-      "Continue using the existing testimonial moderation workspace.",
-    href: "/admin/testimonial",
+      "Update the blog listing page heading and intro without touching blog posts.",
+    href: "/admin/cms/blogs",
     status: "Ready now",
-    icon: MessageSquareQuote,
-    accent: "from-[#f3f6fb] to-[#e7edf7]",
-  },
+    icon: LayoutTemplate,
+    accent: "from-[#f4f0ec] to-[#ece4dc]",
+  }
 ];
 
 export default async function AdminCmsPage() {
