@@ -31,8 +31,8 @@ const cmsCards = [
     title: "Edit Services Page",
     description:
       "Split services intro and service card editing into a dedicated route.",
-    href: "",
-    status: "Coming next",
+    href: "/admin/cms/services",
+    status: "Ready now",
     icon: LayoutTemplate,
     accent: "from-[#eef1f8] to-[#e0e7f5]",
   },
