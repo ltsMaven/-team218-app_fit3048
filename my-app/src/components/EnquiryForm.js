@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
+import { fallbackEnquiryContent } from "@/lib/cms-homepage";
 
 const MAX_MESSAGE_WORDS = 300;
 const namePattern = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/;
@@ -13,29 +14,6 @@ const initialFormState = {
   email: "",
   message: "",
 };
-
-const faqs = [
-  {
-    question: "What happens after I submit an enquiry?",
-    answer:
-      "After you submit the form, we will review your message and respond with the most appropriate next step based on your situation.",
-  },
-  {
-    question: "Do I need to know which service I need before contacting you?",
-    answer:
-      "No. You can briefly explain what support you are looking for, and we can help guide you toward counselling, coaching, supervision, or NDIS-related support.",
-  },
-  {
-    question: "Is my enquiry confidential?",
-    answer:
-      "Your enquiry will be treated with care and respect. Please avoid including highly sensitive or urgent information in the form.",
-  },
-  {
-    question: "Can I ask about NDIS support through this form?",
-    answer:
-      "Yes. You can use the enquiry form to ask about NDIS-related counselling, recovery coaching, or support options.",
-  },
-];
 
 function countWords(value) {
   const trimmedValue = value.trim();
@@ -91,7 +69,9 @@ function getFieldError(name, value) {
   return "";
 }
 
-export default function EnquiryForm() {
+export default function EnquiryForm({
+  faqItems = fallbackEnquiryContent.faq_items,
+}) {
   const [formData, setFormData] = useState(initialFormState);
   const [captchaToken, setCaptchaToken] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -384,7 +364,7 @@ export default function EnquiryForm() {
           </div>
 
           <div className="mt-10 space-y-4">
-            {faqs.map((faq) => (
+            {faqItems.map((faq) => (
               <details
                 key={faq.question}
                 className="group rounded-2xl border border-[#d8dfeb] bg-white/90 p-6 shadow-[0_16px_40px_rgba(66,69,76,0.06)] transition-all duration-300 open:shadow-[0_20px_50px_rgba(66,69,76,0.1)]"
