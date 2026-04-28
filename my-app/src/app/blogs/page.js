@@ -11,23 +11,66 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
+const blogHighlights = [
+  "Practical guidance for recovery, resilience, and everyday wellbeing.",
+  "Compassionate reflections on disability, addiction, and personal growth.",
+  "Grounded support you can read at your own pace and return to when needed.",
+];
+
 export default async function BlogsPage() {
   const blogs = await getPublishedBlogs();
 
   return (
     <section className="min-h-screen bg-[#f8f8f6] px-6 py-20 sm:py-24">
       <div className="mx-auto max-w-7xl">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
-            Blogs
-          </p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#42454c] sm:text-5xl">
-            Articles, reflections, and practical support
-          </h1>
-          <p className="mt-6 text-lg leading-8 text-[#5d6169]">
-            A growing space for grounded writing on emotional wellbeing,
-            counselling, recovery, and the everyday work of moving forward.
-          </p>
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.8fr)] lg:items-start">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
+              Blogs
+            </p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#42454c] sm:text-5xl lg:text-[3.7rem] lg:leading-[1.02]">
+              Articles, reflections, and practical support
+            </h1>
+            <div className="mt-8 space-y-5 text-lg leading-8 text-[#5d6169]">
+              <p>
+                This space is dedicated to sharing insights, strategies, and
+                stories that inspire growth and resilience. Here, you&apos;ll
+                find practical guidance on overcoming addictions, navigating
+                life with disabilities, and fostering personal development.
+              </p>
+              <p>
+                The goal is to offer a supportive, judgment-free place where you
+                can learn, reflect, and take steady steps toward a healthier and
+                more empowered life, whether you&apos;re seeking tools for
+                change, understanding for a loved one, or encouragement for your
+                own journey.
+              </p>
+            </div>
+          </div>
+
+          <aside className="rounded-[2rem] border border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(244,239,248,0.74))] p-7 shadow-[0_18px_40px_rgba(66,69,76,0.06)]">
+            <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-[#926ab9]">
+              What You&apos;ll Find
+            </p>
+            <p className="mt-3 text-base leading-7 text-[#5d6169]">
+              A thoughtful mix of reflections and practical reading designed to
+              feel supportive, clear, and easy to return to.
+            </p>
+
+            <div className="mt-6 space-y-3">
+              {blogHighlights.map((item, index) => (
+                <div
+                  key={item}
+                  className="flex items-start gap-3 rounded-2xl bg-white/72 px-4 py-3"
+                >
+                  <span className="mt-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#eef1f6] text-xs font-semibold text-[#6d7bbb]">
+                    {index + 1}
+                  </span>
+                  <p className="text-sm leading-6 text-[#5d6169]">{item}</p>
+                </div>
+              ))}
+            </div>
+          </aside>
         </div>
 
         {blogs.length ? (
@@ -39,16 +82,6 @@ export default async function BlogsPage() {
             No published blog articles are available yet.
           </p>
         )}
-
-        <div className="mt-14">
-          <Link
-            href="/booking"
-            className="inline-flex items-center gap-2 rounded-full bg-[#926ab9] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
-          >
-            Book a Session
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
       </div>
     </section>
   );

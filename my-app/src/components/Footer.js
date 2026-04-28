@@ -56,6 +56,9 @@ export default function Footer() {
               <Link href="/enquiry" className="transition hover:text-[#4b8e9a]">
                 Enquiry
               </Link>
+              <Link href="/blogs" className="transition hover:text-[#4b8e9a]">
+                Blogs
+              </Link>
               <Link href="/booking" className="transition hover:text-[#926ab9]">
                 Book a Session
               </Link>

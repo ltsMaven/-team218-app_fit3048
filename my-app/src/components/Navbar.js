@@ -44,6 +44,14 @@ export default function Navbar({ authEnabled = false, isAdmin = false }) {
     return () => window.removeEventListener("resize", closeMenu);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <header className="sticky top-0 z-50 px-4 py-4 sm:px-6">
       <div
@@ -61,6 +69,7 @@ export default function Navbar({ authEnabled = false, isAdmin = false }) {
           <div className="flex items-center justify-between gap-4">
             <Link
               href="/"
+              onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center gap-3 text-[#42454c] transition hover:text-[#926ab9]"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,#926ab9,#6d7bbb,#4b8e9a)] text-sm font-semibold text-white shadow-[0_10px_24px_rgba(109,123,187,0.28)]">
@@ -150,25 +159,31 @@ export default function Navbar({ authEnabled = false, isAdmin = false }) {
               </span>
             </button>
           </div>
+        </div>
 
-          <div
-            className={`overflow-hidden transition-all duration-300 md:hidden ${
-              isMobileMenuOpen ? "max-h-96 pt-4" : "max-h-0"
-            }`}
-          >
-            <div className="space-y-2 border-t border-[#d8dfeb] pt-4">
+        <div
+          className={`overflow-hidden transition-all duration-300 md:hidden ${
+            isMobileMenuOpen
+              ? "pointer-events-auto mt-3 max-h-[calc(100vh-8.5rem)] opacity-100"
+              : "pointer-events-none max-h-0 opacity-0"
+          }`}
+        >
+          <div className="max-h-[calc(100vh-8.5rem)] overflow-y-auto rounded-[2rem] border border-white/70 bg-white/94 p-5 shadow-[0_24px_60px_rgba(66,69,76,0.12)] backdrop-blur-xl">
+            <div className="space-y-2">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block rounded-2xl px-4 py-3 text-sm font-medium text-[#5f6470] transition hover:bg-white/80 hover:text-[#926ab9]"
+                  className="block rounded-2xl px-4 py-3 text-sm font-medium text-[#5f6470] transition hover:bg-[#f5f7fb] hover:text-[#926ab9]"
                 >
                   {item.label}
                 </Link>
               ))}
+            </div>
 
-              <div className="flex flex-col gap-3 pt-2">
+            <div className="mt-5 border-t border-[#d8dfeb] pt-5">
+              <div className="flex flex-col gap-3">
                 {showAdminNav ? null : (
                   <Link
                     href="/booking"
@@ -184,7 +199,7 @@ export default function Navbar({ authEnabled = false, isAdmin = false }) {
                       <Link
                         href="/admin"
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="rounded-full border border-[#d8dfeb] bg-white/70 px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                        className="rounded-full border border-[#d8dfeb] bg-white px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
                       >
                         Admin
                       </Link>
@@ -192,7 +207,7 @@ export default function Navbar({ authEnabled = false, isAdmin = false }) {
                     <a
                       href="/auth/logout"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="rounded-full border border-[#d8dfeb] bg-white/70 px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                      className="rounded-full border border-[#d8dfeb] bg-white px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
                     >
                       Logout
                     </a>
@@ -201,7 +216,7 @@ export default function Navbar({ authEnabled = false, isAdmin = false }) {
                   <a
                     href="/auth/login?returnTo=/admin"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="rounded-full border border-[#d8dfeb] bg-white/70 px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
+                    className="rounded-full border border-[#d8dfeb] bg-white px-4 py-3 text-center text-sm font-medium text-[#42454c] transition hover:border-[#926ab9] hover:text-[#926ab9]"
                   >
                     Login
                   </a>
