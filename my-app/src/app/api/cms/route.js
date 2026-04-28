@@ -45,8 +45,7 @@ async function requireApiAdminSession() {
   return session;
 }
 
-async function fetchHomepageContent() {
-  const supabase = getServerSupabaseClient();
+async function fetchHomepageContent(supabase = getServerSupabaseClient()) {
   const { data, error } = await supabase
     .from(HOMEPAGE_CMS_TABLE)
     .select(["slug", ...HOMEPAGE_CMS_FIELDS].join(", "))
@@ -157,21 +156,37 @@ export async function PUT(request) {
 
   try {
     const body = await request.json();
-    const homepage = normaliseHomepageContent(
-      body.homepage || body.homepageContent || body
-    );
-    const about = normaliseAboutContent({
-      ...fallbackAboutContent,
-      ...(body.about || body.aboutContent || {}),
-    });
-    const services = normaliseServicesContent({
-      ...fallbackServicesContent,
-      ...(body.services || body.servicesContent || {}),
-    });
-    const serviceItems = normaliseServiceItems(
-      body.serviceItems || body.servicesItems || fallbackServiceItems
-    );
     const supabase = getServerSupabaseClient();
+    const hasHomepageSection =
+      "homepage" in body ||
+      "homepageContent" in body ||
+      HOMEPAGE_CMS_FIELDS.some((field) => field in body);
+    const hasAboutSection = "about" in body || "aboutContent" in body;
+    const hasServicesSection = "services" in body || "servicesContent" in body;
+    const hasServiceItemsSection =
+      "serviceItems" in body || "servicesItems" in body;
+
+    const homepage = hasHomepageSection
+      ? normaliseHomepageContent(body.homepage || body.homepageContent || body)
+      : await fetchHomepageContent(supabase);
+    const about = hasAboutSection
+      ? normaliseAboutContent({
+          ...fallbackAboutContent,
+          ...(body.about || body.aboutContent || {}),
+        })
+      : await fetchAboutContent(supabase);
+    const services = hasServicesSection
+      ? normaliseServicesContent({
+          ...fallbackServicesContent,
+          ...(body.services || body.servicesContent || {}),
+        })
+      : await fetchServicesContent(supabase);
+    const serviceItems = hasServiceItemsSection
+      ? normaliseServiceItems(
+          body.serviceItems || body.servicesItems || fallbackServiceItems
+        )
+      : await fetchServiceItems(supabase);
+
     const homepagePayload = {
       slug: HOMEPAGE_CMS_SLUG,
       ...Object.fromEntries(
@@ -179,84 +194,109 @@ export async function PUT(request) {
       ),
       updated_at: new Date().toISOString(),
     };
-    const aboutPayload = {
-      slug: ABOUT_CMS_SLUG,
-      ...Object.fromEntries(ABOUT_CMS_FIELDS.map((field) => [field, about[field]])),
-      updated_at: new Date().toISOString(),
-    };
-    const servicesPayload = {
-      slug: SERVICES_CMS_SLUG,
-      ...Object.fromEntries(
-        SERVICES_CMS_FIELDS.map((field) => [field, services[field]])
-      ),
-      updated_at: new Date().toISOString(),
-    };
+    const aboutPayload = hasAboutSection
+      ? {
+          slug: ABOUT_CMS_SLUG,
+          ...Object.fromEntries(
+            ABOUT_CMS_FIELDS.map((field) => [field, about[field]])
+          ),
+          updated_at: new Date().toISOString(),
+        }
+      : null;
+    const servicesPayload = hasServicesSection
+      ? {
+          slug: SERVICES_CMS_SLUG,
+          ...Object.fromEntries(
+            SERVICES_CMS_FIELDS.map((field) => [field, services[field]])
+          ),
+          updated_at: new Date().toISOString(),
+        }
+      : null;
 
-    const { data: homepageData, error: homepageError } = await supabase
-      .from(HOMEPAGE_CMS_TABLE)
-      .upsert(homepagePayload, { onConflict: "slug" })
-      .select(["slug", ...HOMEPAGE_CMS_FIELDS].join(", "))
-      .single();
+    let homepageData = homepage;
+    let aboutData = about;
+    let servicesData = services;
+    let serviceItemData = serviceItems;
 
-    if (homepageError) {
-      throw new Error(`Supabase homepage save failed: ${homepageError.message}`);
-    }
+    if (hasHomepageSection) {
+      const { data, error } = await supabase
+        .from(HOMEPAGE_CMS_TABLE)
+        .upsert(homepagePayload, { onConflict: "slug" })
+        .select(["slug", ...HOMEPAGE_CMS_FIELDS].join(", "))
+        .single();
 
-    const { data: aboutData, error: aboutError } = await supabase
-      .from(ABOUT_CMS_TABLE)
-      .upsert(aboutPayload, { onConflict: "slug" })
-      .select(["slug", ...ABOUT_CMS_FIELDS].join(", "))
-      .single();
-
-    if (aboutError) {
-      throw new Error(`Supabase about save failed: ${aboutError.message}`);
-    }
-
-    const { data: servicesData, error: servicesError } = await supabase
-      .from(SERVICES_CMS_TABLE)
-      .upsert(servicesPayload, { onConflict: "slug" })
-      .select(["slug", ...SERVICES_CMS_FIELDS].join(", "))
-      .single();
-
-    if (servicesError) {
-      throw new Error(`Supabase services save failed: ${servicesError.message}`);
-    }
-
-    const serviceItemPayload = serviceItems.map((item, index) => {
-      const payload = {
-        homepage_slug: SERVICES_CMS_SLUG,
-        title: item.title,
-        label: item.label,
-        price: item.price,
-        price_detail: item.price_detail,
-        description: item.description,
-        features: item.features,
-        icon_key: item.icon_key,
-        tint: item.tint,
-        accent: item.accent,
-        sort_order: index,
-        is_featured: item.is_featured,
-        is_published: item.is_published,
-        updated_at: new Date().toISOString(),
-      };
-
-      if (item.id) {
-        payload.id = item.id;
+      if (error) {
+        throw new Error(`Supabase homepage save failed: ${error.message}`);
       }
 
-      return payload;
-    });
+      homepageData = data;
+    }
 
-    const { data: serviceItemData, error: serviceItemError } = await supabase
-      .from(SERVICE_ITEMS_TABLE)
-      .upsert(serviceItemPayload, { onConflict: "id" })
-      .select(["id", "homepage_slug", ...SERVICE_ITEM_FIELDS].join(", "))
-      .order("sort_order", { ascending: true });
+    if (hasAboutSection && aboutPayload) {
+      const { data, error } = await supabase
+        .from(ABOUT_CMS_TABLE)
+        .upsert(aboutPayload, { onConflict: "slug" })
+        .select(["slug", ...ABOUT_CMS_FIELDS].join(", "))
+        .single();
 
-    if (serviceItemError) {
-      throw new Error(
-        `Supabase service item save failed: ${serviceItemError.message}`
-      );
+      if (error) {
+        throw new Error(`Supabase about save failed: ${error.message}`);
+      }
+
+      aboutData = data;
+    }
+
+    if (hasServicesSection && servicesPayload) {
+      const { data, error } = await supabase
+        .from(SERVICES_CMS_TABLE)
+        .upsert(servicesPayload, { onConflict: "slug" })
+        .select(["slug", ...SERVICES_CMS_FIELDS].join(", "))
+        .single();
+
+      if (error) {
+        throw new Error(`Supabase services save failed: ${error.message}`);
+      }
+
+      servicesData = data;
+    }
+
+    if (hasServiceItemsSection) {
+      const serviceItemPayload = serviceItems.map((item, index) => {
+        const payload = {
+          homepage_slug: SERVICES_CMS_SLUG,
+          title: item.title,
+          label: item.label,
+          price: item.price,
+          price_detail: item.price_detail,
+          description: item.description,
+          features: item.features,
+          icon_key: item.icon_key,
+          tint: item.tint,
+          accent: item.accent,
+          sort_order: index,
+          is_featured: item.is_featured,
+          is_published: item.is_published,
+          updated_at: new Date().toISOString(),
+        };
+
+        if (item.id) {
+          payload.id = item.id;
+        }
+
+        return payload;
+      });
+
+      const { data, error } = await supabase
+        .from(SERVICE_ITEMS_TABLE)
+        .upsert(serviceItemPayload, { onConflict: "id" })
+        .select(["id", "homepage_slug", ...SERVICE_ITEM_FIELDS].join(", "))
+        .order("sort_order", { ascending: true });
+
+      if (error) {
+        throw new Error(`Supabase service item save failed: ${error.message}`);
+      }
+
+      serviceItemData = data;
     }
 
     return NextResponse.json(

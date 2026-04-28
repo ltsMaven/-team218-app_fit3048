@@ -48,6 +48,37 @@ export const emptyHomepageContent = {
   cta_button_label: "",
 };
 
+export const fallbackHomepageContent = {
+  slug: HOMEPAGE_CMS_SLUG,
+  about_badge: "ABOUT MY PRACTICE",
+  about_heading: "Empowering Clients to Thrive",
+  about_intro:
+    "As an NDIS registered Counsellor, Psychosocial Recovery Coach and Clinical Supervisor, I offer a compassionate and empathic approach to help clients navigate life's challenges.",
+  about_highlight:
+    "Through a safe and non-judgmental space, I work collaboratively to empower people to achieve their goals and improve their mental, emotional, physical, and social well-being in line with their personal goals and values.",
+  about_closing: 'I believe we all have within us the "Ability to Thrive."',
+  services_heading: "How I Can Support You",
+  services_subheading:
+    "A summary of the support available through Ability to Thrive.",
+  goals_label: "Goals",
+  goals_heading: "Your Journey to Freedom Starts Here.",
+  goals_body:
+    "At Ability To Thrive Counselling and Recovery Coaching, we provide safe, respectful, and supportive care that helps people feel heard, valued, and empowered. Guided by kindness, encouragement, optimism, patience, and inclusion, we support each person to build confidence, strengthen skills, and move toward a life where they can truly thrive.",
+  vision_label: "Vision",
+  vision_heading: "From Overwhelmed to Empowered.",
+  vision_body:
+    "Our vision is a world where every person feels supported, empowered, and able to reach their full potential. We believe support should be compassionate, accessible, and meaningful helping people build confidence, resilience, and truly thrive.",
+  values_label: "Values",
+  values_heading: "Optimism That Inspires Change.",
+  values_body:
+    "At Ability To Thrive Counselling and Recovery Coaching, everything we do is guided by five core values: Kindness, Encouragement, Optimism, Patience, and Inclusion. These values shape a safe, welcoming, and supportive space where every person feels heard, respected, and empowered to grow at their own pace.",
+  testimonials_heading: "What Clients Say",
+  cta_heading: "Ready to Take the First Step?",
+  cta_body:
+    "Schedule your consultation today and begin your journey toward healing and growth.",
+  cta_button_label: "Book Your Session Now",
+};
+
 export function normaliseHomepageContent(input = {}) {
   return {
     slug:
