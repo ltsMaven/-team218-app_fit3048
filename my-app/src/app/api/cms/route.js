@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth0, hasAuth0Config } from "@/lib/auth0";
 import { isAdminUser } from "@/lib/admin";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
@@ -140,13 +141,20 @@ async function fetchBlogsContent(supabase) {
   });
 }
 
-async function fetchServiceItems(supabase) {
-  const { data, error } = await supabase
+async function fetchServiceItems(
+  supabase,
+  { includeUnpublished = false } = {}
+) {
+  let query = supabase
     .from(SERVICE_ITEMS_TABLE)
     .select(["id", "homepage_slug", ...SERVICE_ITEM_FIELDS].join(", "))
-    .eq("homepage_slug", SERVICES_CMS_SLUG)
-    .eq("is_published", true)
-    .order("sort_order", { ascending: true });
+    .eq("homepage_slug", SERVICES_CMS_SLUG);
+
+  if (!includeUnpublished) {
+    query = query.eq("is_published", true);
+  }
+
+  const { data, error } = await query.order("sort_order", { ascending: true });
 
   if (error) {
     throw new Error(`Supabase service item lookup failed: ${error.message}`);
@@ -163,7 +171,7 @@ async function fetchAllCmsContent() {
     fetchServicesContent(supabase),
     fetchEnquiryContent(supabase),
     fetchBlogsContent(supabase),
-    fetchServiceItems(supabase),
+    fetchServiceItems(supabase, { includeUnpublished: true }),
   ]);
 
   return {
@@ -369,6 +377,38 @@ export async function PUT(request) {
     }
 
     if (hasServiceItemsSection) {
+      const persistedIds = serviceItems
+        .map((item) => item.id)
+        .filter((id) => typeof id === "string" && id);
+
+      const existingItemsResult = await supabase
+        .from(SERVICE_ITEMS_TABLE)
+        .select("id")
+        .eq("homepage_slug", SERVICES_CMS_SLUG);
+
+      if (existingItemsResult.error) {
+        throw new Error(
+          `Supabase service item lookup failed: ${existingItemsResult.error.message}`
+        );
+      }
+
+      const idsToDelete = (existingItemsResult.data || [])
+        .map((item) => item.id)
+        .filter((id) => !persistedIds.includes(id));
+
+      if (idsToDelete.length) {
+        const { error: deleteError } = await supabase
+          .from(SERVICE_ITEMS_TABLE)
+          .delete()
+          .in("id", idsToDelete);
+
+        if (deleteError) {
+          throw new Error(
+            `Supabase service item delete failed: ${deleteError.message}`
+          );
+        }
+      }
+
       const serviceItemPayload = serviceItems.map((item, index) => {
         const payload = {
           homepage_slug: SERVICES_CMS_SLUG,
@@ -405,6 +445,26 @@ export async function PUT(request) {
       }
 
       serviceItemData = data;
+    }
+
+    if (hasHomepageSection) {
+      revalidatePath("/");
+    }
+
+    if (hasAboutSection) {
+      revalidatePath("/about-me");
+    }
+
+    if (hasServicesSection || hasServiceItemsSection) {
+      revalidatePath("/services");
+    }
+
+    if (hasEnquirySection) {
+      revalidatePath("/enquiry");
+    }
+
+    if (hasBlogsSection) {
+      revalidatePath("/blogs");
     }
 
     return NextResponse.json(

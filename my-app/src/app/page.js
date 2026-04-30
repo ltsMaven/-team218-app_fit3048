@@ -15,6 +15,8 @@ import {
 import { getPublishedBlogs } from "@/lib/blogs";
 import { getApprovedTestimonials } from "@/lib/testimonial-submissions";
 
+export const dynamic = "force-dynamic";
+
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
   process.env.SITE_URL ||

@@ -4,35 +4,13 @@ import { useEffect, useState } from "react";
 import { Check, Plus, Trash2 } from "lucide-react";
 import CmsEditableSection from "./CmsEditableSection";
 import CmsPreviewLayout from "./CmsPreviewLayout";
+import EditableText from "./EditableText";
 import {
   fallbackServiceItems,
   fallbackServicesContent,
   normaliseServiceItems,
   normaliseServicesContent,
 } from "@/lib/cms-homepage";
-
-function EditableText({
-  as: Tag = "p",
-  value,
-  isEditing,
-  onChange,
-  className = "",
-}) {
-  return (
-    <Tag
-      contentEditable={isEditing}
-      suppressContentEditableWarning
-      onInput={(event) => onChange(event.currentTarget.textContent || "")}
-      className={`${className} ${
-        isEditing
-          ? "rounded-xl border border-dashed border-[#926ab9]/45 bg-[#faf7fd] px-3 py-2 outline-none focus:border-[#926ab9] focus:bg-white"
-          : ""
-      }`}
-    >
-      {value}
-    </Tag>
-  );
-}
 
 function EditableImage({ src, alt, isEditing, onSelectFile, heightClass }) {
   return (

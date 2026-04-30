@@ -8,6 +8,8 @@ import {
   normaliseEnquiryContent,
 } from "@/lib/cms-homepage";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Enquiry | Ability to Thrive",
   description: "Reach out for support that fits your situation.",

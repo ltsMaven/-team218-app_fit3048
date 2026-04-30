@@ -8,6 +8,8 @@ import {
   normaliseAboutContent,
 } from "@/lib/cms-homepage";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "About Me | Ability to Thrive",
   description: "Learn about the lived experience and professional approach behind Ability to Thrive Counselling and Life Coaching.",

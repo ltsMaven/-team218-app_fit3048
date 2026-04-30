@@ -33,7 +33,6 @@ async function getServicesCmsContent() {
         .from(SERVICE_ITEMS_TABLE)
         .select(["id", "homepage_slug", ...SERVICE_ITEM_FIELDS].join(", "))
         .eq("homepage_slug", SERVICES_CMS_SLUG)
-        .eq("is_published", true)
         .order("sort_order", { ascending: true }),
     ]);
 
