@@ -8,6 +8,8 @@ export default function EditableText({
   isEditing,
   onChange,
   className = "",
+  editingClassName = "",
+  editingStyle,
 }) {
   const elementRef = useRef(null);
 
@@ -32,9 +34,10 @@ export default function EditableText({
       contentEditable={isEditing}
       suppressContentEditableWarning
       onInput={(event) => onChange(event.currentTarget.textContent || "")}
+      style={isEditing ? editingStyle : undefined}
       className={`${className} ${
         isEditing
-          ? "rounded-xl border border-dashed border-[#926ab9]/45 bg-[#faf7fd] px-3 py-2 outline-none focus:border-[#926ab9] focus:bg-white"
+          ? `rounded-xl border border-dashed border-[#926ab9]/45 bg-[#faf7fd] px-3 py-2 outline-none focus:border-[#926ab9] focus:bg-white ${editingClassName}`
           : ""
       }`}
     />

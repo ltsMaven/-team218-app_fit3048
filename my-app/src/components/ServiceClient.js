@@ -42,7 +42,10 @@ export default function ServiceClient({
                 <div className="p-4 pb-0">
                   <div className="overflow-hidden rounded-[1.4rem]">
                     <img
-                      src={service.image || `/assets/services/service-${index + 1}.png`}
+                      src={
+                        service.image_url ||
+                        `/assets/services/service-${index + 1}.png`
+                      }
                       alt={service.title}
                       className="h-44 w-full object-cover transition duration-500 hover:scale-105"
                     />
@@ -105,7 +108,8 @@ export default function ServiceClient({
                     <div className="overflow-hidden rounded-[1.4rem]">
                       <img
                         src={
-                          service.image || `/assets/services/service-${index + 4}.png`
+                          service.image_url ||
+                          `/assets/services/service-${index + 4}.png`
                         }
                         alt={service.title}
                         className="h-36 w-full object-cover transition duration-500 hover:scale-105"

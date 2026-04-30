@@ -2,13 +2,32 @@ export const HOMEPAGE_CMS_TABLE = "cms_homepage";
 export const HOMEPAGE_CMS_SLUG = "main";
 
 export const HOMEPAGE_CMS_FIELDS = [
+  "about_image_url",
   "about_badge",
   "about_heading",
   "about_intro",
   "about_highlight",
   "about_closing",
+  "services_label",
   "services_heading",
   "services_subheading",
+  "services_support_body",
+  "service_1_title",
+  "service_1_description",
+  "service_1_tags",
+  "service_2_title",
+  "service_2_description",
+  "service_2_tags",
+  "service_3_title",
+  "service_3_description",
+  "service_3_tags",
+  "services_card_1_title",
+  "services_card_1_body",
+  "services_card_2_title",
+  "services_card_2_body",
+  "about_section_label",
+  "about_section_heading_line_1",
+  "about_section_heading_line_2",
   "goals_label",
   "goals_heading",
   "goals_body",
@@ -26,13 +45,32 @@ export const HOMEPAGE_CMS_FIELDS = [
 
 export const emptyHomepageContent = {
   slug: HOMEPAGE_CMS_SLUG,
+  about_image_url: "",
   about_badge: "",
   about_heading: "",
   about_intro: "",
   about_highlight: "",
   about_closing: "",
+  services_label: "",
   services_heading: "",
   services_subheading: "",
+  services_support_body: "",
+  service_1_title: "",
+  service_1_description: "",
+  service_1_tags: "",
+  service_2_title: "",
+  service_2_description: "",
+  service_2_tags: "",
+  service_3_title: "",
+  service_3_description: "",
+  service_3_tags: "",
+  services_card_1_title: "",
+  services_card_1_body: "",
+  services_card_2_title: "",
+  services_card_2_body: "",
+  about_section_label: "",
+  about_section_heading_line_1: "",
+  about_section_heading_line_2: "",
   goals_label: "",
   goals_heading: "",
   goals_body: "",
@@ -50,6 +88,7 @@ export const emptyHomepageContent = {
 
 export const fallbackHomepageContent = {
   slug: HOMEPAGE_CMS_SLUG,
+  about_image_url: "/assets/attLogoNB.png",
   about_badge: "ABOUT MY PRACTICE",
   about_heading: "Empowering Clients to Thrive",
   about_intro:
@@ -57,9 +96,33 @@ export const fallbackHomepageContent = {
   about_highlight:
     "Through a safe and non-judgmental space, I work collaboratively to empower people to achieve their goals and improve their mental, emotional, physical, and social well-being in line with their personal goals and values.",
   about_closing: 'I believe we all have within us the "Ability to Thrive."',
+  services_label: "Services",
   services_heading: "How I Can Support You",
   services_subheading:
     "A summary of the support available through Ability to Thrive.",
+  services_support_body:
+    "Support is tailored to your needs, goals, and circumstances, with options for personal counselling, recovery-focused support, and professional supervision.",
+  service_1_title: "Counselling & Personal Support",
+  service_1_description:
+    "One-on-one and relationship counselling for stress, trauma, substance misuse, domestic and family violence, emotional challenges, and personal growth.",
+  service_1_tags: "Individual, Couples, Trauma",
+  service_2_title: "Recovery Coaching & NDIS Support",
+  service_2_description:
+    "Person-centred support for NDIS participants, people with disabilities, families, and carers, with a focus on recovery, confidence, independence, and everyday wellbeing.",
+  service_2_tags: "NDIS, Recovery, Disability Support",
+  service_3_title: "Clinical Supervision",
+  service_3_description:
+    "Reflective supervision for professionals, supporting confidence, ethical practice, professional development, boundaries, and work-related challenges.",
+  service_3_tags: "Supervision, Practice, Development",
+  services_card_1_title: "NDIS Registered Provider",
+  services_card_1_body:
+    "Ability to Thrive provides person-centred support for NDIS participants, families, and carers in a safe, respectful, and non-judgemental environment.",
+  services_card_2_title: "Appointments & Access",
+  services_card_2_body:
+    "Appointments are available via telehealth. Face-to-face support may be considered depending on location, needs, and availability.",
+  about_section_label: "Goals, Values, Vision",
+  about_section_heading_line_1: "About",
+  about_section_heading_line_2: "Ability to Thrive",
   goals_label: "Goals",
   goals_heading: "Your Journey to Freedom Starts Here.",
   goals_body:
@@ -98,11 +161,14 @@ export const ABOUT_CMS_TABLE = "cms_about_page";
 export const ABOUT_CMS_SLUG = "main";
 
 export const ABOUT_CMS_FIELDS = [
+  "hero_image_url",
   "hero_heading",
   "hero_subheading",
+  "philosophy_image_url",
   "philosophy_heading",
   "philosophy_body_1",
   "philosophy_body_2",
+  "background_image_url",
   "background_heading",
   "background_body",
   "focus_label",
@@ -124,13 +190,16 @@ export const ABOUT_CMS_FIELDS = [
 
 export const fallbackAboutContent = {
   slug: ABOUT_CMS_SLUG,
+  hero_image_url: "/assets/about/about-hero.jpeg",
   hero_heading: "From Struggle to Success",
   hero_subheading: '"Optimism That Inspires Change."',
+  philosophy_image_url: "/assets/about/about-philosophy.png",
   philosophy_heading: "My Philosophy",
   philosophy_body_1:
     "I believe that everyone has the potential to live a fulfilling and meaningful life. My mission is to empower you to live authentically, aligned with your values. By identifying and working towards your goals, we unlock your full potential using a holistic approach to counselling and stress management.",
   philosophy_body_2:
     "I provide a safe, non-judgmental space where you can explore challenges through substance abuse counselling, relationship support, and dedicated LGBTQIA+ advocacy.",
+  background_image_url: "/assets/about/about-background.png",
   background_heading: "Professional Background",
   background_body:
     "I have over 15 years of experience as a counsellor and life coach. My expertise spans substance abuse, trauma, and relationship counselling, as well as navigating criminal and legal challenges. I am deeply committed to supporting people with disabilities, their carers, and members of the LGBTQIA+ community to improve overall well-being.",
@@ -285,6 +354,7 @@ export const SERVICES_CMS_FIELDS = [
 ];
 
 export const SERVICE_ITEM_FIELDS = [
+  "image_url",
   "title",
   "label",
   "price",
@@ -309,6 +379,7 @@ export const fallbackServicesContent = {
 
 export const fallbackServiceItems = [
   {
+    image_url: "",
     title: "Individual Counselling",
     label: "Personal Support",
     price: "$85",
@@ -328,6 +399,7 @@ export const fallbackServiceItems = [
     is_published: true,
   },
   {
+    image_url: "",
     title: "Couples Counselling",
     label: "Relationship Support",
     price: "$150",
@@ -347,6 +419,7 @@ export const fallbackServiceItems = [
     is_published: true,
   },
   {
+    image_url: "",
     title: "Free Discovery Call",
     label: "Initial Conversation",
     price: "Free",
@@ -366,6 +439,7 @@ export const fallbackServiceItems = [
     is_published: true,
   },
   {
+    image_url: "",
     title: "Clinical Supervision",
     label: "Professional Support",
     price: "$82.50",
@@ -387,6 +461,7 @@ export const fallbackServiceItems = [
     is_published: true,
   },
   {
+    image_url: "",
     title: "Psychosocial Recovery Coaching",
     label: "Recovery Support",
     price: "$99",
@@ -435,6 +510,7 @@ export function normaliseServiceItem(input = {}, index = 0) {
       typeof input.homepage_slug === "string" && input.homepage_slug.trim()
         ? input.homepage_slug.trim()
         : SERVICES_CMS_SLUG,
+    image_url: typeof input.image_url === "string" ? input.image_url : "",
     title: typeof input.title === "string" ? input.title : "",
     label: typeof input.label === "string" ? input.label : "",
     price: typeof input.price === "string" ? input.price : "",

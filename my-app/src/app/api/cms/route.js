@@ -412,6 +412,7 @@ export async function PUT(request) {
       const serviceItemPayload = serviceItems.map((item, index) => {
         const payload = {
           homepage_slug: SERVICES_CMS_SLUG,
+          image_url: item.image_url,
           title: item.title,
           label: item.label,
           price: item.price,
