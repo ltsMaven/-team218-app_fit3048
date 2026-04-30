@@ -15,11 +15,11 @@ function getVisibleCards(width) {
     return 1;
   }
 
-  if (width < 1024) {
+  if (width < 1280) {
     return 2;
   }
 
-  return 3;
+  return 2;
 }
 
 function ServiceCard({ service, index }) {
@@ -168,7 +168,7 @@ export default function ServiceClient({
             </p>
           </div>
 
-          <div className="mx-auto mt-14 max-w-6xl">
+          <div className="mx-auto mt-14 max-w-7xl">
             {totalSlides > 1 ? (
               <div className="mb-6 flex justify-end">
                 <div className="hidden items-center gap-2 md:flex">
