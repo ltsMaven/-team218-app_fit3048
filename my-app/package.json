@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.19.0",
+    "@react-email/render": "^2.0.8",
     "@supabase/supabase-js": "^2.99.1",
     "chart.js": "^4.5.1",
     "lucide-react": "^0.577.0",
