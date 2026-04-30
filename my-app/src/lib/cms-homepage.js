@@ -48,6 +48,37 @@ export const emptyHomepageContent = {
   cta_button_label: "",
 };
 
+export const fallbackHomepageContent = {
+  slug: HOMEPAGE_CMS_SLUG,
+  about_badge: "ABOUT MY PRACTICE",
+  about_heading: "Empowering Clients to Thrive",
+  about_intro:
+    "As an NDIS registered Counsellor, Psychosocial Recovery Coach and Clinical Supervisor, I offer a compassionate and empathic approach to help clients navigate life's challenges.",
+  about_highlight:
+    "Through a safe and non-judgmental space, I work collaboratively to empower people to achieve their goals and improve their mental, emotional, physical, and social well-being in line with their personal goals and values.",
+  about_closing: 'I believe we all have within us the "Ability to Thrive."',
+  services_heading: "How I Can Support You",
+  services_subheading:
+    "A summary of the support available through Ability to Thrive.",
+  goals_label: "Goals",
+  goals_heading: "Your Journey to Freedom Starts Here.",
+  goals_body:
+    "At Ability To Thrive Counselling and Recovery Coaching, we provide safe, respectful, and supportive care that helps people feel heard, valued, and empowered. Guided by kindness, encouragement, optimism, patience, and inclusion, we support each person to build confidence, strengthen skills, and move toward a life where they can truly thrive.",
+  vision_label: "Vision",
+  vision_heading: "From Overwhelmed to Empowered.",
+  vision_body:
+    "Our vision is a world where every person feels supported, empowered, and able to reach their full potential. We believe support should be compassionate, accessible, and meaningful helping people build confidence, resilience, and truly thrive.",
+  values_label: "Values",
+  values_heading: "Optimism That Inspires Change.",
+  values_body:
+    "At Ability To Thrive Counselling and Recovery Coaching, everything we do is guided by five core values: Kindness, Encouragement, Optimism, Patience, and Inclusion. These values shape a safe, welcoming, and supportive space where every person feels heard, respected, and empowered to grow at their own pace.",
+  testimonials_heading: "What Clients Say",
+  cta_heading: "Ready to Take the First Step?",
+  cta_body:
+    "Schedule your consultation today and begin your journey toward healing and growth.",
+  cta_button_label: "Book Your Session Now",
+};
+
 export function normaliseHomepageContent(input = {}) {
   return {
     slug:
@@ -152,6 +183,95 @@ export function normaliseAboutContent(input = {}) {
   }
 
   return content;
+}
+
+export const ENQUIRY_CMS_TABLE = "cms_enquiry_page";
+export const ENQUIRY_CMS_SLUG = "main";
+export const ENQUIRY_CMS_FIELDS = ["faq_items"];
+
+export const fallbackEnquiryContent = {
+  slug: ENQUIRY_CMS_SLUG,
+  faq_items: [
+    {
+      question: "What happens after I submit an enquiry?",
+      answer:
+        "After you submit the form, we will review your message and respond with the most appropriate next step based on your situation.",
+    },
+    {
+      question: "Do I need to know which service I need before contacting you?",
+      answer:
+        "No. You can briefly explain what support you are looking for, and we can help guide you toward counselling, coaching, supervision, or NDIS-related support.",
+    },
+    {
+      question: "Is my enquiry confidential?",
+      answer:
+        "Your enquiry will be treated with care and respect. Please avoid including highly sensitive or urgent information in the form.",
+    },
+    {
+      question: "Can I ask about NDIS support through this form?",
+      answer:
+        "Yes. You can use the enquiry form to ask about NDIS-related counselling, recovery coaching, or support options.",
+    },
+  ],
+};
+
+export function normaliseEnquiryContent(input = {}) {
+  const faqSource = Array.isArray(input.faq_items)
+    ? input.faq_items
+    : fallbackEnquiryContent.faq_items;
+
+  return {
+    slug:
+      typeof input.slug === "string" && input.slug.trim()
+        ? input.slug.trim()
+        : ENQUIRY_CMS_SLUG,
+    faq_items: faqSource
+      .map((item) => ({
+        question:
+          typeof item?.question === "string" ? item.question.trim() : "",
+        answer: typeof item?.answer === "string" ? item.answer.trim() : "",
+      }))
+      .filter((item) => item.question && item.answer),
+  };
+}
+
+export const BLOGS_CMS_TABLE = "cms_blogs_page";
+export const BLOGS_CMS_SLUG = "main";
+export const BLOGS_CMS_FIELDS = [
+  "eyebrow",
+  "heading",
+  "intro_body_1",
+  "intro_body_2",
+  "highlights_label",
+  "highlights_body",
+];
+
+export const fallbackBlogsContent = {
+  slug: BLOGS_CMS_SLUG,
+  eyebrow: "Blogs",
+  heading: "Articles, reflections, and practical support",
+  intro_body_1:
+    "This space is dedicated to sharing insights, strategies, and stories that inspire growth and resilience. Here, you'll find practical guidance on overcoming addictions, navigating life with disabilities, and fostering personal development.",
+  intro_body_2:
+    "The goal is to offer a supportive, judgment-free place where you can learn, reflect, and take steady steps toward a healthier and more empowered life, whether you're seeking tools for change, understanding for a loved one, or encouragement for your own journey.",
+  highlights_label: "What You'll Find",
+  highlights_body:
+    "A thoughtful mix of reflections and practical reading designed to feel supportive, clear, and easy to return to.",
+};
+
+export function normaliseBlogsContent(input = {}) {
+  return {
+    slug:
+      typeof input.slug === "string" && input.slug.trim()
+        ? input.slug.trim()
+        : BLOGS_CMS_SLUG,
+    ...Object.fromEntries(
+      BLOGS_CMS_FIELDS.map((field) => [
+        field,
+        typeof input[field] === "string" ? input[field] : "",
+      ])
+    ),
+  };
 }
 
 export const SERVICES_CMS_TABLE = "cms_services_page";

@@ -6,6 +6,7 @@ import BlogSlider from "../components/BlogSlider";
 import EnquiryForm from "../components/EnquiryForm";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import {
+  fallbackHomepageContent,
   HOMEPAGE_CMS_FIELDS,
   HOMEPAGE_CMS_SLUG,
   HOMEPAGE_CMS_TABLE,
@@ -13,6 +14,8 @@ import {
 } from "@/lib/cms-homepage";
 import { getPublishedBlogs } from "@/lib/blogs";
 import { getApprovedTestimonials } from "@/lib/testimonial-submissions";
+
+export const dynamic = "force-dynamic";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -74,36 +77,6 @@ const secondarySupportInfo = [
 const testimonialBgClasses = ["bg-[#eeeff2]", "bg-white/75", "bg-[#dce9f8]"];
 
 const TESTIMONIAL_PREVIEW_LENGTH = 180;
-
-const fallbackHomepageContent = normaliseHomepageContent({
-  about_badge: "ABOUT MY PRACTICE",
-  about_heading: "Empowering Clients to Thrive",
-  about_intro:
-    "As an NDIS registered Counsellor, Psychosocial Recovery Coach and Clinical Supervisor, I offer a compassionate and empathic approach to help clients navigate life's challenges.",
-  about_highlight:
-    "Through a safe and non-judgmental space, I work collaboratively to empower people to achieve their goals and improve their mental, emotional, physical, and social well-being in line with their personal goals and values.",
-  about_closing: 'I believe we all have within us the "Ability to Thrive."',
-  services_heading: "How I Can Support You",
-  services_subheading:
-    "A summary of the support available through Ability to Thrive.",
-  goals_label: "Goals",
-  goals_heading: "Your Journey to Freedom Starts Here.",
-  goals_body:
-    "At Ability To Thrive Counselling and Recovery Coaching, we provide safe, respectful, and supportive care that helps people feel heard, valued, and empowered. Guided by kindness, encouragement, optimism, patience, and inclusion, we support each person to build confidence, strengthen skills, and move toward a life where they can truly thrive.",
-  vision_label: "Vision",
-  vision_heading: "From Overwhelmed to Empowered.",
-  vision_body:
-    "Our vision is a world where every person feels supported, empowered, and able to reach their full potential. We believe support should be compassionate, accessible, and meaningful helping people build confidence, resilience, and truly thrive.",
-  values_label: "Values",
-  values_heading: "Optimism That Inspires Change.",
-  values_body:
-    "At Ability To Thrive Counselling and Recovery Coaching, everything we do is guided by five core values: Kindness, Encouragement, Optimism, Patience, and Inclusion. These values shape a safe, welcoming, and supportive space where every person feels heard, respected, and empowered to grow at their own pace.",
-  testimonials_heading: "What Clients Say",
-  cta_heading: "Ready to Take the First Step?",
-  cta_body:
-    "Schedule your consultation today and begin your journey toward healing and growth.",
-  cta_button_label: "Book Your Session Now",
-});
 
 async function getHomepageContent() {
   try {
@@ -207,6 +180,9 @@ export default async function Home() {
           </div>
 
           <div className="lg:col-span-7">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-[#6d7bbb]">
+              {homepageContent.about_badge}
+            </p>
             <h2 className="mb-8 text-4xl font-semibold leading-tight text-[#42454c] sm:text-5xl lg:text-6xl">
               {homepageContent.about_heading}
             </h2>
@@ -262,10 +238,10 @@ export default async function Home() {
                 Services
               </p>
               <h2 className="mt-4 text-[1.8rem] font-semibold leading-tight text-[#42454c] sm:text-[2rem] lg:text-[2.35rem]">
-                How I Can Support You
+                {homepageContent.services_heading}
               </h2>
               <p className="mt-5 max-w-md text-[0.95rem] leading-7 text-[#5c6069] lg:text-base">
-                A summary of the support available through Ability to Thrive.
+                {homepageContent.services_subheading}
               </p>
               <p className="mt-5 max-w-md text-[0.92rem] leading-7 text-[#6a6e77] lg:text-[0.98rem]">
                 Support is tailored to your needs, goals, and circumstances,

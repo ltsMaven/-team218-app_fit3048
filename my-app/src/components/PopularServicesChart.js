@@ -37,10 +37,11 @@ export default function PopularServicesChart({ events }) {
       afterDatasetsDraw(chart) {
         const { ctx } = chart;
         const meta = chart.getDatasetMeta(0);
+        const fontSize = Math.max(12, Math.min(18, chart.width * 0.055));
 
         ctx.save();
         ctx.fillStyle = "#17212b";
-        ctx.font = "700 18px Segoe UI, sans-serif";
+        ctx.font = `700 ${fontSize}px Segoe UI, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
@@ -112,15 +113,15 @@ export default function PopularServicesChart({ events }) {
   }
 
   return (
-    <div className="mt-8 grid items-center gap-8 lg:grid-cols-[22rem_1fr]">
+    <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
       <div className="flex items-center justify-center">
-        <div className="h-[22rem] w-[22rem]">
+        <div className="aspect-square w-full max-w-[16rem] sm:max-w-[18rem] lg:max-w-[20rem] xl:max-w-[22rem]">
           <canvas ref={canvasRef} aria-label="Popular services pie chart" />
         </div>
       </div>
 
-      <div className="rounded-2xl border border-[#d8dfeb] bg-white/70">
-        <div className="flex items-center justify-between gap-3 border-b border-[#d8dfeb] px-4 py-2">
+      <div className="overflow-hidden rounded-2xl border border-[#d8dfeb] bg-white/70">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#d8dfeb] px-4 py-3">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
             Services
           </p>
@@ -131,7 +132,7 @@ export default function PopularServicesChart({ events }) {
         {events.map((item, index) => (
           <div
             key={item.name}
-            className="flex items-center justify-between gap-4 px-4 py-3"
+            className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-t border-[#eef1f6] px-4 py-3 first:border-t-0"
           >
             <div className="flex min-w-0 items-center gap-3">
               <span
@@ -141,15 +142,15 @@ export default function PopularServicesChart({ events }) {
                 }}
               />
               <div className="min-w-0">
-                <p className="truncate text-base font-medium text-[#42454c]">
+                <p className="text-sm font-semibold leading-6 break-words text-[#42454c] sm:text-base">
                   {item.name}
                 </p>
-                <p className="text-sm text-[#5d6169]">
+                <p className="text-xs leading-5 text-[#5d6169] sm:text-sm">
                   {item.count} bookings
                 </p>
               </div>
             </div>
-            <span className="shrink-0 text-base font-semibold text-[#926ab9]">
+            <span className="pt-0.5 text-sm font-semibold text-[#926ab9] sm:text-base">
               {getPercent(item.count, totalBookings)}%
             </span>
           </div>
