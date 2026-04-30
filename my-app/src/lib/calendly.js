@@ -66,6 +66,18 @@ function addDays(date, days) {
   return next;
 }
 
+function getStartOfDay(date) {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+function getEndOfDay(date) {
+  const end = new Date(date);
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+
 function getDateInputValue(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
     2,
@@ -222,6 +234,8 @@ async function fetchScopedScheduledEvents({ scopeKey, scopeValue, start, end }) 
 async function fetchReportEvents(user, period) {
   const now = new Date();
   const nextThirtyDays = addDays(now, 30);
+  const todayStart = getStartOfDay(now);
+  const todayEnd = getEndOfDay(now);
 
   try {
     return {
@@ -236,6 +250,12 @@ async function fetchReportEvents(user, period) {
         scopeValue: user.current_organization,
         start: now,
         end: nextThirtyDays,
+      }),
+      today: await fetchScopedScheduledEvents({
+        scopeKey: "organization",
+        scopeValue: user.current_organization,
+        start: todayStart,
+        end: todayEnd,
       }),
       scope: "organization",
     };
@@ -253,6 +273,12 @@ async function fetchReportEvents(user, period) {
         start: now,
         end: nextThirtyDays,
       }),
+      today: await fetchScopedScheduledEvents({
+        scopeKey: "user",
+        scopeValue: user.uri,
+        start: todayStart,
+        end: todayEnd,
+      }),
       scope: "user",
     };
   }
@@ -269,7 +295,10 @@ export async function getCalendlyReport({
   const period = includeAllHistory
     ? getAllHistoryReportPeriod()
     : getRangeReportPeriod({ startDate, endDate });
-  const { history, upcoming, scope } = await fetchReportEvents(user, period);
+  const { history, upcoming, today, scope } = await fetchReportEvents(
+    user,
+    period
+  );
   const sortedHistory = [...history].sort(
     (a, b) =>
       new Date(b.start_time || b.created_at || 0) -
@@ -323,6 +352,9 @@ export async function getCalendlyReport({
     popularEvents,
     durationBreakdown,
     recentHistory,
+    todaysEvents: today
+      .filter((event) => event.status === "active")
+      .sort((a, b) => new Date(a.start_time) - new Date(b.start_time)),
     upcomingEvents: upcoming
       .filter((event) => event.status === "active")
       .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))

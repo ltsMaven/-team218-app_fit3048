@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { hasAuth0Config } from "@/lib/auth0";
 import { requireAdminSession } from "@/lib/admin-access";
 import { getCalendlyReport } from "@/lib/calendly";
 import PopularServicesChart from "@/components/PopularServicesChart";
+import BusinessStatisticsDateFilter from "@/components/BusinessStatisticsDateFilter";
 
 export const metadata = {
   title: "Business Statistics",
@@ -148,49 +148,10 @@ export default async function BusinessStatisticsPage({ searchParams }) {
                 ) : null}
               </div>
 
-              <form
-                action="/admin/business-statistics"
-                className="grid w-full gap-3 rounded-3xl border border-[#d8dfeb] bg-[#f8f8fb] p-4 sm:grid-cols-2 lg:w-auto lg:grid-cols-[10rem_10rem_auto]"
-              >
-                <label className="block">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.16em] text-[#6d7bbb]">
-                    Start Date
-                  </span>
-                  <input
-                    id="popular-services-start-date"
-                    type="date"
-                    name="startDate"
-                    defaultValue={report?.period?.selectedStartDate || ""}
-                    className="w-full rounded-full border border-[#d8dfeb] bg-white px-4 py-2 text-sm font-medium text-[#42454c] outline-none transition focus:border-[#926ab9]"
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.16em] text-[#6d7bbb]">
-                    End Date
-                  </span>
-                  <input
-                    id="popular-services-end-date"
-                    type="date"
-                    name="endDate"
-                    defaultValue={report?.period?.selectedEndDate || ""}
-                    className="w-full rounded-full border border-[#d8dfeb] bg-white px-4 py-2 text-sm font-medium text-[#42454c] outline-none transition focus:border-[#926ab9]"
-                  />
-                </label>
-                <div className="flex items-end gap-2">
-                  <button
-                    type="submit"
-                    className="rounded-full bg-[#926ab9] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
-                  >
-                    Apply
-                  </button>
-                  <Link
-                    href="/admin/business-statistics"
-                    className="rounded-full border border-[#d8dfeb] bg-white px-5 py-2 text-sm font-medium text-[#42454c] transition hover:bg-[#f4f6fa]"
-                  >
-                    Reset
-                  </Link>
-                </div>
-              </form>
+              <BusinessStatisticsDateFilter
+                selectedStartDate={report?.period?.selectedStartDate || ""}
+                selectedEndDate={report?.period?.selectedEndDate || ""}
+              />
             </div>
 
             {reportError ? (

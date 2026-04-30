@@ -71,7 +71,7 @@ export default async function AdminPage({ searchParams }) {
         : "Unable to load live Calendly data.";
   }
 
-  const nextEvent = report?.upcomingEvents?.[0] || null;
+  const todaysEvents = report?.todaysEvents || [];
   return (
     <section className="rounded-[2rem] border border-[#d8dfeb] bg-white/90 p-8 shadow-[0_24px_60px_rgba(66,69,76,0.08)] backdrop-blur sm:p-10">
       <div className="mx-auto max-w-5xl">
@@ -113,13 +113,13 @@ export default async function AdminPage({ searchParams }) {
 
           <div className="rounded-3xl border border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(238,239,242,0.82))] p-6">
             <h2 className="text-xl font-semibold text-[#42454c]">
-              Canceled Events
+              Cancelled Events
             </h2>
             <p className="mt-3 text-4xl font-semibold tracking-tight text-[#926ab9]">
               {report?.summary?.canceledEvents ?? 0}
             </p>
             <p className="mt-2 text-sm leading-7 text-[#5d6169]">
-              Canceled events in{" "}
+              Cancelled events in{" "}
               {report?.period?.label || "the selected period"}.
             </p>
           </div>
@@ -150,16 +150,22 @@ export default async function AdminPage({ searchParams }) {
               <div className="mt-6">
                 <div className="rounded-2xl border border-[#d8dfeb] bg-white/80 p-5">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6d7bbb]">
-                    Next Booking
+                    Today&apos;s Bookings
                   </p>
-                  <p className="mt-3 text-sm font-medium text-[#42454c]">
-                    {nextEvent?.name || "No upcoming booking found"}
-                  </p>
-                  <p className="mt-2 text-sm text-[#5d6169]">
-                    {nextEvent
-                      ? formatDateTime(nextEvent.start_time)
-                      : "No active event returned in the next 30 days."}
-                  </p>
+                  {todaysEvents.length ? (
+                    <div className="mt-3">
+                      <AdminRecentEvents events={todaysEvents} compact />
+                    </div>
+                  ) : (
+                    <>
+                      <p className="mt-3 text-sm font-medium text-[#42454c]">
+                        No bookings today
+                      </p>
+                      <p className="mt-2 text-sm text-[#5d6169]">
+                        No active event returned for today.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
 

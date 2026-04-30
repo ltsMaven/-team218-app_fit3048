@@ -245,3 +245,30 @@ export async function updateTestimonialStatus(id, status) {
     status: 200,
   };
 }
+
+export async function deleteTestimonialSubmission(id) {
+  if (!id) {
+    return {
+      error: "Missing testimonial id.",
+      status: 400,
+    };
+  }
+
+  const supabase = getServerSupabaseClient();
+  const { error } = await supabase
+    .from(TESTIMONIALS_TABLE)
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    return {
+      error: `Supabase testimonial delete failed: ${error.message}`,
+      status: 500,
+    };
+  }
+
+  return {
+    data: { id },
+    status: 200,
+  };
+}

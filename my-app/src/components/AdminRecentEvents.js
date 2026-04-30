@@ -125,7 +125,7 @@ function DetailItem({ label, value, isLink = false }) {
   );
 }
 
-export default function AdminRecentEvents({ events }) {
+export default function AdminRecentEvents({ events, compact = false }) {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -168,7 +168,7 @@ export default function AdminRecentEvents({ events }) {
   const normalisedSearchQuery = searchQuery.trim().toLowerCase();
   const filteredEvents = normalisedSearchQuery
     ? events.filter((event) =>
-        getEventSearchText(event).includes(normalisedSearchQuery)
+        getEventSearchText(event).includes(normalisedSearchQuery),
       )
     : events;
   const totalPages = Math.ceil(filteredEvents.length / RECENT_EVENTS_PAGE_SIZE);
@@ -181,25 +181,27 @@ export default function AdminRecentEvents({ events }) {
 
   return (
     <>
-      <div className="mb-5">
-        <label htmlFor="admin-event-search" className="sr-only">
-          Search event history
-        </label>
-        <input
-          id="admin-event-search"
-          type="search"
-          value={searchQuery}
-          onChange={(event) => {
-            setSearchQuery(event.target.value);
-            setCurrentPage(1);
-          }}
-          placeholder="Search by service, client, email, status, date, or location"
-          className="w-full rounded-2xl border border-[#d8dfeb] bg-white px-4 py-3 text-sm font-medium text-[#42454c] outline-none transition placeholder:text-[#8a90a0] focus:border-[#926ab9]"
-        />
-        <p className="mt-2 text-sm text-[#5d6169]">
-          Showing {filteredEvents.length} of {events.length} events.
-        </p>
-      </div>
+      {compact ? null : (
+        <div className="mb-5">
+          <label htmlFor="admin-event-search" className="sr-only">
+            Search event history
+          </label>
+          <input
+            id="admin-event-search"
+            type="search"
+            value={searchQuery}
+            onChange={(event) => {
+              setSearchQuery(event.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder="Search by service, client, email, status, date, or location"
+            className="w-full rounded-2xl border border-[#d8dfeb] bg-white px-4 py-3 text-sm font-medium text-[#42454c] outline-none transition placeholder:text-[#8a90a0] focus:border-[#926ab9]"
+          />
+          <p className="mt-2 text-sm text-[#5d6169]">
+            Showing {filteredEvents.length} of {events.length} events.
+          </p>
+        </div>
+      )}
 
       {filteredEvents.length ? (
         <div className="space-y-3">
@@ -217,11 +219,6 @@ export default function AdminRecentEvents({ events }) {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${getStatusClasses(event.status)}`}
-                >
-                  {event.status}
-                </span>
                 <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6d7bbb]">
                   View details
                 </span>
@@ -235,7 +232,7 @@ export default function AdminRecentEvents({ events }) {
         </p>
       )}
 
-      {totalPages > 1 ? (
+      {!compact && totalPages > 1 ? (
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#d8dfeb] pt-4">
           <p className="text-sm text-[#5d6169]">
             Showing {pageStart + 1}-
@@ -320,11 +317,6 @@ export default function AdminRecentEvents({ events }) {
                 </div>
 
                 <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${getStatusClasses(selectedEvent.status)}`}
-                  >
-                    {selectedEvent.status}
-                  </span>
                   <span className="text-sm text-[#5d6169]">
                     Created {formatDateTime(selectedEvent.created_at)}
                   </span>
@@ -350,14 +342,6 @@ export default function AdminRecentEvents({ events }) {
                         selectedEvent.end_time,
                       )}
                     </p>
-                    <div className="mt-6">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#7b869f]">
-                        Event Reference
-                      </p>
-                      <p className="mt-2 break-all text-sm font-medium text-[#42454c]">
-                        {selectedEvent.uri || "Unavailable"}
-                      </p>
-                    </div>
                   </div>
 
                   <div className="divide-y divide-[#d8dfeb]">
