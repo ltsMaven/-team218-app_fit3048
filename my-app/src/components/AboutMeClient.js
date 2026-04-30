@@ -11,7 +11,7 @@ export default function AboutMeClient({ content = fallbackAboutContent }) {
       <section className="px-6 pt-24 lg:pt-8">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.5rem]">
           <img
-            src="/assets/about/about-hero.jpeg"
+            src={content.hero_image_url || "/assets/about/about-hero.jpeg"}
             alt="About hero"
             className="h-[260px] w-full object-cover sm:h-[340px] lg:h-[420px]"
           />
@@ -68,7 +68,10 @@ export default function AboutMeClient({ content = fallbackAboutContent }) {
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="overflow-hidden rounded-[2.5rem]">
               <img
-                src="/assets/about/about-philosophy.png"
+                src={
+                  content.philosophy_image_url ||
+                  "/assets/about/about-philosophy.png"
+                }
                 alt={content.philosophy_heading}
                 className="h-[320px] w-full object-cover lg:h-[520px]"
               />
@@ -117,7 +120,10 @@ export default function AboutMeClient({ content = fallbackAboutContent }) {
 
             <div className="order-1 overflow-hidden rounded-[2.5rem] lg:order-2">
               <img
-                src="/assets/about/about-background.png"
+                src={
+                  content.background_image_url ||
+                  "/assets/about/about-background.png"
+                }
                 alt={content.background_heading}
                 className="h-[320px] w-full object-cover lg:h-[520px]"
               />

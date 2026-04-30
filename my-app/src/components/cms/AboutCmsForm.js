@@ -56,7 +56,11 @@ function AboutHeroPreview({
       <section className="px-6 pt-8">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.5rem]">
           <EditableImage
-            src={heroImageUrl || "/assets/about/about-hero.jpeg"}
+            src={
+              heroImageUrl ||
+              content.hero_image_url ||
+              "/assets/about/about-hero.jpeg"
+            }
             alt="About hero preview"
             isEditing={isEditing}
             onSelectFile={onSelectImage}
@@ -360,6 +364,7 @@ export default function AboutCmsForm({
   const [backgroundImageUrl, setBackgroundImageUrl] = useState("");
   const [status, setStatus] = useState({ type: "idle", message: "" });
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   useEffect(() => {
     const nextAbout = normaliseAboutContent(initialAboutContent);
@@ -381,7 +386,7 @@ export default function AboutCmsForm({
   useEffect(() => {
     return () => {
       [heroImageUrl, philosophyImageUrl, backgroundImageUrl].forEach((url) => {
-        if (url) {
+        if (url?.startsWith("blob:")) {
           URL.revokeObjectURL(url);
         }
       });
@@ -395,23 +400,61 @@ export default function AboutCmsForm({
     }));
   }
 
-  function handleLocalImagePreview(event, setter, currentValue) {
+  async function uploadImage(event, folder, setter, fieldName) {
     const file = event.target.files?.[0];
 
     if (!file) {
       return;
     }
 
-    if (currentValue) {
-      URL.revokeObjectURL(currentValue);
-    }
+    setIsUploadingImage(true);
+    setStatus({ type: "idle", message: "" });
 
-    setter(URL.createObjectURL(file));
-    setStatus({
-      type: "idle",
-      message:
-        "Local image preview updated. TODO: connect About page images to a CMS image field and upload flow later.",
-    });
+    try {
+      const uploadPayload = new FormData();
+      uploadPayload.append("file", file);
+      uploadPayload.append("folder", folder);
+
+      const response = await fetch("/api/cms-images", {
+        method: "POST",
+        body: uploadPayload,
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to upload About page image.");
+      }
+
+      setter(result.imageUrl);
+
+      if (fieldName === "hero_image_url") {
+        setDraftHero((current) => ({ ...current, hero_image_url: result.imageUrl }));
+      } else if (fieldName === "philosophy_image_url") {
+        setDraftPhilosophy((current) => ({
+          ...current,
+          philosophy_image_url: result.imageUrl,
+        }));
+      } else if (fieldName === "background_image_url") {
+        setDraftBackground((current) => ({
+          ...current,
+          background_image_url: result.imageUrl,
+        }));
+      }
+
+      setStatus({
+        type: "success",
+        message:
+          "About page image uploaded. Use the main save button below to store it in Supabase.",
+      });
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Unable to upload About page image.",
+      });
+    } finally {
+      event.target.value = "";
+      setIsUploadingImage(false);
+    }
   }
 
   function updateDraft(setter, name, value) {
@@ -443,13 +486,18 @@ export default function AboutCmsForm({
 
   function handleToggleHeroEditing() {
     if (isHeroEditing) {
-      commitDraft(draftHero, ["hero_heading", "hero_subheading"], "Hero preview updated.");
+      commitDraft(
+        draftHero,
+        ["hero_image_url", "hero_heading", "hero_subheading"],
+        "Hero preview updated."
+      );
       setIsHeroEditing(false);
       return;
     }
 
     setDraftHero((current) => ({
       ...current,
+      hero_image_url: about.hero_image_url,
       hero_heading: about.hero_heading,
       hero_subheading: about.hero_subheading,
     }));
@@ -483,7 +531,12 @@ export default function AboutCmsForm({
     if (isPhilosophyEditing) {
       commitDraft(
         draftPhilosophy,
-        ["philosophy_heading", "philosophy_body_1", "philosophy_body_2"],
+        [
+          "philosophy_image_url",
+          "philosophy_heading",
+          "philosophy_body_1",
+          "philosophy_body_2",
+        ],
         "Philosophy preview updated."
       );
       setIsPhilosophyEditing(false);
@@ -492,6 +545,7 @@ export default function AboutCmsForm({
 
     setDraftPhilosophy((current) => ({
       ...current,
+      philosophy_image_url: about.philosophy_image_url,
       philosophy_heading: about.philosophy_heading,
       philosophy_body_1: about.philosophy_body_1,
       philosophy_body_2: about.philosophy_body_2,
@@ -504,7 +558,7 @@ export default function AboutCmsForm({
     if (isBackgroundEditing) {
       commitDraft(
         draftBackground,
-        ["background_heading", "background_body"],
+        ["background_image_url", "background_heading", "background_body"],
         "Background preview updated."
       );
       setIsBackgroundEditing(false);
@@ -513,6 +567,7 @@ export default function AboutCmsForm({
 
     setDraftBackground((current) => ({
       ...current,
+      background_image_url: about.background_image_url,
       background_heading: about.background_heading,
       background_body: about.background_body,
     }));
@@ -658,7 +713,7 @@ export default function AboutCmsForm({
               }
               heroImageUrl={heroImageUrl}
               onSelectImage={(event) =>
-                handleLocalImagePreview(event, setHeroImageUrl, heroImageUrl)
+                uploadImage(event, "about", setHeroImageUrl, "hero_image_url")
               }
             />
           }
@@ -704,12 +759,17 @@ export default function AboutCmsForm({
               onFieldChange={(name, value) =>
                 updateDraft(setDraftPhilosophy, name, value)
               }
-              imageUrl={philosophyImageUrl || "/assets/about/about-philosophy.png"}
+              imageUrl={
+                philosophyImageUrl ||
+                draftPhilosophy.philosophy_image_url ||
+                "/assets/about/about-philosophy.png"
+              }
               onSelectImage={(event) =>
-                handleLocalImagePreview(
+                uploadImage(
                   event,
+                  "about",
                   setPhilosophyImageUrl,
-                  philosophyImageUrl
+                  "philosophy_image_url"
                 )
               }
               imageFirst
@@ -737,12 +797,17 @@ export default function AboutCmsForm({
               onFieldChange={(name, value) =>
                 updateDraft(setDraftBackground, name, value)
               }
-              imageUrl={backgroundImageUrl || "/assets/about/about-background.png"}
+              imageUrl={
+                backgroundImageUrl ||
+                draftBackground.background_image_url ||
+                "/assets/about/about-background.png"
+              }
               onSelectImage={(event) =>
-                handleLocalImagePreview(
+                uploadImage(
                   event,
+                  "about",
                   setBackgroundImageUrl,
-                  backgroundImageUrl
+                  "background_image_url"
                 )
               }
               imageFirst={false}
@@ -814,10 +879,14 @@ export default function AboutCmsForm({
 
         <button
           type="submit"
-          disabled={isSaving}
+          disabled={isSaving || isUploadingImage}
           className="inline-flex items-center justify-center rounded-2xl bg-[#4b8e9a] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#3e7882] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSaving ? "Saving..." : "Save About Content"}
+          {isUploadingImage
+            ? "Uploading image..."
+            : isSaving
+              ? "Saving..."
+              : "Save About Content"}
         </button>
       </div>
     </form>

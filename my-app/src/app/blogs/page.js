@@ -1,6 +1,4 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import BlogSlider from "@/components/BlogSlider";
+import BlogSearchSection from "@/components/BlogSearchSection";
 import { getPublishedBlogs } from "@/lib/blogs";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import {
@@ -95,9 +93,7 @@ export default async function BlogsPage() {
         </div>
 
         {blogs.length ? (
-          <div className="mt-14">
-            <BlogSlider blogs={blogs} showHeader={false} />
-          </div>
+          <BlogSearchSection blogs={blogs} />
         ) : (
           <p className="mt-14 rounded-2xl border border-[#d8dfeb] bg-white/75 px-6 py-5 text-sm text-[#5d6169]">
             No published blog articles are available yet.

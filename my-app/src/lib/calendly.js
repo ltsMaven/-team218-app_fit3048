@@ -1,5 +1,6 @@
 const CALENDLY_API_BASE = "https://api.calendly.com";
 const PAGE_SIZE = 100;
+const DEFAULT_HISTORY_START_DATE = "2020-01-01";
 
 function getHeaders() {
   const token = process.env.CALENDLY_API_TOKEN?.trim();
@@ -65,6 +66,18 @@ function addDays(date, days) {
   return next;
 }
 
+function getStartOfDay(date) {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+function getEndOfDay(date) {
+  const end = new Date(date);
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+
 function getDateInputValue(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
     2,
@@ -107,6 +120,22 @@ function getDefaultReportPeriod() {
     start,
     end: now,
     label: "Last 30 days",
+    selectedStartDate: getDateInputValue(start),
+    selectedEndDate: getDateInputValue(now),
+  };
+}
+
+function getAllHistoryReportPeriod() {
+  const start =
+    parseDateInput(
+      process.env.CALENDLY_HISTORY_START_DATE || DEFAULT_HISTORY_START_DATE
+    ) || parseDateInput(DEFAULT_HISTORY_START_DATE);
+  const now = new Date();
+
+  return {
+    start,
+    end: now,
+    label: "All available events",
     selectedStartDate: getDateInputValue(start),
     selectedEndDate: getDateInputValue(now),
   };
@@ -205,6 +234,8 @@ async function fetchScopedScheduledEvents({ scopeKey, scopeValue, start, end }) 
 async function fetchReportEvents(user, period) {
   const now = new Date();
   const nextThirtyDays = addDays(now, 30);
+  const todayStart = getStartOfDay(now);
+  const todayEnd = getEndOfDay(now);
 
   try {
     return {
@@ -219,6 +250,12 @@ async function fetchReportEvents(user, period) {
         scopeValue: user.current_organization,
         start: now,
         end: nextThirtyDays,
+      }),
+      today: await fetchScopedScheduledEvents({
+        scopeKey: "organization",
+        scopeValue: user.current_organization,
+        start: todayStart,
+        end: todayEnd,
       }),
       scope: "organization",
     };
@@ -236,25 +273,39 @@ async function fetchReportEvents(user, period) {
         start: now,
         end: nextThirtyDays,
       }),
+      today: await fetchScopedScheduledEvents({
+        scopeKey: "user",
+        scopeValue: user.uri,
+        start: todayStart,
+        end: todayEnd,
+      }),
       scope: "user",
     };
   }
 }
 
-export async function getCalendlyReport({ startDate, endDate } = {}) {
+export async function getCalendlyReport({
+  startDate,
+  endDate,
+  includeAllHistory = false,
+} = {}) {
   const mePayload = await calendlyFetch("/users/me");
   const user = mePayload.resource;
   const now = new Date();
-  const period = getRangeReportPeriod({ startDate, endDate });
-  const { history, upcoming, scope } = await fetchReportEvents(user, period);
+  const period = includeAllHistory
+    ? getAllHistoryReportPeriod()
+    : getRangeReportPeriod({ startDate, endDate });
+  const { history, upcoming, today, scope } = await fetchReportEvents(
+    user,
+    period
+  );
+  const sortedHistory = [...history].sort(
+    (a, b) =>
+      new Date(b.start_time || b.created_at || 0) -
+      new Date(a.start_time || a.created_at || 0)
+  );
   const recentHistory = await enrichRecentHistory(
-    [...history]
-      .sort(
-        (a, b) =>
-          new Date(b.start_time || b.created_at || 0) -
-          new Date(a.start_time || a.created_at || 0)
-      )
-      .slice(0, 10),
+    includeAllHistory ? sortedHistory : sortedHistory.slice(0, 10)
   );
 
   const completedEvents = history.filter(
@@ -301,6 +352,9 @@ export async function getCalendlyReport({ startDate, endDate } = {}) {
     popularEvents,
     durationBreakdown,
     recentHistory,
+    todaysEvents: today
+      .filter((event) => event.status === "active")
+      .sort((a, b) => new Date(a.start_time) - new Date(b.start_time)),
     upcomingEvents: upcoming
       .filter((event) => event.status === "active")
       .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))

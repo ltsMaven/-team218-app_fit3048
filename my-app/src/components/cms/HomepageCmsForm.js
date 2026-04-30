@@ -10,6 +10,13 @@ import {
   normaliseHomepageContent,
 } from "@/lib/cms-homepage";
 
+function parseTagList(value = "") {
+  return String(value)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function EditableImage({
   src,
   alt,
@@ -64,7 +71,11 @@ function HomepageAboutPreview({
     >
       <div className="flex min-h-[320px] items-center justify-center bg-[linear-gradient(160deg,rgba(238,239,242,0.9),rgba(220,233,248,0.9))] p-8">
         <EditableImage
-          src={imagePreviewUrl || "/assets/attLogoNB.png"}
+          src={
+            imagePreviewUrl ||
+            content.about_image_url ||
+            fallbackHomepageContent.about_image_url
+          }
           alt="Homepage section image preview"
           isEditing={isEditing}
           onSelectFile={onSelectImage}
@@ -120,36 +131,64 @@ function HomepageServicesPreview({ content }) {
   const cards = [
     {
       number: "01",
-      title: "Counselling & Personal Support",
+      title: content.service_1_title || fallbackHomepageContent.service_1_title,
       description:
-        "One-on-one and relationship counselling for stress, trauma, substance misuse, domestic and family violence, emotional challenges, and personal growth.",
-      tags: ["Individual", "Couples", "Trauma"],
+        content.service_1_description ||
+        fallbackHomepageContent.service_1_description,
+      tags: parseTagList(
+        content.service_1_tags || fallbackHomepageContent.service_1_tags
+      ),
+      titleKey: "service_1_title",
+      descriptionKey: "service_1_description",
+      tagsKey: "service_1_tags",
     },
     {
       number: "02",
-      title: "Recovery Coaching & NDIS Support",
+      title: content.service_2_title || fallbackHomepageContent.service_2_title,
       description:
-        "Person-centred support for NDIS participants, people with disabilities, families, and carers, with a focus on recovery, confidence, independence, and everyday wellbeing.",
-      tags: ["NDIS", "Recovery", "Disability Support"],
+        content.service_2_description ||
+        fallbackHomepageContent.service_2_description,
+      tags: parseTagList(
+        content.service_2_tags || fallbackHomepageContent.service_2_tags
+      ),
+      titleKey: "service_2_title",
+      descriptionKey: "service_2_description",
+      tagsKey: "service_2_tags",
     },
     {
       number: "03",
-      title: "Clinical Supervision",
+      title: content.service_3_title || fallbackHomepageContent.service_3_title,
       description:
-        "Reflective supervision for professionals, supporting confidence, ethical practice, professional development, boundaries, and work-related challenges.",
-      tags: ["Supervision", "Practice", "Development"],
+        content.service_3_description ||
+        fallbackHomepageContent.service_3_description,
+      tags: parseTagList(
+        content.service_3_tags || fallbackHomepageContent.service_3_tags
+      ),
+      titleKey: "service_3_title",
+      descriptionKey: "service_3_description",
+      tagsKey: "service_3_tags",
     },
   ];
   const secondaryCards = [
     {
-      title: "NDIS Registered Provider",
+      title:
+        content.services_card_1_title ||
+        fallbackHomepageContent.services_card_1_title,
       description:
-        "Ability to Thrive provides person-centred support for NDIS participants, families, and carers in a safe, respectful, and non-judgemental environment.",
+        content.services_card_1_body ||
+        fallbackHomepageContent.services_card_1_body,
+      titleKey: "services_card_1_title",
+      bodyKey: "services_card_1_body",
     },
     {
-      title: "Appointments & Access",
+      title:
+        content.services_card_2_title ||
+        fallbackHomepageContent.services_card_2_title,
       description:
-        "Appointments are available via telehealth. Face-to-face support may be considered depending on location, needs, and availability.",
+        content.services_card_2_body ||
+        fallbackHomepageContent.services_card_2_body,
+      titleKey: "services_card_2_title",
+      bodyKey: "services_card_2_body",
     },
   ];
 
@@ -158,9 +197,13 @@ function HomepageServicesPreview({ content }) {
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
           <div className="lg:sticky lg:top-28">
-            <p className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
-              Services
-            </p>
+            <EditableText
+              as="p"
+              value={content.services_label || "Services"}
+              isEditing={content.isEditing}
+              onChange={(value) => content.onFieldChange("services_label", value)}
+              className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]"
+            />
             <EditableText
               as="h4"
               value={content.services_heading || "How I Can Support You"}
@@ -181,11 +224,17 @@ function HomepageServicesPreview({ content }) {
               }
               className="mt-5 max-w-md whitespace-pre-wrap text-[0.95rem] leading-7 text-[#5c6069] lg:text-base"
             />
-            <p className="mt-5 max-w-md text-[0.92rem] leading-7 text-[#6a6e77] lg:text-[0.98rem]">
-              Support is tailored to your needs, goals, and circumstances, with
-              options for personal counselling, recovery-focused support, and
-              professional supervision.
-            </p>
+            <EditableText
+              value={
+                content.services_support_body ||
+                fallbackHomepageContent.services_support_body
+              }
+              isEditing={content.isEditing}
+              onChange={(value) =>
+                content.onFieldChange("services_support_body", value)
+              }
+              className="mt-5 max-w-md whitespace-pre-wrap text-[0.92rem] leading-7 text-[#6a6e77] lg:text-[0.98rem]"
+            />
           </div>
 
           <div>
@@ -201,14 +250,33 @@ function HomepageServicesPreview({ content }) {
                     </div>
 
                     <div>
-                      <h5 className="text-[1.28rem] font-semibold leading-tight text-[#42454c] sm:text-[1.42rem] lg:text-[1.5rem]">
-                        {card.title}
-                      </h5>
-                      <p className="mt-3 max-w-3xl text-[0.95rem] leading-7 text-[#5d6169] lg:text-base lg:leading-8">
-                        {card.description}
-                      </p>
-                      <div className="mt-4 flex flex-wrap gap-2.5">
-                        {card.tags.map((tag) => (
+                        <EditableText
+                          as="h5"
+                          value={card.title}
+                          isEditing={content.isEditing}
+                          onChange={(value) =>
+                            content.onFieldChange(card.titleKey, value)
+                          }
+                          className="text-[1.28rem] font-semibold leading-tight text-[#42454c] sm:text-[1.42rem] lg:text-[1.5rem]"
+                        />
+                        <EditableText
+                          value={card.description}
+                          isEditing={content.isEditing}
+                          onChange={(value) =>
+                            content.onFieldChange(card.descriptionKey, value)
+                          }
+                          className="mt-3 max-w-3xl whitespace-pre-wrap text-[0.95rem] leading-7 text-[#5d6169] lg:text-base lg:leading-8"
+                        />
+                        <EditableText
+                          value={card.tags.join(", ")}
+                          isEditing={content.isEditing}
+                          onChange={(value) =>
+                            content.onFieldChange(card.tagsKey, value)
+                          }
+                          className="mt-4 text-[0.78rem] leading-6 text-[#5c6069]"
+                        />
+                        <div className="mt-4 flex flex-wrap gap-2.5">
+                          {card.tags.map((tag) => (
                           <span
                             key={tag}
                             className="inline-flex items-center rounded-full bg-[#eef1f6] px-3 py-1.5 text-[0.78rem] font-medium text-[#5c6069]"
@@ -233,12 +301,21 @@ function HomepageServicesPreview({ content }) {
                   key={item.title}
                   className="rounded-[1.6rem] border border-[#d9deeb] bg-[#f7f8fa] px-6 py-6"
                 >
-                  <p className="text-[1.05rem] font-semibold text-[#42454c] sm:text-[1.12rem]">
-                    {item.title}
-                  </p>
-                  <p className="mt-3 text-[0.92rem] leading-7 text-[#61656d]">
-                    {item.description}
-                  </p>
+                  <EditableText
+                    as="p"
+                    value={item.title}
+                    isEditing={content.isEditing}
+                    onChange={(value) =>
+                      content.onFieldChange(item.titleKey, value)
+                    }
+                    className="text-[1.05rem] font-semibold text-[#42454c] sm:text-[1.12rem]"
+                  />
+                  <EditableText
+                    value={item.description}
+                    isEditing={content.isEditing}
+                    onChange={(value) => content.onFieldChange(item.bodyKey, value)}
+                    className="mt-3 whitespace-pre-wrap text-[0.92rem] leading-7 text-[#61656d]"
+                  />
                 </article>
               ))}
             </div>
@@ -260,20 +337,30 @@ function TimelineItem({ label, heading, body, toneClass }) {
         value={label}
         isEditing={isEditing}
         onChange={(value) => onFieldChange(toneClass.labelKey, value)}
-        className="text-xs font-semibold uppercase tracking-[0.22em]"
+        className={`text-xs font-semibold uppercase tracking-[0.22em] ${
+          toneClass.labelClass || ""
+        }`}
+        editingClassName={toneClass.editingTextClass || ""}
+        editingStyle={toneClass.editingStyle}
       />
       <EditableText
         as="h4"
         value={heading}
         isEditing={isEditing}
         onChange={(value) => onFieldChange(toneClass.headingKey, value)}
-        className="mt-3 text-xl font-semibold"
+        className={`mt-3 text-xl font-semibold ${toneClass.headingClass || ""}`}
+        editingClassName={toneClass.editingTextClass || ""}
+        editingStyle={toneClass.editingStyle}
       />
       <EditableText
         value={body}
         isEditing={isEditing}
         onChange={(value) => onFieldChange(toneClass.bodyKey, value)}
-        className="mt-4 whitespace-pre-wrap text-sm leading-7 opacity-80"
+        className={`mt-4 whitespace-pre-wrap text-sm leading-7 ${
+          toneClass.bodyClass || "opacity-80"
+        }`}
+        editingClassName={toneClass.editingTextClass || ""}
+        editingStyle={toneClass.editingStyle}
       />
     </article>
   );
@@ -285,13 +372,44 @@ function HomepageValuesPreview({ content }) {
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
           <div className="lg:sticky lg:top-28">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
-              Goals, Values, Vision
-            </p>
+            <EditableText
+              as="p"
+              value={
+                content.about_section_label ||
+                fallbackHomepageContent.about_section_label
+              }
+              isEditing={content.isEditing}
+              onChange={(value) =>
+                content.onFieldChange("about_section_label", value)
+              }
+              className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]"
+            />
             <h4 className="mt-4 max-w-lg text-3xl font-semibold tracking-tight text-[#42454c] sm:text-5xl">
-              About
+              <EditableText
+                as="span"
+                value={
+                  content.about_section_heading_line_1 ||
+                  fallbackHomepageContent.about_section_heading_line_1
+                }
+                isEditing={content.isEditing}
+                onChange={(value) =>
+                  content.onFieldChange("about_section_heading_line_1", value)
+                }
+                className="block"
+              />
               <br />
-              <span className="text-[#926ab9]">Ability to Thrive</span>
+              <EditableText
+                as="span"
+                value={
+                  content.about_section_heading_line_2 ||
+                  fallbackHomepageContent.about_section_heading_line_2
+                }
+                isEditing={content.isEditing}
+                onChange={(value) =>
+                  content.onFieldChange("about_section_heading_line_2", value)
+                }
+                className="block text-[#926ab9]"
+              />
             </h4>
 
             <div className="mt-10 flex items-center gap-4">
@@ -317,6 +435,10 @@ function HomepageValuesPreview({ content }) {
                     labelKey: "goals_label",
                     headingKey: "goals_heading",
                     bodyKey: "goals_body",
+                    labelClass: "text-[#926ab9]",
+                    headingClass: "text-[#42454c]",
+                    bodyClass: "text-[#5d6169]",
+                    editingTextClass: "text-[#42454c]",
                   }}
                 />
               </div>
@@ -336,6 +458,10 @@ function HomepageValuesPreview({ content }) {
                     labelKey: "vision_label",
                     headingKey: "vision_heading",
                     bodyKey: "vision_body",
+                    labelClass: "text-[#4b8e9a]",
+                    headingClass: "text-[#42454c]",
+                    bodyClass: "text-[#5d6169]",
+                    editingTextClass: "text-[#42454c]",
                   }}
                 />
               </div>
@@ -354,6 +480,11 @@ function HomepageValuesPreview({ content }) {
                     labelKey: "values_label",
                     headingKey: "values_heading",
                     bodyKey: "values_body",
+                    labelClass: "text-[#d6e5ff]",
+                    headingClass: "text-white",
+                    bodyClass: "text-white/88",
+                    editingTextClass: "text-[#42454c]",
+                    editingStyle: { color: "#42454c" },
                   }}
                 />
               </div>
@@ -375,6 +506,8 @@ function HomepageCtaPreview({ content }) {
           isEditing={content.isEditing}
           onChange={(value) => content.onFieldChange("cta_heading", value)}
           className="text-3xl font-semibold tracking-tight sm:text-4xl"
+          editingClassName="text-[#42454c]"
+          editingStyle={{ color: "#42454c" }}
         />
 
         <EditableText
@@ -382,6 +515,8 @@ function HomepageCtaPreview({ content }) {
           isEditing={content.isEditing}
           onChange={(value) => content.onFieldChange("cta_body", value)}
           className="mx-auto mt-5 max-w-2xl whitespace-pre-wrap text-lg text-white/75"
+          editingClassName="text-[#42454c]"
+          editingStyle={{ color: "#42454c" }}
         />
 
         <div className="mt-10">
@@ -393,6 +528,8 @@ function HomepageCtaPreview({ content }) {
               content.onFieldChange("cta_button_label", value)
             }
             className="inline-flex items-center gap-2 rounded-xl bg-[#926ab9] px-6 py-3 text-sm font-medium text-white"
+            editingClassName="text-[#42454c]"
+            editingStyle={{ color: "#42454c" }}
           />
         </div>
       </div>
@@ -430,6 +567,7 @@ export default function HomepageCmsForm({
   const [isCtaVisible, setIsCtaVisible] = useState(true);
   const [status, setStatus] = useState({ type: "idle", message: "" });
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   useEffect(() => {
     const nextHomepage = normaliseHomepageContent(initialHomepageContent);
@@ -446,7 +584,7 @@ export default function HomepageCmsForm({
 
   useEffect(() => {
     return () => {
-      if (aboutImagePreviewUrl) {
+      if (aboutImagePreviewUrl?.startsWith("blob:")) {
         URL.revokeObjectURL(aboutImagePreviewUrl);
       }
     };
@@ -484,6 +622,7 @@ export default function HomepageCmsForm({
     if (isAboutEditing) {
       setHomepage((current) => ({
         ...current,
+        about_image_url: draftAbout.about_image_url,
         about_badge: draftAbout.about_badge,
         about_heading: draftAbout.about_heading,
         about_intro: draftAbout.about_intro,
@@ -501,6 +640,7 @@ export default function HomepageCmsForm({
 
     setDraftAbout((current) => ({
       ...current,
+      about_image_url: homepage.about_image_url,
       about_badge: homepage.about_badge,
       about_heading: homepage.about_heading,
       about_intro: homepage.about_intro,
@@ -515,8 +655,23 @@ export default function HomepageCmsForm({
     if (isServicesEditing) {
       setHomepage((current) => ({
         ...current,
+        services_label: draftServices.services_label,
         services_heading: draftServices.services_heading,
         services_subheading: draftServices.services_subheading,
+        services_support_body: draftServices.services_support_body,
+        service_1_title: draftServices.service_1_title,
+        service_1_description: draftServices.service_1_description,
+        service_1_tags: draftServices.service_1_tags,
+        service_2_title: draftServices.service_2_title,
+        service_2_description: draftServices.service_2_description,
+        service_2_tags: draftServices.service_2_tags,
+        service_3_title: draftServices.service_3_title,
+        service_3_description: draftServices.service_3_description,
+        service_3_tags: draftServices.service_3_tags,
+        services_card_1_title: draftServices.services_card_1_title,
+        services_card_1_body: draftServices.services_card_1_body,
+        services_card_2_title: draftServices.services_card_2_title,
+        services_card_2_body: draftServices.services_card_2_body,
       }));
       setStatus({
         type: "success",
@@ -529,8 +684,23 @@ export default function HomepageCmsForm({
 
     setDraftServices((current) => ({
       ...current,
+      services_label: homepage.services_label,
       services_heading: homepage.services_heading,
       services_subheading: homepage.services_subheading,
+      services_support_body: homepage.services_support_body,
+      service_1_title: homepage.service_1_title,
+      service_1_description: homepage.service_1_description,
+      service_1_tags: homepage.service_1_tags,
+      service_2_title: homepage.service_2_title,
+      service_2_description: homepage.service_2_description,
+      service_2_tags: homepage.service_2_tags,
+      service_3_title: homepage.service_3_title,
+      service_3_description: homepage.service_3_description,
+      service_3_tags: homepage.service_3_tags,
+      services_card_1_title: homepage.services_card_1_title,
+      services_card_1_body: homepage.services_card_1_body,
+      services_card_2_title: homepage.services_card_2_title,
+      services_card_2_body: homepage.services_card_2_body,
     }));
     setStatus({ type: "idle", message: "" });
     setIsServicesEditing(true);
@@ -540,6 +710,9 @@ export default function HomepageCmsForm({
     if (isValuesEditing) {
       setHomepage((current) => ({
         ...current,
+        about_section_label: draftValues.about_section_label,
+        about_section_heading_line_1: draftValues.about_section_heading_line_1,
+        about_section_heading_line_2: draftValues.about_section_heading_line_2,
         goals_label: draftValues.goals_label,
         goals_heading: draftValues.goals_heading,
         goals_body: draftValues.goals_body,
@@ -561,6 +734,9 @@ export default function HomepageCmsForm({
 
     setDraftValues((current) => ({
       ...current,
+      about_section_label: homepage.about_section_label,
+      about_section_heading_line_1: homepage.about_section_heading_line_1,
+      about_section_heading_line_2: homepage.about_section_heading_line_2,
       goals_label: homepage.goals_label,
       goals_heading: homepage.goals_heading,
       goals_body: homepage.goals_body,
@@ -602,24 +778,50 @@ export default function HomepageCmsForm({
     setIsCtaEditing(true);
   }
 
-  function handleAboutImageSelect(event) {
+  async function handleAboutImageSelect(event) {
     const file = event.target.files?.[0];
 
     if (!file) {
       return;
     }
 
-    if (aboutImagePreviewUrl) {
-      URL.revokeObjectURL(aboutImagePreviewUrl);
-    }
+    setIsUploadingImage(true);
+    setStatus({ type: "idle", message: "" });
 
-    const nextPreviewUrl = URL.createObjectURL(file);
-    setAboutImagePreviewUrl(nextPreviewUrl);
-    setStatus({
-      type: "idle",
-      message:
-        "Local image preview updated. TODO: connect this section to a CMS image field and upload flow later.",
-    });
+    try {
+      const uploadPayload = new FormData();
+      uploadPayload.append("file", file);
+      uploadPayload.append("folder", "homepage");
+
+      const response = await fetch("/api/cms-images", {
+        method: "POST",
+        body: uploadPayload,
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to upload homepage image.");
+      }
+
+      setDraftAbout((current) => ({
+        ...current,
+        about_image_url: result.imageUrl,
+      }));
+      setAboutImagePreviewUrl(result.imageUrl);
+      setStatus({
+        type: "success",
+        message:
+          "Homepage image uploaded. Use the main save button below to store it in Supabase.",
+      });
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Unable to upload homepage image.",
+      });
+    } finally {
+      event.target.value = "";
+      setIsUploadingImage(false);
+    }
   }
 
   async function handleSubmit(event) {
@@ -687,8 +889,7 @@ export default function HomepageCmsForm({
             </p>
           </div>
           <div className="rounded-2xl border border-dashed border-[#c9d3e2] bg-[#f8f8fb] px-4 py-3 text-sm text-[#5d6169]">
-            TODO: image upload can be added later with simple `imageUrl` fields
-            if these sections move images into CMS.
+            Homepage section image uploads now save to Supabase storage.
           </div>
         </div>
       </div>
@@ -798,10 +999,14 @@ export default function HomepageCmsForm({
 
         <button
           type="submit"
-          disabled={isSaving}
+          disabled={isSaving || isUploadingImage}
           className="inline-flex items-center justify-center rounded-2xl bg-[#4b8e9a] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#3e7882] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSaving ? "Saving..." : "Save Homepage Content"}
+          {isUploadingImage
+            ? "Uploading image..."
+            : isSaving
+              ? "Saving..."
+              : "Save Homepage Content"}
         </button>
       </div>
     </form>

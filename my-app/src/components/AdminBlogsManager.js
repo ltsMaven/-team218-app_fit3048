@@ -4,6 +4,8 @@ import { useState } from "react";
 import { slugify } from "@/lib/blogs";
 import RichTextEditor from "@/components/RichTextEditor";
 
+const BLOGS_PAGE_SIZE = 5;
+
 function createEmptyBlog() {
   return {
     id: "",
@@ -88,6 +90,23 @@ function getInputClasses(hasError) {
   }`;
 }
 
+function getBlogSearchText(blog) {
+  return [
+    blog.title,
+    blog.slug,
+    blog.category,
+    blog.excerpt,
+    stripEditorHtml(blog.content || ""),
+    blog.isPublished ? "published" : "draft",
+    blog.createdAt,
+    blog.updatedAt,
+    blog.publishedAt,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
 export default function AdminBlogsManager({
   initialBlogs = [],
   loadError = "",
@@ -103,6 +122,16 @@ export default function AdminBlogsManager({
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [status, setStatus] = useState({ type: "idle", message: "" });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const normalisedSearchQuery = searchQuery.trim().toLowerCase();
+  const filteredBlogs = normalisedSearchQuery
+    ? blogs.filter((blog) => getBlogSearchText(blog).includes(normalisedSearchQuery))
+    : blogs;
+  const totalPages = Math.ceil(filteredBlogs.length / BLOGS_PAGE_SIZE);
+  const safeCurrentPage = Math.min(currentPage, Math.max(totalPages, 1));
+  const pageStart = (safeCurrentPage - 1) * BLOGS_PAGE_SIZE;
+  const pageBlogs = filteredBlogs.slice(pageStart, pageStart + BLOGS_PAGE_SIZE);
 
   function handleCreateNew() {
     setSelectedBlogId("new");
@@ -262,6 +291,7 @@ export default function AdminBlogsManager({
 
         return sortBlogs(nextBlogs);
       });
+      setCurrentPage(1);
       setSelectedBlogId(savedBlog.id);
       setFormData(savedBlog);
       setHasCustomSlug(true);
@@ -303,6 +333,7 @@ export default function AdminBlogsManager({
 
       const remainingBlogs = blogs.filter((blog) => blog.id !== formData.id);
       setBlogs(remainingBlogs);
+      setCurrentPage(1);
       setSelectedBlogId(remainingBlogs[0]?.id || "new");
       setFormData(remainingBlogs[0] ? { ...remainingBlogs[0] } : createEmptyBlog());
       setHasCustomSlug(Boolean(remainingBlogs[0]?.slug));
@@ -347,8 +378,30 @@ export default function AdminBlogsManager({
           </div>
         ) : null}
 
+        {blogs.length ? (
+          <div className="mt-5">
+            <label htmlFor="blog-search" className="sr-only">
+              Search blogs
+            </label>
+            <input
+              id="blog-search"
+              type="search"
+              value={searchQuery}
+              onChange={(event) => {
+                setSearchQuery(event.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search by title, category, status, or content"
+              className="w-full rounded-2xl border border-[#d8dfeb] bg-white px-4 py-3 text-sm font-medium text-[#42454c] outline-none transition placeholder:text-[#8a90a0] focus:border-[#926ab9]"
+            />
+            <p className="mt-2 text-sm text-[#5d6169]">
+              Showing {filteredBlogs.length} of {blogs.length} articles.
+            </p>
+          </div>
+        ) : null}
+
         <div className="mt-5 space-y-3">
-          {blogs.map((blog) => (
+          {pageBlogs.map((blog) => (
             <button
               key={blog.id}
               type="button"
@@ -373,12 +426,51 @@ export default function AdminBlogsManager({
             </button>
           ))}
 
+          {blogs.length && !filteredBlogs.length ? (
+            <p className="rounded-2xl border border-[#d8dfeb] bg-[#f8f8fb] px-4 py-4 text-sm text-[#5d6169]">
+              No blogs match your search.
+            </p>
+          ) : null}
+
           {!loadError && !blogs.length ? (
             <p className="rounded-2xl border border-[#d8dfeb] bg-[#f8f8fb] px-4 py-4 text-sm text-[#5d6169]">
               No blogs saved yet. Create the first article.
             </p>
           ) : null}
         </div>
+
+        {totalPages > 1 ? (
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#d8dfeb] pt-4">
+            <p className="text-sm text-[#5d6169]">
+              Showing {pageStart + 1}-
+              {Math.min(pageStart + pageBlogs.length, filteredBlogs.length)} of{" "}
+              {filteredBlogs.length} articles
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage(Math.max(safeCurrentPage - 1, 1))}
+                disabled={safeCurrentPage === 1}
+                className="rounded-full border border-[#d8dfeb] px-4 py-2 text-sm font-medium text-[#42454c] transition hover:bg-[#f4f6fa] disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                Previous
+              </button>
+              <span className="text-sm font-semibold text-[#6d7bbb]">
+                Page {safeCurrentPage} of {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentPage(Math.min(safeCurrentPage + 1, totalPages))
+                }
+                disabled={safeCurrentPage === totalPages}
+                className="rounded-full border border-[#d8dfeb] px-4 py-2 text-sm font-medium text-[#42454c] transition hover:bg-[#f4f6fa] disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        ) : null}
       </aside>
 
       <form
