@@ -83,6 +83,24 @@ function getLocationLabel(location) {
   );
 }
 
+function getEventSearchText(event) {
+  return [
+    event.name,
+    event.status,
+    event.uri,
+    event.created_at,
+    event.start_time,
+    event.end_time,
+    event.updated_at,
+    event.inviteeName,
+    event.inviteeEmail,
+    getLocationLabel(event.location),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
 function DetailItem({ label, value, isLink = false }) {
   return (
     <div className="flex items-start justify-between gap-6 py-4">
@@ -110,6 +128,7 @@ function DetailItem({ label, value, isLink = false }) {
 export default function AdminRecentEvents({ events }) {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!selectedEvent) {
@@ -146,49 +165,82 @@ export default function AdminRecentEvents({ events }) {
     selectedEvent &&
     typeof locationLabel === "string" &&
     /^https?:\/\//.test(locationLabel);
-  const totalPages = Math.ceil(events.length / RECENT_EVENTS_PAGE_SIZE);
+  const normalisedSearchQuery = searchQuery.trim().toLowerCase();
+  const filteredEvents = normalisedSearchQuery
+    ? events.filter((event) =>
+        getEventSearchText(event).includes(normalisedSearchQuery)
+      )
+    : events;
+  const totalPages = Math.ceil(filteredEvents.length / RECENT_EVENTS_PAGE_SIZE);
   const safeCurrentPage = Math.min(currentPage, totalPages);
   const pageStart = (safeCurrentPage - 1) * RECENT_EVENTS_PAGE_SIZE;
-  const pageEvents = events.slice(
+  const pageEvents = filteredEvents.slice(
     pageStart,
     pageStart + RECENT_EVENTS_PAGE_SIZE,
   );
 
   return (
     <>
-      <div className="space-y-3">
-        {pageEvents.map((event) => (
-          <button
-            key={event.uri}
-            type="button"
-            onClick={() => setSelectedEvent(event)}
-            className="flex w-full flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d8dfeb] px-4 py-3 text-left transition hover:border-[#926ab9] hover:bg-[#fcfbfe]"
-          >
-            <div>
-              <p className="font-medium text-[#42454c]">{event.name}</p>
-              <p className="text-sm text-[#5d6169]">
-                {formatDateTime(event.start_time)}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${getStatusClasses(event.status)}`}
-              >
-                {event.status}
-              </span>
-              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6d7bbb]">
-                View details
-              </span>
-            </div>
-          </button>
-        ))}
+      <div className="mb-5">
+        <label htmlFor="admin-event-search" className="sr-only">
+          Search event history
+        </label>
+        <input
+          id="admin-event-search"
+          type="search"
+          value={searchQuery}
+          onChange={(event) => {
+            setSearchQuery(event.target.value);
+            setCurrentPage(1);
+          }}
+          placeholder="Search by service, client, email, status, date, or location"
+          className="w-full rounded-2xl border border-[#d8dfeb] bg-white px-4 py-3 text-sm font-medium text-[#42454c] outline-none transition placeholder:text-[#8a90a0] focus:border-[#926ab9]"
+        />
+        <p className="mt-2 text-sm text-[#5d6169]">
+          Showing {filteredEvents.length} of {events.length} events.
+        </p>
       </div>
+
+      {filteredEvents.length ? (
+        <div className="space-y-3">
+          {pageEvents.map((event) => (
+            <button
+              key={event.uri}
+              type="button"
+              onClick={() => setSelectedEvent(event)}
+              className="flex w-full flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d8dfeb] px-4 py-3 text-left transition hover:border-[#926ab9] hover:bg-[#fcfbfe]"
+            >
+              <div>
+                <p className="font-medium text-[#42454c]">{event.name}</p>
+                <p className="text-sm text-[#5d6169]">
+                  {formatDateTime(event.start_time)}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${getStatusClasses(event.status)}`}
+                >
+                  {event.status}
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6d7bbb]">
+                  View details
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="rounded-2xl border border-[#d8dfeb] bg-white/70 px-4 py-3 text-sm text-[#5d6169]">
+          No events match your search.
+        </p>
+      )}
 
       {totalPages > 1 ? (
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#d8dfeb] pt-4">
           <p className="text-sm text-[#5d6169]">
-            Showing {pageStart + 1}-{Math.min(pageStart + pageEvents.length, events.length)} of{" "}
-            {events.length} events
+            Showing {pageStart + 1}-
+            {Math.min(pageStart + pageEvents.length, filteredEvents.length)} of{" "}
+            {filteredEvents.length} events
           </p>
           <div className="flex items-center gap-2">
             <button

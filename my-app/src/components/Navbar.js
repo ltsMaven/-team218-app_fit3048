@@ -14,6 +14,7 @@ const publicNavItems = [
 
 const adminNavItems = [
   { href: "/admin", label: "Dashboard" },
+  { href: "/admin/business-statistics", label: "Business Statistics" },
   { href: "/admin/cms", label: "CMS" },
   { href: "/admin/testimonial", label: "Testimonial" },
   { href: "/admin/blogs", label: "Blogs" },
