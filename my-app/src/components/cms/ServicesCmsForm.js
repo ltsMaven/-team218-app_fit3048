@@ -269,7 +269,7 @@ function ServicesCardsPreview({
                 onFeatureChange(service.id, featureIndex, value)
               }
               onSelectImage={(event) => onSelectImage(service.id, event)}
-              imageUrl={imagePreviews[service.id] || service.image}
+              imageUrl={imagePreviews[service.id] || service.image_url}
               onDelete={() => onDelete(service.id)}
             />
           ))}
@@ -291,7 +291,7 @@ function ServicesCardsPreview({
                   onFeatureChange(service.id, featureIndex, value)
                 }
                 onSelectImage={(event) => onSelectImage(service.id, event)}
-                imageUrl={imagePreviews[service.id] || service.image}
+                imageUrl={imagePreviews[service.id] || service.image_url}
                 onDelete={() => onDelete(service.id)}
               />
             ))}
@@ -305,6 +305,7 @@ function ServicesCardsPreview({
 function createNewServiceCard(index) {
   return {
     id: `draft-${Date.now()}-${index}`,
+    image_url: "",
     title: "New Service",
     label: "Service Label",
     price: "$0",
@@ -361,6 +362,7 @@ export default function ServicesCmsForm({
   const [imagePreviews, setImagePreviews] = useState({});
   const [status, setStatus] = useState({ type: "idle", message: "" });
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   useEffect(() => {
     const nextContent = normaliseServicesContent(initialServicesContent);
@@ -382,7 +384,7 @@ export default function ServicesCmsForm({
   useEffect(() => {
     return () => {
       Object.values(imagePreviews).forEach((url) => {
-        if (url) {
+        if (url?.startsWith("blob:")) {
           URL.revokeObjectURL(url);
         }
       });
@@ -463,29 +465,59 @@ export default function ServicesCmsForm({
     );
   }
 
-  function handleSelectImage(id, event) {
+  async function handleSelectImage(id, event) {
     const file = event.target.files?.[0];
 
     if (!file) {
       return;
     }
 
-    setImagePreviews((current) => {
-      if (current[id]) {
-        URL.revokeObjectURL(current[id]);
+    setIsUploadingImage(true);
+    setStatus({ type: "idle", message: "" });
+
+    try {
+      const uploadPayload = new FormData();
+      uploadPayload.append("file", file);
+      uploadPayload.append("folder", "services");
+
+      const response = await fetch("/api/cms-images", {
+        method: "POST",
+        body: uploadPayload,
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to upload service image.");
       }
 
-      return {
+      setImagePreviews((current) => ({
         ...current,
-        [id]: URL.createObjectURL(file),
-      };
-    });
-
-    setStatus({
-      type: "idle",
-      message:
-        "Local image preview updated. TODO: connect service images to a CMS image field and upload flow later.",
-    });
+        [id]: result.imageUrl,
+      }));
+      setDraftServiceItems((current) =>
+        current.map((item) =>
+          item.id === id ? { ...item, image_url: result.imageUrl } : item
+        )
+      );
+      setServiceItems((current) =>
+        current.map((item) =>
+          item.id === id ? { ...item, image_url: result.imageUrl } : item
+        )
+      );
+      setStatus({
+        type: "success",
+        message:
+          "Service image uploaded. Save the page to store it in Supabase.",
+      });
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Unable to upload service image.",
+      });
+    } finally {
+      event.target.value = "";
+      setIsUploadingImage(false);
+    }
   }
 
   function addServiceCard() {
@@ -691,10 +723,14 @@ export default function ServicesCmsForm({
 
         <button
           type="submit"
-          disabled={isSaving}
+          disabled={isSaving || isUploadingImage}
           className="inline-flex items-center justify-center rounded-2xl bg-[#4b8e9a] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#3e7882] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSaving ? "Saving..." : "Save Services Content"}
+          {isUploadingImage
+            ? "Uploading image..."
+            : isSaving
+              ? "Saving..."
+              : "Save Services Content"}
         </button>
       </div>
     </form>

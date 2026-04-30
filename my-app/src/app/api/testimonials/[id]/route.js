@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth0, hasAuth0Config } from "@/lib/auth0";
 import { isAdminUser } from "@/lib/admin";
-import { updateTestimonialStatus } from "@/lib/testimonial-submissions";
+import {
+  deleteTestimonialSubmission,
+  updateTestimonialStatus,
+} from "@/lib/testimonial-submissions";
 
 async function requireApiAdminSession() {
   if (!hasAuth0Config || !auth0) {
@@ -53,6 +56,39 @@ export async function PATCH(request, { params }) {
   } catch (error) {
     return NextResponse.json(
       { error: error.message || "Unable to update testimonial." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(_request, { params }) {
+  const session = await requireApiAdminSession();
+
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
+  try {
+    const { id } = await params;
+    const result = await deleteTestimonialSubmission(id);
+
+    if (result.error) {
+      return NextResponse.json(
+        { error: result.error },
+        { status: result.status || 400 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        testimonial: result.data,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { error: error.message || "Unable to delete testimonial." },
       { status: 500 }
     );
   }

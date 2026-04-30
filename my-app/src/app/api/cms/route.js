@@ -411,7 +411,9 @@ export async function PUT(request) {
 
       const serviceItemPayload = serviceItems.map((item, index) => {
         const payload = {
+          id: item.id || crypto.randomUUID(),
           homepage_slug: SERVICES_CMS_SLUG,
+          image_url: item.image_url,
           title: item.title,
           label: item.label,
           price: item.price,
@@ -426,10 +428,6 @@ export async function PUT(request) {
           is_published: item.is_published,
           updated_at: new Date().toISOString(),
         };
-
-        if (item.id) {
-          payload.id = item.id;
-        }
 
         return payload;
       });

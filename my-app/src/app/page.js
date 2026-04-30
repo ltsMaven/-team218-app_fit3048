@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, Sun } from "lucide-react";
 import HeroSlider from "../components/HeroSlider";
 import BlogSlider from "../components/BlogSlider";
@@ -36,43 +35,6 @@ export const metadata = {
     url: siteUrl,
   },
 };
-
-const primarySupportAreas = [
-  {
-    number: "01",
-    title: "Counselling & Personal Support",
-    description:
-      "One-on-one and relationship counselling for stress, trauma, substance misuse, domestic and family violence, emotional challenges, and personal growth.",
-    tags: ["Individual", "Couples", "Trauma"],
-  },
-  {
-    number: "02",
-    title: "Recovery Coaching & NDIS Support",
-    description:
-      "Person-centred support for NDIS participants, people with disabilities, families, and carers, with a focus on recovery, confidence, independence, and everyday wellbeing.",
-    tags: ["NDIS", "Recovery", "Disability Support"],
-  },
-  {
-    number: "03",
-    title: "Clinical Supervision",
-    description:
-      "Reflective supervision for professionals, supporting confidence, ethical practice, professional development, boundaries, and work-related challenges.",
-    tags: ["Supervision", "Practice", "Development"],
-  },
-];
-
-const secondarySupportInfo = [
-  {
-    title: "NDIS Registered Provider",
-    description:
-      "Ability to Thrive provides person-centred support for NDIS participants, families, and carers in a safe, respectful, and non-judgemental environment.",
-  },
-  {
-    title: "Appointments & Access",
-    description:
-      "Appointments are available via telehealth. Face-to-face support may be considered depending on location, needs, and availability.",
-  },
-];
 
 const testimonialBgClasses = ["bg-[#eeeff2]", "bg-white/75", "bg-[#dce9f8]"];
 
@@ -130,12 +92,49 @@ function getTestimonialPreview(quote) {
   return `${trimmed.slice(0, lastSpace > 0 ? lastSpace : trimmed.length)}...`;
 }
 
+function parseTagList(value = "") {
+  return String(value)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export default async function Home() {
   const [homepageContent, testimonials, blogs] = await Promise.all([
     getHomepageContent(),
     getHomepageTestimonials(),
     getHomepageBlogs(),
   ]);
+  const primarySupportAreas = [
+    {
+      number: "01",
+      title: homepageContent.service_1_title,
+      description: homepageContent.service_1_description,
+      tags: parseTagList(homepageContent.service_1_tags),
+    },
+    {
+      number: "02",
+      title: homepageContent.service_2_title,
+      description: homepageContent.service_2_description,
+      tags: parseTagList(homepageContent.service_2_tags),
+    },
+    {
+      number: "03",
+      title: homepageContent.service_3_title,
+      description: homepageContent.service_3_description,
+      tags: parseTagList(homepageContent.service_3_tags),
+    },
+  ];
+  const secondarySupportInfo = [
+    {
+      title: homepageContent.services_card_1_title,
+      description: homepageContent.services_card_1_body,
+    },
+    {
+      title: homepageContent.services_card_2_title,
+      description: homepageContent.services_card_2_body,
+    },
+  ];
   const organizationStructuredData = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -168,13 +167,10 @@ export default async function Home() {
         <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <div className="flex h-[420px] items-center justify-center rounded-[32px]">
-              <Image
-                src="/assets/attLogoNB.png"
+              <img
+                src={homepageContent.about_image_url || "/assets/attLogoNB.png"}
                 alt="Ability To Thrive logo"
-                width={420}
-                height={420}
                 className="h-auto max-h-full w-full max-w-[340px] object-contain"
-                priority
               />
             </div>
           </div>
@@ -235,7 +231,7 @@ export default async function Home() {
           <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div className="lg:sticky lg:top-28">
               <p className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
-                Services
+                {homepageContent.services_label}
               </p>
               <h2 className="mt-4 text-[1.8rem] font-semibold leading-tight text-[#42454c] sm:text-[2rem] lg:text-[2.35rem]">
                 {homepageContent.services_heading}
@@ -244,9 +240,7 @@ export default async function Home() {
                 {homepageContent.services_subheading}
               </p>
               <p className="mt-5 max-w-md text-[0.92rem] leading-7 text-[#6a6e77] lg:text-[0.98rem]">
-                Support is tailored to your needs, goals, and circumstances,
-                with options for personal counselling, recovery-focused support,
-                and professional supervision.
+                {homepageContent.services_support_body}
               </p>
             </div>
 
@@ -314,12 +308,14 @@ export default async function Home() {
           <div className="grid gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div className="lg:sticky lg:top-28">
               <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
-                Goals, Values, Vision
+                {homepageContent.about_section_label}
               </p>
               <h2 className="mt-4 max-w-lg text-3xl font-semibold tracking-tight text-[#42454c] sm:text-5xl">
-                About
+                {homepageContent.about_section_heading_line_1}
                 <br />
-                <span className="text-[#926ab9]">Ability to Thrive</span>
+                <span className="text-[#926ab9]">
+                  {homepageContent.about_section_heading_line_2}
+                </span>
               </h2>
 
               <div className="mt-10 flex items-center gap-4">
