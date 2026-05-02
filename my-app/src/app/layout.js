@@ -24,7 +24,6 @@ export const metadata = {
     "life coaching",
     "NDIS support",
     "clinical supervision",
-    "online counselling",
     "mental health support",
   ],
   authors: [{ name: "Ability to Thrive" }],
