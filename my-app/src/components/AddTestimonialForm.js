@@ -262,10 +262,7 @@ export default function AddTestimonialForm() {
               <option value="Individual Counselling">
                 Individual Counselling
               </option>
-              <option value="Online Counselling">Online Counselling</option>
-              <option value="Clinical Supervision">
-                Clinical Supervision
-              </option>
+              <option value="Clinical Supervision">Clinical Supervision</option>
               <option value="Couples Counselling">Couples Counselling</option>
               <option value="Psychosocial Recovery">
                 Psychosocial Recovery
