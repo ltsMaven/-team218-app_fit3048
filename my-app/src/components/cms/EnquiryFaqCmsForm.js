@@ -6,6 +6,10 @@ import CmsEditableSection from "./CmsEditableSection";
 import CmsPreviewLayout from "./CmsPreviewLayout";
 import EditableText from "./EditableText";
 import { fallbackEnquiryContent, normaliseEnquiryContent } from "@/lib/cms-homepage";
+import {
+  buildCmsValidationMessage,
+  validateCmsFields,
+} from "@/lib/cms-validation";
 
 function FaqPreview({ faqItems, editingId, onChangeItem, onDeleteItem }) {
   return (
@@ -41,6 +45,7 @@ function FaqPreview({ faqItems, editingId, onChangeItem, onDeleteItem }) {
                     value={faq.question}
                     isEditing={isEditing}
                     onChange={(value) => onChangeItem(faq.id, "question", value)}
+                    validationKey="faq_question"
                     className="text-lg font-semibold text-[#42454c]"
                   />
 
@@ -53,6 +58,7 @@ function FaqPreview({ faqItems, editingId, onChangeItem, onDeleteItem }) {
                   value={faq.answer}
                   isEditing={isEditing}
                   onChange={(value) => onChangeItem(faq.id, "answer", value)}
+                  validationKey="faq_answer"
                   className="pt-4 whitespace-pre-wrap leading-7 text-[#5d6169]"
                 />
 
@@ -140,8 +146,35 @@ export default function EnquiryFaqCmsForm({
     });
   }
 
+  function getFaqValidationErrors(items) {
+    return validateCmsFields(
+      items.flatMap((faq, index) => [
+        {
+          field: "faq_question",
+          value: faq.question,
+          label: `FAQ ${index + 1} question`,
+        },
+        {
+          field: "faq_answer",
+          value: faq.answer,
+          label: `FAQ ${index + 1} answer`,
+        },
+      ])
+    );
+  }
+
   function toggleEditing() {
     if (editingId) {
+      const errors = getFaqValidationErrors(draftFaqItems);
+
+      if (errors.length) {
+        setStatus({
+          type: "error",
+          message: buildCmsValidationMessage(errors),
+        });
+        return;
+      }
+
       setEnquiry((current) => ({
         ...current,
         faq_items: draftFaqItems.map(({ question, answer }) => ({
@@ -165,6 +198,16 @@ export default function EnquiryFaqCmsForm({
 
   async function handleSubmit(event) {
     event.preventDefault();
+    const errors = getFaqValidationErrors(enquiry.faq_items);
+
+    if (errors.length) {
+      setStatus({
+        type: "error",
+        message: buildCmsValidationMessage(errors),
+      });
+      return;
+    }
+
     setIsSaving(true);
     setStatus({ type: "idle", message: "" });
 
