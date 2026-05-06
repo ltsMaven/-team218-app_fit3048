@@ -8,6 +8,10 @@ import {
   fallbackBlogsContent,
   normaliseBlogsContent,
 } from "@/lib/cms-homepage";
+import {
+  buildCmsValidationMessage,
+  validateCmsFields,
+} from "@/lib/cms-validation";
 
 const blogHighlights = [
   "Practical guidance for recovery, resilience, and everyday wellbeing.",
@@ -31,6 +35,7 @@ function BlogsHeaderPreview({ content, isEditing, onFieldChange, isVisible }) {
             value={content.eyebrow}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("eyebrow", value)}
+            validationKey="eyebrow"
             className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]"
           />
 
@@ -39,6 +44,7 @@ function BlogsHeaderPreview({ content, isEditing, onFieldChange, isVisible }) {
             value={content.heading}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("heading", value)}
+            validationKey="heading"
             className="mt-4 text-4xl font-semibold tracking-tight text-[#42454c] sm:text-5xl lg:text-[3.7rem] lg:leading-[1.02]"
           />
 
@@ -47,11 +53,13 @@ function BlogsHeaderPreview({ content, isEditing, onFieldChange, isVisible }) {
               value={content.intro_body_1}
               isEditing={isEditing}
               onChange={(value) => onFieldChange("intro_body_1", value)}
+              validationKey="intro_body_1"
             />
             <EditableText
               value={content.intro_body_2}
               isEditing={isEditing}
               onChange={(value) => onFieldChange("intro_body_2", value)}
+              validationKey="intro_body_2"
             />
           </div>
         </div>
@@ -61,6 +69,7 @@ function BlogsHeaderPreview({ content, isEditing, onFieldChange, isVisible }) {
             value={content.highlights_label}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("highlights_label", value)}
+            validationKey="highlights_label"
             className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-[#926ab9]"
           />
 
@@ -68,6 +77,7 @@ function BlogsHeaderPreview({ content, isEditing, onFieldChange, isVisible }) {
             value={content.highlights_body}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("highlights_body", value)}
+            validationKey="highlights_body"
             className="mt-3 text-base leading-7 text-[#5d6169]"
           />
 
@@ -119,8 +129,29 @@ export default function BlogsCmsForm({
     }));
   }
 
+  function getValidationErrors(content) {
+    return validateCmsFields([
+      { field: "eyebrow", value: content.eyebrow, label: "Blogs eyebrow" },
+      { field: "heading", value: content.heading, label: "Blogs heading" },
+      { field: "intro_body_1", value: content.intro_body_1, label: "Intro paragraph 1" },
+      { field: "intro_body_2", value: content.intro_body_2, label: "Intro paragraph 2" },
+      { field: "highlights_label", value: content.highlights_label, label: "Highlights label" },
+      { field: "highlights_body", value: content.highlights_body, label: "Highlights body" },
+    ]);
+  }
+
   function toggleEditing() {
     if (isEditing) {
+      const errors = getValidationErrors(draftContent);
+
+      if (errors.length) {
+        setStatus({
+          type: "error",
+          message: buildCmsValidationMessage(errors),
+        });
+        return;
+      }
+
       setBlogsContent(draftContent);
       setStatus({
         type: "success",
@@ -140,6 +171,16 @@ export default function BlogsCmsForm({
 
   async function handleSubmit(event) {
     event.preventDefault();
+    const errors = getValidationErrors(blogsContent);
+
+    if (errors.length) {
+      setStatus({
+        type: "error",
+        message: buildCmsValidationMessage(errors),
+      });
+      return;
+    }
+
     setIsSaving(true);
     setStatus({ type: "idle", message: "" });
 

@@ -51,9 +51,8 @@ export default async function AdminBlogsPage() {
           Blog Management
         </h1>
         <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]">
-          Signed in as {session.user.name || session.user.email}. Create,
-          edit, publish, and remove blog articles used by the homepage slider
-          and the public blog pages.
+          Create, edit, publish, and remove blog articles used by the homepage
+          slider and the public blog pages.
         </p>
 
         <AdminBlogsManager initialBlogs={blogs} loadError={blogsError} />

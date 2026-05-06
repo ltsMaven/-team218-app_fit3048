@@ -19,7 +19,7 @@ function getVisibleCards(width) {
     return 2;
   }
 
-  return 2;
+  return 3;
 }
 
 function ServiceCard({ service, index }) {

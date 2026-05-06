@@ -9,6 +9,10 @@ import {
   fallbackHomepageContent,
   normaliseHomepageContent,
 } from "@/lib/cms-homepage";
+import {
+  buildCmsValidationMessage,
+  validateCmsFields,
+} from "@/lib/cms-validation";
 
 function parseTagList(value = "") {
   return String(value)
@@ -88,6 +92,7 @@ function HomepageAboutPreview({
           value={content.about_badge || fallbackHomepageContent.about_badge}
           isEditing={isEditing}
           onChange={(value) => onFieldChange("about_badge", value)}
+          validationKey="about_badge"
           className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6d7bbb]"
         />
         <EditableText
@@ -95,6 +100,7 @@ function HomepageAboutPreview({
           value={content.about_heading || "Homepage heading preview"}
           isEditing={isEditing}
           onChange={(value) => onFieldChange("about_heading", value)}
+          validationKey="about_heading"
           className="mt-4 text-3xl font-semibold leading-tight text-[#42454c]"
         />
         <div className="mt-6 space-y-4 text-sm leading-7 text-[#5d6169]">
@@ -102,6 +108,7 @@ function HomepageAboutPreview({
             value={content.about_intro || "Introductory copy will appear here."}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("about_intro", value)}
+            validationKey="about_intro"
             className="whitespace-pre-wrap"
           />
           <EditableText
@@ -111,6 +118,7 @@ function HomepageAboutPreview({
             }
             isEditing={isEditing}
             onChange={(value) => onFieldChange("about_highlight", value)}
+            validationKey="about_highlight"
             className="whitespace-pre-wrap"
           />
           <EditableText
@@ -119,6 +127,7 @@ function HomepageAboutPreview({
             }
             isEditing={isEditing}
             onChange={(value) => onFieldChange("about_closing", value)}
+            validationKey="about_closing"
             className="whitespace-pre-wrap font-medium text-[#42454c]"
           />
         </div>
@@ -202,6 +211,7 @@ function HomepageServicesPreview({ content }) {
               value={content.services_label || "Services"}
               isEditing={content.isEditing}
               onChange={(value) => content.onFieldChange("services_label", value)}
+              validationKey="services_label"
               className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]"
             />
             <EditableText
@@ -211,6 +221,7 @@ function HomepageServicesPreview({ content }) {
               onChange={(value) =>
                 content.onFieldChange("services_heading", value)
               }
+              validationKey="services_heading"
               className="mt-4 text-[1.8rem] font-semibold leading-tight text-[#42454c] sm:text-[2rem] lg:text-[2.35rem]"
             />
             <EditableText
@@ -222,6 +233,7 @@ function HomepageServicesPreview({ content }) {
               onChange={(value) =>
                 content.onFieldChange("services_subheading", value)
               }
+              validationKey="services_subheading"
               className="mt-5 max-w-md whitespace-pre-wrap text-[0.95rem] leading-7 text-[#5c6069] lg:text-base"
             />
             <EditableText
@@ -233,6 +245,7 @@ function HomepageServicesPreview({ content }) {
               onChange={(value) =>
                 content.onFieldChange("services_support_body", value)
               }
+              validationKey="services_support_body"
               className="mt-5 max-w-md whitespace-pre-wrap text-[0.92rem] leading-7 text-[#6a6e77] lg:text-[0.98rem]"
             />
           </div>
@@ -257,6 +270,7 @@ function HomepageServicesPreview({ content }) {
                           onChange={(value) =>
                             content.onFieldChange(card.titleKey, value)
                           }
+                          validationKey={card.titleKey}
                           className="text-[1.28rem] font-semibold leading-tight text-[#42454c] sm:text-[1.42rem] lg:text-[1.5rem]"
                         />
                         <EditableText
@@ -265,6 +279,7 @@ function HomepageServicesPreview({ content }) {
                           onChange={(value) =>
                             content.onFieldChange(card.descriptionKey, value)
                           }
+                          validationKey={card.descriptionKey}
                           className="mt-3 max-w-3xl whitespace-pre-wrap text-[0.95rem] leading-7 text-[#5d6169] lg:text-base lg:leading-8"
                         />
                         <EditableText
@@ -273,6 +288,7 @@ function HomepageServicesPreview({ content }) {
                           onChange={(value) =>
                             content.onFieldChange(card.tagsKey, value)
                           }
+                          validationKey={card.tagsKey}
                           className="mt-4 text-[0.78rem] leading-6 text-[#5c6069]"
                         />
                         <div className="mt-4 flex flex-wrap gap-2.5">
@@ -308,12 +324,14 @@ function HomepageServicesPreview({ content }) {
                     onChange={(value) =>
                       content.onFieldChange(item.titleKey, value)
                     }
+                    validationKey={item.titleKey}
                     className="text-[1.05rem] font-semibold text-[#42454c] sm:text-[1.12rem]"
                   />
                   <EditableText
                     value={item.description}
                     isEditing={content.isEditing}
                     onChange={(value) => content.onFieldChange(item.bodyKey, value)}
+                    validationKey={item.bodyKey}
                     className="mt-3 whitespace-pre-wrap text-[0.92rem] leading-7 text-[#61656d]"
                   />
                 </article>
@@ -337,6 +355,7 @@ function TimelineItem({ label, heading, body, toneClass }) {
         value={label}
         isEditing={isEditing}
         onChange={(value) => onFieldChange(toneClass.labelKey, value)}
+        validationKey={toneClass.labelKey}
         className={`text-xs font-semibold uppercase tracking-[0.22em] ${
           toneClass.labelClass || ""
         }`}
@@ -348,6 +367,7 @@ function TimelineItem({ label, heading, body, toneClass }) {
         value={heading}
         isEditing={isEditing}
         onChange={(value) => onFieldChange(toneClass.headingKey, value)}
+        validationKey={toneClass.headingKey}
         className={`mt-3 text-xl font-semibold ${toneClass.headingClass || ""}`}
         editingClassName={toneClass.editingTextClass || ""}
         editingStyle={toneClass.editingStyle}
@@ -356,6 +376,7 @@ function TimelineItem({ label, heading, body, toneClass }) {
         value={body}
         isEditing={isEditing}
         onChange={(value) => onFieldChange(toneClass.bodyKey, value)}
+        validationKey={toneClass.bodyKey}
         className={`mt-4 whitespace-pre-wrap text-sm leading-7 ${
           toneClass.bodyClass || "opacity-80"
         }`}
@@ -382,6 +403,7 @@ function HomepageValuesPreview({ content }) {
               onChange={(value) =>
                 content.onFieldChange("about_section_label", value)
               }
+              validationKey="about_section_label"
               className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]"
             />
             <h4 className="mt-4 max-w-lg text-3xl font-semibold tracking-tight text-[#42454c] sm:text-5xl">
@@ -395,6 +417,7 @@ function HomepageValuesPreview({ content }) {
                 onChange={(value) =>
                   content.onFieldChange("about_section_heading_line_1", value)
                 }
+                validationKey="about_section_heading_line_1"
                 className="block"
               />
               <br />
@@ -408,6 +431,7 @@ function HomepageValuesPreview({ content }) {
                 onChange={(value) =>
                   content.onFieldChange("about_section_heading_line_2", value)
                 }
+                validationKey="about_section_heading_line_2"
                 className="block text-[#926ab9]"
               />
             </h4>
@@ -505,6 +529,7 @@ function HomepageCtaPreview({ content }) {
           value={content.cta_heading || "Ready to Take the First Step?"}
           isEditing={content.isEditing}
           onChange={(value) => content.onFieldChange("cta_heading", value)}
+          validationKey="cta_heading"
           className="text-3xl font-semibold tracking-tight sm:text-4xl"
           editingClassName="text-[#42454c]"
           editingStyle={{ color: "#42454c" }}
@@ -514,6 +539,7 @@ function HomepageCtaPreview({ content }) {
           value={content.cta_body || "Your call-to-action text will appear here."}
           isEditing={content.isEditing}
           onChange={(value) => content.onFieldChange("cta_body", value)}
+          validationKey="cta_body"
           className="mx-auto mt-5 max-w-2xl whitespace-pre-wrap text-lg text-white/75"
           editingClassName="text-[#42454c]"
           editingStyle={{ color: "#42454c" }}
@@ -527,6 +553,7 @@ function HomepageCtaPreview({ content }) {
             onChange={(value) =>
               content.onFieldChange("cta_button_label", value)
             }
+            validationKey="cta_button_label"
             className="inline-flex items-center gap-2 rounded-xl bg-[#926ab9] px-6 py-3 text-sm font-medium text-white"
             editingClassName="text-[#42454c]"
             editingStyle={{ color: "#42454c" }}
@@ -618,8 +645,34 @@ export default function HomepageCmsForm({
     }));
   }
 
+  function ensureValid(fields) {
+    const errors = validateCmsFields(fields);
+
+    if (!errors.length) {
+      return true;
+    }
+
+    setStatus({
+      type: "error",
+      message: buildCmsValidationMessage(errors),
+    });
+    return false;
+  }
+
   function handleToggleAboutEditing() {
     if (isAboutEditing) {
+      if (
+        !ensureValid([
+          { field: "about_badge", value: draftAbout.about_badge, label: "About badge" },
+          { field: "about_heading", value: draftAbout.about_heading, label: "About heading" },
+          { field: "about_intro", value: draftAbout.about_intro, label: "About intro" },
+          { field: "about_highlight", value: draftAbout.about_highlight, label: "About highlight" },
+          { field: "about_closing", value: draftAbout.about_closing, label: "About closing line" },
+        ])
+      ) {
+        return;
+      }
+
       setHomepage((current) => ({
         ...current,
         about_image_url: draftAbout.about_image_url,
@@ -653,6 +706,30 @@ export default function HomepageCmsForm({
 
   function handleToggleServicesEditing() {
     if (isServicesEditing) {
+      if (
+        !ensureValid([
+          { field: "services_label", value: draftServices.services_label, label: "Services label" },
+          { field: "services_heading", value: draftServices.services_heading, label: "Services heading" },
+          { field: "services_subheading", value: draftServices.services_subheading, label: "Services subheading" },
+          { field: "services_support_body", value: draftServices.services_support_body, label: "Services support body" },
+          { field: "service_1_title", value: draftServices.service_1_title, label: "Service 1 title" },
+          { field: "service_1_description", value: draftServices.service_1_description, label: "Service 1 description" },
+          { field: "service_1_tags", value: draftServices.service_1_tags, label: "Service 1 tags" },
+          { field: "service_2_title", value: draftServices.service_2_title, label: "Service 2 title" },
+          { field: "service_2_description", value: draftServices.service_2_description, label: "Service 2 description" },
+          { field: "service_2_tags", value: draftServices.service_2_tags, label: "Service 2 tags" },
+          { field: "service_3_title", value: draftServices.service_3_title, label: "Service 3 title" },
+          { field: "service_3_description", value: draftServices.service_3_description, label: "Service 3 description" },
+          { field: "service_3_tags", value: draftServices.service_3_tags, label: "Service 3 tags" },
+          { field: "services_card_1_title", value: draftServices.services_card_1_title, label: "Services card 1 title" },
+          { field: "services_card_1_body", value: draftServices.services_card_1_body, label: "Services card 1 body" },
+          { field: "services_card_2_title", value: draftServices.services_card_2_title, label: "Services card 2 title" },
+          { field: "services_card_2_body", value: draftServices.services_card_2_body, label: "Services card 2 body" },
+        ])
+      ) {
+        return;
+      }
+
       setHomepage((current) => ({
         ...current,
         services_label: draftServices.services_label,
@@ -708,6 +785,25 @@ export default function HomepageCmsForm({
 
   function handleToggleValuesEditing() {
     if (isValuesEditing) {
+      if (
+        !ensureValid([
+          { field: "about_section_label", value: draftValues.about_section_label, label: "About section label" },
+          { field: "about_section_heading_line_1", value: draftValues.about_section_heading_line_1, label: "About section heading line 1" },
+          { field: "about_section_heading_line_2", value: draftValues.about_section_heading_line_2, label: "About section heading line 2" },
+          { field: "goals_label", value: draftValues.goals_label, label: "Goals label" },
+          { field: "goals_heading", value: draftValues.goals_heading, label: "Goals heading" },
+          { field: "goals_body", value: draftValues.goals_body, label: "Goals body" },
+          { field: "vision_label", value: draftValues.vision_label, label: "Vision label" },
+          { field: "vision_heading", value: draftValues.vision_heading, label: "Vision heading" },
+          { field: "vision_body", value: draftValues.vision_body, label: "Vision body" },
+          { field: "values_label", value: draftValues.values_label, label: "Values label" },
+          { field: "values_heading", value: draftValues.values_heading, label: "Values heading" },
+          { field: "values_body", value: draftValues.values_body, label: "Values body" },
+        ])
+      ) {
+        return;
+      }
+
       setHomepage((current) => ({
         ...current,
         about_section_label: draftValues.about_section_label,
@@ -753,6 +849,16 @@ export default function HomepageCmsForm({
 
   function handleToggleCtaEditing() {
     if (isCtaEditing) {
+      if (
+        !ensureValid([
+          { field: "cta_heading", value: draftCta.cta_heading, label: "CTA heading" },
+          { field: "cta_body", value: draftCta.cta_body, label: "CTA body" },
+          { field: "cta_button_label", value: draftCta.cta_button_label, label: "CTA button label" },
+        ])
+      ) {
+        return;
+      }
+
       setHomepage((current) => ({
         ...current,
         cta_heading: draftCta.cta_heading,
@@ -826,6 +932,50 @@ export default function HomepageCmsForm({
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (
+      !ensureValid([
+        { field: "about_badge", value: homepage.about_badge, label: "About badge" },
+        { field: "about_heading", value: homepage.about_heading, label: "About heading" },
+        { field: "about_intro", value: homepage.about_intro, label: "About intro" },
+        { field: "about_highlight", value: homepage.about_highlight, label: "About highlight" },
+        { field: "about_closing", value: homepage.about_closing, label: "About closing line" },
+        { field: "services_label", value: homepage.services_label, label: "Services label" },
+        { field: "services_heading", value: homepage.services_heading, label: "Services heading" },
+        { field: "services_subheading", value: homepage.services_subheading, label: "Services subheading" },
+        { field: "services_support_body", value: homepage.services_support_body, label: "Services support body" },
+        { field: "service_1_title", value: homepage.service_1_title, label: "Service 1 title" },
+        { field: "service_1_description", value: homepage.service_1_description, label: "Service 1 description" },
+        { field: "service_1_tags", value: homepage.service_1_tags, label: "Service 1 tags" },
+        { field: "service_2_title", value: homepage.service_2_title, label: "Service 2 title" },
+        { field: "service_2_description", value: homepage.service_2_description, label: "Service 2 description" },
+        { field: "service_2_tags", value: homepage.service_2_tags, label: "Service 2 tags" },
+        { field: "service_3_title", value: homepage.service_3_title, label: "Service 3 title" },
+        { field: "service_3_description", value: homepage.service_3_description, label: "Service 3 description" },
+        { field: "service_3_tags", value: homepage.service_3_tags, label: "Service 3 tags" },
+        { field: "services_card_1_title", value: homepage.services_card_1_title, label: "Services card 1 title" },
+        { field: "services_card_1_body", value: homepage.services_card_1_body, label: "Services card 1 body" },
+        { field: "services_card_2_title", value: homepage.services_card_2_title, label: "Services card 2 title" },
+        { field: "services_card_2_body", value: homepage.services_card_2_body, label: "Services card 2 body" },
+        { field: "about_section_label", value: homepage.about_section_label, label: "About section label" },
+        { field: "about_section_heading_line_1", value: homepage.about_section_heading_line_1, label: "About section heading line 1" },
+        { field: "about_section_heading_line_2", value: homepage.about_section_heading_line_2, label: "About section heading line 2" },
+        { field: "goals_label", value: homepage.goals_label, label: "Goals label" },
+        { field: "goals_heading", value: homepage.goals_heading, label: "Goals heading" },
+        { field: "goals_body", value: homepage.goals_body, label: "Goals body" },
+        { field: "vision_label", value: homepage.vision_label, label: "Vision label" },
+        { field: "vision_heading", value: homepage.vision_heading, label: "Vision heading" },
+        { field: "vision_body", value: homepage.vision_body, label: "Vision body" },
+        { field: "values_label", value: homepage.values_label, label: "Values label" },
+        { field: "values_heading", value: homepage.values_heading, label: "Values heading" },
+        { field: "values_body", value: homepage.values_body, label: "Values body" },
+        { field: "cta_heading", value: homepage.cta_heading, label: "CTA heading" },
+        { field: "cta_body", value: homepage.cta_body, label: "CTA body" },
+        { field: "cta_button_label", value: homepage.cta_button_label, label: "CTA button label" },
+      ])
+    ) {
+      return;
+    }
+
     setIsSaving(true);
     setStatus({ type: "idle", message: "" });
 
