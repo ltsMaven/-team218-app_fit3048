@@ -1,4 +1,5 @@
 import { sendEnquiryEmail } from "../../../lib/send-enquiry-email";
+import { saveEnquirySubmission } from "../../../lib/enquiry-submissions";
 
 export async function POST(request) {
   try {
@@ -42,6 +43,15 @@ export async function POST(request) {
       return Response.json(
         { error: "reCAPTCHA verification failed. Please try again." },
         { status: 400 }
+      );
+    }
+
+    const savedSubmission = await saveEnquirySubmission(payload);
+
+    if (savedSubmission.error) {
+      return Response.json(
+        { error: savedSubmission.error },
+        { status: savedSubmission.status || 400 }
       );
     }
 
