@@ -5,6 +5,10 @@ import CmsEditableSection from "./CmsEditableSection";
 import CmsPreviewLayout from "./CmsPreviewLayout";
 import EditableText from "./EditableText";
 import { fallbackAboutContent, normaliseAboutContent } from "@/lib/cms-homepage";
+import {
+  buildCmsValidationMessage,
+  validateCmsFields,
+} from "@/lib/cms-validation";
 
 function EditableImage({ src, alt, isEditing, onSelectFile, heightClass }) {
   return (
@@ -37,6 +41,7 @@ function FocusTagsEditor({ tags, isEditing, onChange }) {
           value={tag}
           isEditing={isEditing}
           onChange={(value) => onChange(index, value)}
+          validationKey="focus_tag"
           className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-medium text-[#42454c] shadow-sm"
         />
       ))}
@@ -76,12 +81,14 @@ function AboutHeroPreview({
             value={content.hero_heading}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("hero_heading", value)}
+            validationKey="hero_heading"
             className="mb-6 text-4xl font-semibold leading-tight text-[#42454c] sm:text-5xl lg:text-6xl"
           />
           <EditableText
             value={content.hero_subheading}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("hero_subheading", value)}
+            validationKey="hero_subheading"
             className="text-xl font-medium text-[#5c6069]"
           />
         </div>
@@ -102,12 +109,14 @@ function AboutStoryPreview({ content, isEditing, onFieldChange }) {
                 value={content.story_heading}
                 isEditing={isEditing}
                 onChange={(value) => onFieldChange("story_heading", value)}
+                validationKey="story_heading"
                 className="text-3xl font-semibold leading-tight text-[#42454c]"
               />
               <EditableText
                 value={content.story_subheading}
                 isEditing={isEditing}
                 onChange={(value) => onFieldChange("story_subheading", value)}
+                validationKey="story_subheading"
                 className="mt-4 text-lg text-[#5c6069]"
               />
             </div>
@@ -117,6 +126,7 @@ function AboutStoryPreview({ content, isEditing, onFieldChange }) {
                 value={content.story_body_1}
                 isEditing={isEditing}
                 onChange={(value) => onFieldChange("story_body_1", value)}
+                validationKey="story_body_1"
                 className="whitespace-pre-wrap"
               />
               <div className="h-px w-16 bg-[#d9deeb]" />
@@ -124,6 +134,7 @@ function AboutStoryPreview({ content, isEditing, onFieldChange }) {
                 value={content.story_body_2}
                 isEditing={isEditing}
                 onChange={(value) => onFieldChange("story_body_2", value)}
+                validationKey="story_body_2"
                 className="whitespace-pre-wrap"
               />
             </div>
@@ -161,6 +172,7 @@ function AboutSplitPreview({
         value={content[headingKey]}
         isEditing={isEditing}
         onChange={(value) => onFieldChange(headingKey, value)}
+        validationKey={headingKey}
         className="text-sm font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]"
       />
       <EditableText
@@ -168,6 +180,7 @@ function AboutSplitPreview({
         value={content[headingKey]}
         isEditing={isEditing}
         onChange={(value) => onFieldChange(headingKey, value)}
+        validationKey={headingKey}
         className="mt-4 text-3xl font-semibold leading-tight text-[#42454c] sm:text-4xl"
       />
 
@@ -178,6 +191,7 @@ function AboutSplitPreview({
             value={content[key]}
             isEditing={isEditing}
             onChange={(value) => onFieldChange(key, value)}
+            validationKey={key}
             className={`${
               index === 0 ? "mt-8" : "mt-6"
             } whitespace-pre-wrap text-base leading-9 text-[#5d6169]`}
@@ -225,6 +239,7 @@ function AboutFocusPreview({ content, isEditing, onFieldChange, onTagChange }) {
               value={content.focus_label}
               isEditing={isEditing}
               onChange={(value) => onFieldChange("focus_label", value)}
+              validationKey="focus_label"
               className="text-sm font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]"
             />
           </div>
@@ -248,6 +263,7 @@ function StatBlock({ value, label, body, isEditing, onFieldChange, tone }) {
         value={value}
         isEditing={isEditing}
         onChange={(nextValue) => onFieldChange(tone.valueKey, nextValue)}
+        validationKey={tone.valueKey}
         className={`text-5xl font-light lg:text-6xl ${tone.valueClass}`}
       />
       <EditableText
@@ -255,12 +271,14 @@ function StatBlock({ value, label, body, isEditing, onFieldChange, tone }) {
         value={label}
         isEditing={isEditing}
         onChange={(nextValue) => onFieldChange(tone.labelKey, nextValue)}
+        validationKey={tone.labelKey}
         className="mt-4 text-2xl font-medium text-[#42454c]"
       />
       <EditableText
         value={body}
         isEditing={isEditing}
         onChange={(nextValue) => onFieldChange(tone.bodyKey, nextValue)}
+        validationKey={tone.bodyKey}
         className="mt-4 whitespace-pre-wrap text-base leading-8 text-[#5d6169]"
       />
     </div>
@@ -307,12 +325,14 @@ function AboutStatsPreview({ content, isEditing, onFieldChange }) {
               value={content.stat_3_label}
               isEditing={isEditing}
               onChange={(value) => onFieldChange("stat_3_label", value)}
+              validationKey="stat_3_label"
               className="text-2xl font-medium text-[#42454c]"
             />
             <EditableText
               value={content.stat_3_body}
               isEditing={isEditing}
               onChange={(value) => onFieldChange("stat_3_body", value)}
+              validationKey="stat_3_body"
               className="mt-4 whitespace-pre-wrap text-base leading-8 text-[#5d6169]"
             />
           </div>
@@ -473,6 +493,20 @@ export default function AboutCmsForm({
     }));
   }
 
+  function ensureValid(fields) {
+    const errors = validateCmsFields(fields);
+
+    if (!errors.length) {
+      return true;
+    }
+
+    setStatus({
+      type: "error",
+      message: buildCmsValidationMessage(errors),
+    });
+    return false;
+  }
+
   function commitDraft(setterName, keys, message) {
     setAbout((current) => ({
       ...current,
@@ -486,6 +520,15 @@ export default function AboutCmsForm({
 
   function handleToggleHeroEditing() {
     if (isHeroEditing) {
+      if (
+        !ensureValid([
+          { field: "hero_heading", value: draftHero.hero_heading, label: "Hero heading" },
+          { field: "hero_subheading", value: draftHero.hero_subheading, label: "Hero subheading" },
+        ])
+      ) {
+        return;
+      }
+
       commitDraft(
         draftHero,
         ["hero_image_url", "hero_heading", "hero_subheading"],
@@ -507,6 +550,17 @@ export default function AboutCmsForm({
 
   function handleToggleStoryEditing() {
     if (isStoryEditing) {
+      if (
+        !ensureValid([
+          { field: "story_heading", value: draftStory.story_heading, label: "Story heading" },
+          { field: "story_subheading", value: draftStory.story_subheading, label: "Story subheading" },
+          { field: "story_body_1", value: draftStory.story_body_1, label: "Story body 1" },
+          { field: "story_body_2", value: draftStory.story_body_2, label: "Story body 2" },
+        ])
+      ) {
+        return;
+      }
+
       commitDraft(
         draftStory,
         ["story_heading", "story_subheading", "story_body_1", "story_body_2"],
@@ -529,6 +583,16 @@ export default function AboutCmsForm({
 
   function handleTogglePhilosophyEditing() {
     if (isPhilosophyEditing) {
+      if (
+        !ensureValid([
+          { field: "philosophy_heading", value: draftPhilosophy.philosophy_heading, label: "Philosophy heading" },
+          { field: "philosophy_body_1", value: draftPhilosophy.philosophy_body_1, label: "Philosophy body 1" },
+          { field: "philosophy_body_2", value: draftPhilosophy.philosophy_body_2, label: "Philosophy body 2" },
+        ])
+      ) {
+        return;
+      }
+
       commitDraft(
         draftPhilosophy,
         [
@@ -556,6 +620,15 @@ export default function AboutCmsForm({
 
   function handleToggleBackgroundEditing() {
     if (isBackgroundEditing) {
+      if (
+        !ensureValid([
+          { field: "background_heading", value: draftBackground.background_heading, label: "Background heading" },
+          { field: "background_body", value: draftBackground.background_body, label: "Background body" },
+        ])
+      ) {
+        return;
+      }
+
       commitDraft(
         draftBackground,
         ["background_image_url", "background_heading", "background_body"],
@@ -577,6 +650,19 @@ export default function AboutCmsForm({
 
   function handleToggleFocusEditing() {
     if (isFocusEditing) {
+      if (
+        !ensureValid([
+          { field: "focus_label", value: draftFocus.focus_label, label: "Focus label" },
+          ...draftFocus.focus_tags.map((tag, index) => ({
+            field: "focus_tag",
+            value: tag,
+            label: `Focus tag ${index + 1}`,
+          })),
+        ])
+      ) {
+        return;
+      }
+
       commitDraft(draftFocus, ["focus_label", "focus_tags"], "Focus areas preview updated.");
       setIsFocusEditing(false);
       return;
@@ -593,6 +679,21 @@ export default function AboutCmsForm({
 
   function handleToggleStatsEditing() {
     if (isStatsEditing) {
+      if (
+        !ensureValid([
+          { field: "stat_1_value", value: draftStats.stat_1_value, label: "Stat 1 value" },
+          { field: "stat_1_label", value: draftStats.stat_1_label, label: "Stat 1 label" },
+          { field: "stat_1_body", value: draftStats.stat_1_body, label: "Stat 1 body" },
+          { field: "stat_2_value", value: draftStats.stat_2_value, label: "Stat 2 value" },
+          { field: "stat_2_label", value: draftStats.stat_2_label, label: "Stat 2 label" },
+          { field: "stat_2_body", value: draftStats.stat_2_body, label: "Stat 2 body" },
+          { field: "stat_3_label", value: draftStats.stat_3_label, label: "Stat 3 label" },
+          { field: "stat_3_body", value: draftStats.stat_3_body, label: "Stat 3 body" },
+        ])
+      ) {
+        return;
+      }
+
       commitDraft(
         draftStats,
         [
@@ -628,6 +729,38 @@ export default function AboutCmsForm({
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (
+      !ensureValid([
+        { field: "hero_heading", value: about.hero_heading, label: "Hero heading" },
+        { field: "hero_subheading", value: about.hero_subheading, label: "Hero subheading" },
+        { field: "story_heading", value: about.story_heading, label: "Story heading" },
+        { field: "story_subheading", value: about.story_subheading, label: "Story subheading" },
+        { field: "story_body_1", value: about.story_body_1, label: "Story body 1" },
+        { field: "story_body_2", value: about.story_body_2, label: "Story body 2" },
+        { field: "philosophy_heading", value: about.philosophy_heading, label: "Philosophy heading" },
+        { field: "philosophy_body_1", value: about.philosophy_body_1, label: "Philosophy body 1" },
+        { field: "philosophy_body_2", value: about.philosophy_body_2, label: "Philosophy body 2" },
+        { field: "background_heading", value: about.background_heading, label: "Background heading" },
+        { field: "background_body", value: about.background_body, label: "Background body" },
+        { field: "focus_label", value: about.focus_label, label: "Focus label" },
+        ...about.focus_tags.map((tag, index) => ({
+          field: "focus_tag",
+          value: tag,
+          label: `Focus tag ${index + 1}`,
+        })),
+        { field: "stat_1_value", value: about.stat_1_value, label: "Stat 1 value" },
+        { field: "stat_1_label", value: about.stat_1_label, label: "Stat 1 label" },
+        { field: "stat_1_body", value: about.stat_1_body, label: "Stat 1 body" },
+        { field: "stat_2_value", value: about.stat_2_value, label: "Stat 2 value" },
+        { field: "stat_2_label", value: about.stat_2_label, label: "Stat 2 label" },
+        { field: "stat_2_body", value: about.stat_2_body, label: "Stat 2 body" },
+        { field: "stat_3_label", value: about.stat_3_label, label: "Stat 3 label" },
+        { field: "stat_3_body", value: about.stat_3_body, label: "Stat 3 body" },
+      ])
+    ) {
+      return;
+    }
+
     setIsSaving(true);
     setStatus({ type: "idle", message: "" });
 

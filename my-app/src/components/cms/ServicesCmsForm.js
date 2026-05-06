@@ -11,6 +11,11 @@ import {
   normaliseServiceItems,
   normaliseServicesContent,
 } from "@/lib/cms-homepage";
+import {
+  buildCmsValidationMessage,
+  validateCmsFields,
+  validateServiceItems,
+} from "@/lib/cms-validation";
 
 function EditableImage({ src, alt, isEditing, onSelectFile, heightClass }) {
   return (
@@ -52,12 +57,14 @@ function ServicesHeroPreview({ content, isEditing, onFieldChange }) {
             value={content.heading}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("heading", value)}
+            validationKey="heading"
             className="text-4xl font-semibold tracking-tight text-[#42454c] sm:text-5xl lg:text-6xl"
           />
           <EditableText
             value={content.intro}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("intro", value)}
+            validationKey="intro"
             className="mx-auto mt-5 max-w-3xl whitespace-pre-wrap text-lg leading-relaxed text-[#5c6069]"
           />
         </div>
@@ -82,6 +89,7 @@ function FeatureEditor({ features, isEditing, onChange }) {
             value={feature}
             isEditing={isEditing}
             onChange={(value) => onChange(index, value)}
+            validationKey="feature"
             className="block"
           />
         </div>
@@ -121,6 +129,7 @@ function ServiceCardPreview({
               value={service.label}
               isEditing={isEditing}
               onChange={(value) => onFieldChange("label", value)}
+              validationKey="label"
               className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7a85c4]"
             />
             <EditableText
@@ -128,12 +137,14 @@ function ServiceCardPreview({
               value={service.title}
               isEditing={isEditing}
               onChange={(value) => onFieldChange("title", value)}
+              validationKey="title"
               className="mt-3 text-[2rem] font-semibold leading-tight text-[#42454c]"
             />
             <EditableText
               value={service.description}
               isEditing={isEditing}
               onChange={(value) => onFieldChange("description", value)}
+              validationKey="description"
               className="mt-5 whitespace-pre-wrap text-base leading-8 text-[#5d6169]"
             />
           </div>
@@ -149,6 +160,7 @@ function ServiceCardPreview({
                   value={service.price}
                   isEditing={isEditing}
                   onChange={(value) => onFieldChange("price", value)}
+                  validationKey="price"
                   className="text-4xl font-semibold tracking-tight text-[#42454c]"
                 />
                 <EditableText
@@ -156,6 +168,7 @@ function ServiceCardPreview({
                   value={service.price_detail}
                   isEditing={isEditing}
                   onChange={(value) => onFieldChange("price_detail", value)}
+                  validationKey="price_detail"
                   className="mt-2 text-sm font-medium uppercase tracking-[0.14em] text-[#8f72bb]"
                 />
               </div>
@@ -186,6 +199,7 @@ function ServiceCardPreview({
             value={service.label}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("label", value)}
+            validationKey="label"
             className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7a85c4]"
           />
           <EditableText
@@ -193,12 +207,14 @@ function ServiceCardPreview({
             value={service.title}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("title", value)}
+            validationKey="title"
             className="mt-3 text-[2rem] font-semibold leading-tight text-[#42454c]"
           />
           <EditableText
             value={service.description}
             isEditing={isEditing}
             onChange={(value) => onFieldChange("description", value)}
+            validationKey="description"
             className="mt-5 whitespace-pre-wrap text-base leading-8 text-[#5d6169]"
           />
 
@@ -208,18 +224,20 @@ function ServiceCardPreview({
             <div>
               <EditableText
                 as="p"
-                value={service.price}
-                isEditing={isEditing}
-                onChange={(value) => onFieldChange("price", value)}
-                className="text-4xl font-semibold tracking-tight text-[#42454c]"
-              />
+              value={service.price}
+              isEditing={isEditing}
+              onChange={(value) => onFieldChange("price", value)}
+              validationKey="price"
+              className="text-4xl font-semibold tracking-tight text-[#42454c]"
+            />
               <EditableText
                 as="p"
-                value={service.price_detail}
-                isEditing={isEditing}
-                onChange={(value) => onFieldChange("price_detail", value)}
-                className="mt-2 text-sm font-medium uppercase tracking-[0.14em] text-[#8f72bb]"
-              />
+              value={service.price_detail}
+              isEditing={isEditing}
+              onChange={(value) => onFieldChange("price_detail", value)}
+              validationKey="price_detail"
+              className="mt-2 text-sm font-medium uppercase tracking-[0.14em] text-[#8f72bb]"
+            />
             </div>
           </div>
 
@@ -398,8 +416,31 @@ export default function ServicesCmsForm({
     }));
   }
 
+  function ensureValid(errors) {
+    if (!errors.length) {
+      return true;
+    }
+
+    setStatus({
+      type: "error",
+      message: buildCmsValidationMessage(errors),
+    });
+    return false;
+  }
+
   function handleToggleIntroEditing() {
     if (isIntroEditing) {
+      if (
+        !ensureValid(
+          validateCmsFields([
+            { field: "heading", value: draftServicesContent.heading, label: "Services heading" },
+            { field: "intro", value: draftServicesContent.intro, label: "Services intro" },
+          ])
+        )
+      ) {
+        return;
+      }
+
       setServicesContent((current) => ({
         ...current,
         heading: draftServicesContent.heading,
@@ -429,6 +470,17 @@ export default function ServicesCmsForm({
   }
 
   function saveEditingCard(id) {
+    const currentDraft =
+      draftServiceItems.find((draft) => draft.id === id) || null;
+
+    if (!currentDraft) {
+      return;
+    }
+
+    if (!ensureValid(validateServiceItems([currentDraft]))) {
+      return;
+    }
+
     setServiceItems((current) =>
       current.map((item) =>
         item.id === id
@@ -545,6 +597,18 @@ export default function ServicesCmsForm({
 
   async function handleSubmit(event) {
     event.preventDefault();
+    const validationErrors = [
+      ...validateCmsFields([
+        { field: "heading", value: servicesContent.heading, label: "Services heading" },
+        { field: "intro", value: servicesContent.intro, label: "Services intro" },
+      ]),
+      ...validateServiceItems(serviceItems),
+    ];
+
+    if (!ensureValid(validationErrors)) {
+      return;
+    }
+
     setIsSaving(true);
     setStatus({ type: "idle", message: "" });
 

@@ -34,6 +34,21 @@ import {
   SERVICES_CMS_SLUG,
   SERVICES_CMS_TABLE,
 } from "@/lib/cms-homepage";
+import {
+  buildCmsValidationMessage,
+  validateCmsFields,
+  validateServiceItems,
+} from "@/lib/cms-validation";
+
+function assertValidCmsSection(errors) {
+  if (!errors.length) {
+    return;
+  }
+
+  const error = new Error(buildCmsValidationMessage(errors));
+  error.code = "CMS_VALIDATION";
+  throw error;
+}
 
 async function requireApiAdminSession() {
   if (!hasAuth0Config || !auth0) {
@@ -256,6 +271,69 @@ export async function PUT(request) {
           body.serviceItems || body.servicesItems || fallbackServiceItems
         )
       : await fetchServiceItems(supabase);
+
+    if (hasHomepageSection) {
+      assertValidCmsSection(
+        validateCmsFields(
+          HOMEPAGE_CMS_FIELDS.map((field) => ({
+            field,
+            value: homepage[field],
+          }))
+        )
+      );
+    }
+
+    if (hasAboutSection) {
+      assertValidCmsSection(
+        validateCmsFields([
+          ...ABOUT_CMS_FIELDS.filter((field) => field !== "focus_tags" && !field.endsWith("_image_url")).map((field) => ({
+            field,
+            value: about[field],
+          })),
+          ...(about.focus_tags || []).map((tag) => ({
+            field: "focus_tag",
+            value: tag,
+          })),
+        ])
+      );
+    }
+
+    if (hasServicesSection) {
+      assertValidCmsSection(
+        validateCmsFields(
+          SERVICES_CMS_FIELDS.map((field) => ({
+            field,
+            value: services[field],
+          }))
+        )
+      );
+    }
+
+    if (hasEnquirySection) {
+      assertValidCmsSection(
+        validateCmsFields(
+          enquiry.faq_items.flatMap((item) => [
+            { field: "faq_question", value: item.question },
+            { field: "faq_answer", value: item.answer },
+          ])
+        )
+      );
+    }
+
+    if (hasBlogsSection) {
+      assertValidCmsSection(
+        validateCmsFields(
+          BLOGS_CMS_FIELDS.map((field) => ({
+            field,
+            value: blogs[field],
+          }))
+        )
+      );
+    }
+
+    if (hasServiceItemsSection) {
+      assertValidCmsSection(validateServiceItems(serviceItems));
+    }
 
     const homepagePayload = {
       slug: HOMEPAGE_CMS_SLUG,
@@ -482,7 +560,7 @@ export async function PUT(request) {
   } catch (error) {
     return NextResponse.json(
       { error: error.message || "Unable to save homepage content." },
-      { status: 500 }
+      { status: error.code === "CMS_VALIDATION" ? 400 : 500 }
     );
   }
 }
