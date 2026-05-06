@@ -38,8 +38,7 @@ const cmsCards = [
   },
   {
     title: "Edit Enquiry FAQ",
-    description:
-      "Manage the FAQ section shown on the public enquiry page.",
+    description: "Manage the FAQ section shown on the public enquiry page.",
     href: "/admin/cms/enquiry",
     status: "Ready now",
     icon: LayoutTemplate,
@@ -53,7 +52,7 @@ const cmsCards = [
     status: "Ready now",
     icon: LayoutTemplate,
     accent: "from-[#f4f0ec] to-[#ece4dc]",
-  }
+  },
 ];
 
 export default async function AdminCmsPage() {
@@ -84,11 +83,11 @@ export default async function AdminCmsPage() {
           CMS
         </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#42454c]">
-          Content Management
+          Content Management System
         </h1>
         <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]">
-          Signed in as {session.user.name || session.user.email}. Choose a CMS
-          workspace below so each page stays easier to find and maintain.
+          Choose a CMS workspace below so each page stays easier to find and
+          maintain.
         </p>
 
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
