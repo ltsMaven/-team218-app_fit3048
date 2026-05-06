@@ -112,3 +112,27 @@ export async function saveEnquirySubmission(payload) {
     status: 201,
   };
 }
+
+export async function getEnquirySubmissions() {
+  const supabase = getServerSupabaseClient();
+  const { data, error } = await supabase
+    .from(ENQUIRY_SUBMISSIONS_TABLE)
+    .select(
+      [
+        "id",
+        "first_name",
+        "last_name",
+        "name",
+        "email",
+        "message",
+        "created_at",
+      ].join(", ")
+    )
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Supabase enquiry lookup failed: ${error.message}`);
+  }
+
+  return data || [];
+}

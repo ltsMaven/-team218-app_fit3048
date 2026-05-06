@@ -79,11 +79,8 @@ export default async function AdminPage({ searchParams }) {
           Admin Dashboard
         </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#42454c]">
-          Hello admin
+          Hello {session.user.name || session.user.email}
         </h1>
-        <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]">
-          You are signed in as {session.user.name || session.user.email}.
-        </p>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           <div className="rounded-3xl border border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,239,248,0.82))] p-6">
