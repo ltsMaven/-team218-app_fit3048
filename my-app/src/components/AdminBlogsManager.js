@@ -318,6 +318,14 @@ export default function AdminBlogsManager({
       return;
     }
 
+    const confirmed = window.confirm(
+      `Delete blog "${formData.title || "this article"}"? This cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     setIsDeleting(true);
     setStatus({ type: "idle", message: "" });
 

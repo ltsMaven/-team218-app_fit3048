@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
-const ENQUIRIES_PAGE_SIZE = 6;
+const ENQUIRIES_PAGE_SIZE = 5;
 
 function formatDateTime(value) {
   if (!value) {
@@ -114,46 +114,12 @@ export default function AdminEnquiriesManager({
 
   return (
     <>
-      <div className="mt-10 grid gap-4 md:grid-cols-3">
-        <div className="rounded-3xl border border-[#d8dfeb] bg-white/80 p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
-            Total
-          </p>
-          <p className="mt-3 text-3xl font-semibold text-[#926ab9]">
-            {initialEnquiries.length}
-          </p>
-        </div>
-        <div className="rounded-3xl border border-[#d8dfeb] bg-white/80 p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
-            Today
-          </p>
-          <p className="mt-3 text-3xl font-semibold text-[#4b8e9a]">
-            {todaysCount}
-          </p>
-        </div>
-        <div className="rounded-3xl border border-[#d8dfeb] bg-white/80 p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
-            Showing
-          </p>
-          <p className="mt-3 text-3xl font-semibold text-[#926ab9]">
-            {filteredEnquiries.length}
-          </p>
-        </div>
-      </div>
-
       <div className="mt-8 rounded-3xl border border-[#d8dfeb] bg-white/80 p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-2xl font-semibold text-[#42454c]">
               Enquiry Submissions
             </h2>
-            <p className="mt-2 text-sm text-[#5d6169]">
-              View enquiries submitted through the public enquiry form.
-            </p>
-            <p className="mt-2 text-sm font-medium text-[#42454c]">
-              Replies are not sent from this dashboard. Open Gmail to reply to
-              the enquiry.
-            </p>
           </div>
         </div>
 

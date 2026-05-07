@@ -33,6 +33,18 @@ function getStatusCount(testimonials, status) {
     .length;
 }
 
+function getStatusLabel(status) {
+  if (status === "approved") {
+    return "published";
+  }
+
+  if (status === "rejected") {
+    return "hidden";
+  }
+
+  return status;
+}
+
 function getButtonClasses(isActive, tone) {
   if (isActive) {
     if (tone === "approve") {
@@ -57,6 +69,7 @@ function getTestimonialSearchText(testimonial) {
     testimonial.service,
     testimonial.testimonial,
     testimonial.status,
+    getStatusLabel(testimonial.status),
     testimonial.created_at,
     testimonial.updated_at,
   ]
@@ -78,23 +91,23 @@ export default function AdminTestimonialsManager({
   const normalisedSearchQuery = searchQuery.trim().toLowerCase();
   const filteredTestimonials = normalisedSearchQuery
     ? testimonials.filter((testimonial) =>
-        getTestimonialSearchText(testimonial).includes(normalisedSearchQuery)
+        getTestimonialSearchText(testimonial).includes(normalisedSearchQuery),
       )
     : testimonials;
   const totalPages = Math.ceil(
-    filteredTestimonials.length / TESTIMONIALS_PAGE_SIZE
+    filteredTestimonials.length / TESTIMONIALS_PAGE_SIZE,
   );
   const safeCurrentPage = Math.min(currentPage, Math.max(totalPages, 1));
   const pageStart = (safeCurrentPage - 1) * TESTIMONIALS_PAGE_SIZE;
   const pageTestimonials = filteredTestimonials.slice(
     pageStart,
-    pageStart + TESTIMONIALS_PAGE_SIZE
+    pageStart + TESTIMONIALS_PAGE_SIZE,
   );
 
   async function handleStatusChange(id, nextStatus) {
     const publicCount = getStatusCount(testimonials, "approved");
     const targetTestimonial = testimonials.find(
-      (testimonial) => testimonial.id === id
+      (testimonial) => testimonial.id === id,
     );
 
     if (
@@ -134,14 +147,14 @@ export default function AdminTestimonialsManager({
                 status: result.testimonial.status,
                 updated_at: result.testimonial.updated_at,
               }
-            : testimonial
-        )
+            : testimonial,
+        ),
       );
       setStatus({
         type: "success",
         message:
           nextStatus === "approved"
-            ? "Testimonial approved and visible on the homepage."
+            ? "Testimonial published and visible on the homepage."
             : "Testimonial visibility updated.",
       });
     } catch (error) {
@@ -156,14 +169,14 @@ export default function AdminTestimonialsManager({
 
   async function handleDelete(id) {
     const targetTestimonial = testimonials.find(
-      (testimonial) => testimonial.id === id
+      (testimonial) => testimonial.id === id,
     );
     const confirmed = window.confirm(
       `Delete testimonial from ${
         targetTestimonial?.display_name ||
         targetTestimonial?.name ||
         "this client"
-      }? This cannot be undone.`
+      }? This cannot be undone.`,
     );
 
     if (!confirmed) {
@@ -184,7 +197,7 @@ export default function AdminTestimonialsManager({
       }
 
       setTestimonials((current) =>
-        current.filter((testimonial) => testimonial.id !== id)
+        current.filter((testimonial) => testimonial.id !== id),
       );
       setCurrentPage(1);
       setStatus({
@@ -214,20 +227,21 @@ export default function AdminTestimonialsManager({
         </div>
         <div className="rounded-3xl border border-[#d8dfeb] bg-white/80 p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
+            Published
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-[#4b8e9a]">
+            {getStatusCount(testimonials, "approved")}
+          </p>
+        </div>
+        <div className="rounded-3xl border border-[#d8dfeb] bg-white/80 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
             Pending
           </p>
           <p className="mt-3 text-3xl font-semibold text-[#926ab9]">
             {getStatusCount(testimonials, "pending")}
           </p>
         </div>
-        <div className="rounded-3xl border border-[#d8dfeb] bg-white/80 p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
-            Public
-          </p>
-          <p className="mt-3 text-3xl font-semibold text-[#4b8e9a]">
-            {getStatusCount(testimonials, "approved")}
-          </p>
-        </div>
+
         <div className="rounded-3xl border border-[#d8dfeb] bg-white/80 p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6d7bbb]">
             Hidden
@@ -245,9 +259,9 @@ export default function AdminTestimonialsManager({
               Homepage Testimonials
             </h2>
             <p className="mt-2 text-sm text-[#5d6169]">
-              Approve testimonials to publish them on the public homepage. Hide
+              Publish testimonials to show them on the public homepage. Hide
               testimonials to remove them from the homepage. Up to{" "}
-              {MAX_PUBLIC_TESTIMONIALS} testimonials can be public at once.
+              {MAX_PUBLIC_TESTIMONIALS} testimonials can be published at once.
             </p>
           </div>
         </div>
@@ -317,12 +331,10 @@ export default function AdminTestimonialsManager({
                       </div>
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${getStatusClasses(
-                          testimonial.status
+                          testimonial.status,
                         )}`}
                       >
-                        {testimonial.status === "approved"
-                          ? "public"
-                          : testimonial.status}
+                        {getStatusLabel(testimonial.status)}
                       </span>
                     </div>
 
@@ -365,10 +377,10 @@ export default function AdminTestimonialsManager({
                         }
                         className={`rounded-full border px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60 ${getButtonClasses(
                           testimonial.status === "approved",
-                          "approve"
+                          "approve",
                         )}`}
                       >
-                        Show on homepage
+                        Publish
                       </button>
                       <button
                         type="button"
@@ -381,7 +393,7 @@ export default function AdminTestimonialsManager({
                         }
                         className={`rounded-full border px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60 ${getButtonClasses(
                           testimonial.status === "rejected",
-                          "reject"
+                          "reject",
                         )}`}
                       >
                         Hide
@@ -397,10 +409,10 @@ export default function AdminTestimonialsManager({
                         }
                         className={`rounded-full border px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60 ${getButtonClasses(
                           testimonial.status === "pending",
-                          "pending"
+                          "pending",
                         )}`}
                       >
-                        Keep pending
+                        Hold
                       </button>
                       <button
                         type="button"
@@ -431,7 +443,7 @@ export default function AdminTestimonialsManager({
                   Showing {pageStart + 1}-
                   {Math.min(
                     pageStart + pageTestimonials.length,
-                    filteredTestimonials.length
+                    filteredTestimonials.length,
                   )}{" "}
                   of {filteredTestimonials.length} testimonials
                 </p>
@@ -452,9 +464,7 @@ export default function AdminTestimonialsManager({
                   <button
                     type="button"
                     onClick={() =>
-                      setCurrentPage(
-                        Math.min(safeCurrentPage + 1, totalPages)
-                      )
+                      setCurrentPage(Math.min(safeCurrentPage + 1, totalPages))
                     }
                     disabled={safeCurrentPage === totalPages}
                     className="rounded-full border border-[#d8dfeb] px-4 py-2 text-sm font-medium text-[#42454c] transition hover:bg-[#f4f6fa] disabled:cursor-not-allowed disabled:opacity-45"
