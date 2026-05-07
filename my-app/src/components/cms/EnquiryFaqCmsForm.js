@@ -11,23 +11,60 @@ import {
   validateCmsFields,
 } from "@/lib/cms-validation";
 
-function FaqPreview({ faqItems, editingId, onChangeItem, onDeleteItem }) {
+function FaqPreview({
+  content,
+  faqItems,
+  editingId,
+  onChangeItem,
+  onDeleteItem,
+  isVisible,
+  onSelectItem,
+  onChangeHeader,
+  onAddFaq,
+}) {
+  const isHeaderEditing = editingId === "faq-header";
+
   return (
-    <section id="faq" className="bg-white px-6 py-24">
+    <section
+      id="faq"
+      className={`bg-white px-6 py-24 transition ${
+        isVisible ? "" : "opacity-45"
+      }`}
+    >
       <div className="mx-auto max-w-4xl">
-        <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
-            FAQ
-          </p>
+        <div
+          onClick={() => onSelectItem("faq-header")}
+          className={`text-center transition ${
+            isHeaderEditing
+              ? "rounded-2xl border border-[#4b8e9a] p-4 ring-2 ring-[#4b8e9a]/15"
+              : "cursor-text rounded-2xl hover:border hover:border-[#926ab9] hover:p-4"
+          }`}
+        >
+          <EditableText
+            as="p"
+            value={content.faq_eyebrow}
+            isEditing={isHeaderEditing}
+            onChange={(value) => onChangeHeader("faq_eyebrow", value)}
+            validationKey="faq_eyebrow"
+            className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]"
+          />
 
-          <h3 className="mt-4 text-3xl font-semibold tracking-tight text-[#42454c] sm:text-4xl">
-            Common questions before reaching out
-          </h3>
+          <EditableText
+            as="h3"
+            value={content.faq_heading}
+            isEditing={isHeaderEditing}
+            onChange={(value) => onChangeHeader("faq_heading", value)}
+            validationKey="faq_heading"
+            className="mt-4 text-3xl font-semibold tracking-tight text-[#42454c] sm:text-4xl"
+          />
 
-          <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]">
-            Here are a few quick answers that may help you better understand
-            the counselling process.
-          </p>
+          <EditableText
+            value={content.faq_intro}
+            isEditing={isHeaderEditing}
+            onChange={(value) => onChangeHeader("faq_intro", value)}
+            validationKey="faq_intro"
+            className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]"
+          />
         </div>
 
         <div className="mt-10 space-y-4">
@@ -37,7 +74,12 @@ function FaqPreview({ faqItems, editingId, onChangeItem, onDeleteItem }) {
             return (
               <div
                 key={faq.id}
-                className="rounded-2xl border border-[#d8dfeb] bg-white/90 p-6 shadow-[0_16px_40px_rgba(66,69,76,0.06)]"
+                onClick={() => onSelectItem(faq.id)}
+                className={`rounded-2xl border bg-white/90 p-6 shadow-[0_16px_40px_rgba(66,69,76,0.06)] transition ${
+                  isEditing
+                    ? "border-[#4b8e9a] ring-2 ring-[#4b8e9a]/15"
+                    : "border-[#d8dfeb] hover:border-[#926ab9]"
+                }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <EditableText
@@ -75,6 +117,17 @@ function FaqPreview({ faqItems, editingId, onChangeItem, onDeleteItem }) {
               </div>
             );
           })}
+
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={onAddFaq}
+              className="inline-flex items-center gap-2 rounded-full bg-[#926ab9] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
+            >
+              <Plus className="h-4 w-4" />
+              Add FAQ
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -107,6 +160,18 @@ export default function EnquiryFaqCmsForm({
   const [status, setStatus] = useState({ type: "idle", message: "" });
   const [isSaving, setIsSaving] = useState(false);
 
+  const statusBanner = status.message ? (
+    <div
+      className={`rounded-2xl border px-4 py-3 text-center ${
+        status.type === "error"
+          ? "border-[#e7c9c8] bg-[#fff6f5] text-[#8b3d3a]"
+          : "border-[#cfe5df] bg-[#f4fbf8] text-[#2f7a68]"
+      }`}
+    >
+      <p className="text-sm font-medium leading-6">{status.message}</p>
+    </div>
+  ) : null;
+
   useEffect(() => {
     const nextEnquiry = normaliseEnquiryContent(initialEnquiryContent);
     setEnquiry(nextEnquiry);
@@ -120,10 +185,79 @@ export default function EnquiryFaqCmsForm({
     setEditingId("");
   }, [initialEnquiryContent]);
 
+  async function persistEnquiryContent(
+    nextEnquiry,
+    successMessage,
+    { closeEditor = false } = {}
+  ) {
+    setIsSaving(true);
+    setStatus({ type: "idle", message: "" });
+
+    try {
+      const response = await fetch("/api/cms", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          enquiry: {
+            faq_eyebrow: nextEnquiry.faq_eyebrow,
+            faq_heading: nextEnquiry.faq_heading,
+            faq_intro: nextEnquiry.faq_intro,
+            faq_items: nextEnquiry.faq_items,
+            show_faq_section: nextEnquiry.show_faq_section,
+          },
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to save enquiry FAQ content.");
+      }
+
+      const savedEnquiry = normaliseEnquiryContent(
+        result.content?.enquiry || nextEnquiry
+      );
+
+      setEnquiry(savedEnquiry);
+      setDraftFaqItems(
+        savedEnquiry.faq_items.map((item, index) => ({
+          ...item,
+          id: `faq-${index}`,
+        }))
+      );
+      setIsFaqVisible(savedEnquiry.show_faq_section);
+      if (closeEditor) {
+        setEditingId("");
+      }
+      setStatus({
+        type: "success",
+        message: successMessage,
+      });
+      return true;
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Unable to save enquiry FAQ content.",
+      });
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   function updateFaqItem(id, field, value) {
     setDraftFaqItems((current) =>
       current.map((item) => (item.id === id ? { ...item, [field]: value } : item))
     );
+  }
+
+  function updateHeaderField(field, value) {
+    setEnquiry((current) => ({
+      ...current,
+      [field]: value,
+    }));
   }
 
   function addFaqItem() {
@@ -149,7 +283,11 @@ export default function EnquiryFaqCmsForm({
 
   function getFaqValidationErrors(items) {
     return validateCmsFields(
-      items.flatMap((faq, index) => [
+      [
+        { field: "faq_eyebrow", value: enquiry.faq_eyebrow, label: "FAQ eyebrow" },
+        { field: "faq_heading", value: enquiry.faq_heading, label: "FAQ heading" },
+        { field: "faq_intro", value: enquiry.faq_intro, label: "FAQ intro" },
+        ...items.flatMap((faq, index) => [
         {
           field: "faq_question",
           value: faq.question,
@@ -160,11 +298,12 @@ export default function EnquiryFaqCmsForm({
           value: faq.answer,
           label: `FAQ ${index + 1} answer`,
         },
-      ])
+      ]),
+      ]
     );
   }
 
-  function toggleEditing() {
+  async function toggleEditing() {
     if (editingId) {
       const errors = getFaqValidationErrors(draftFaqItems);
 
@@ -176,88 +315,33 @@ export default function EnquiryFaqCmsForm({
         return;
       }
 
-      setEnquiry((current) => ({
-        ...current,
+      const nextEnquiry = {
+        ...enquiry,
+        faq_eyebrow: enquiry.faq_eyebrow,
+        faq_heading: enquiry.faq_heading,
+        faq_intro: enquiry.faq_intro,
         faq_items: draftFaqItems.map(({ question, answer }) => ({
           question,
           answer,
         })),
-      }));
-      setEditingId("");
-      setStatus({
-        type: "success",
-        message:
-          "FAQ preview updated. Use the main save button below to store it in Supabase.",
-      });
+      };
+
+      setEnquiry(nextEnquiry);
+      await persistEnquiryContent(
+        nextEnquiry,
+        "FAQ section saved successfully.",
+        { closeEditor: true }
+      );
       return;
     }
 
     if (draftFaqItems.length) {
-      setEditingId(draftFaqItems[0].id);
-    }
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const errors = getFaqValidationErrors(enquiry.faq_items);
-
-    if (errors.length) {
-      setStatus({
-        type: "error",
-        message: buildCmsValidationMessage(errors),
-      });
-      return;
-    }
-
-    setIsSaving(true);
-    setStatus({ type: "idle", message: "" });
-
-    try {
-      const response = await fetch("/api/cms", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          enquiry: {
-            faq_items: enquiry.faq_items,
-            show_faq_section: enquiry.show_faq_section,
-          },
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Unable to save enquiry FAQ content.");
-      }
-
-      const nextEnquiry = normaliseEnquiryContent(
-        result.content?.enquiry || enquiry
-      );
-      setEnquiry(nextEnquiry);
-      setDraftFaqItems(
-        nextEnquiry.faq_items.map((item, index) => ({
-          ...item,
-          id: `faq-${index}`,
-        }))
-      );
-      setStatus({
-        type: "success",
-        message: "Enquiry FAQ content saved to Supabase.",
-      });
-    } catch (error) {
-      setStatus({
-        type: "error",
-        message: error.message || "Unable to save enquiry FAQ content.",
-      });
-    } finally {
-      setIsSaving(false);
+      setEditingId("faq-header");
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-10 space-y-8" noValidate>
+    <div className="mt-10 space-y-8">
       {loadError ? (
         <div className="rounded-3xl border border-[#e7c9c8] bg-[#fff6f5] px-6 py-5 text-[#8b3d3a]">
           <p className="text-sm font-semibold uppercase tracking-[0.2em]">
@@ -267,101 +351,71 @@ export default function EnquiryFaqCmsForm({
         </div>
       ) : null}
 
-      <div className="rounded-[2rem] border border-[#d8dfeb] bg-white/90 p-6 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6d7bbb]">
-          Enquiry FAQ Editor
-        </p>
-        <h2 className="mt-2 text-2xl font-semibold text-[#42454c]">
-          Edit the real FAQ section
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-7 text-[#5d6169]">
-          This editor only covers the FAQ section on the Enquiry page. The rest
-          of the Enquiry page layout stays hardcoded for now.
-        </p>
-      </div>
-
       <CmsEditableSection
         title="FAQ Section"
-        description="Common questions shown on the public Enquiry page."
-        helperText="Use Edit on an item to update it, Add FAQ to create a new one, and Save Page below to store all FAQ changes."
+        description=""
+        helperText=""
         isEditing={Boolean(editingId)}
         isVisible={isFaqVisible}
         onToggleEditing={toggleEditing}
-        onToggleVisible={() =>
-          setIsFaqVisible((current) => {
-            const nextValue = !current;
-            setEnquiry((currentEnquiry) => ({
-              ...currentEnquiry,
-              show_faq_section: nextValue,
-            }));
-            return nextValue;
-          })
-        }
-      >
-        <div className="mb-4 flex justify-end">
-          <button
-            type="button"
-            onClick={addFaqItem}
-            className="inline-flex items-center gap-2 rounded-full bg-[#926ab9] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
-          >
-            <Plus className="h-4 w-4" />
-            Add FAQ
-          </button>
-        </div>
+        stickyHeader
+        centerContent={statusBanner}
+        onToggleVisible={async () => {
+          const sourceItems = editingId
+            ? draftFaqItems.map(({ question, answer }) => ({
+                question,
+                answer,
+              }))
+            : enquiry.faq_items;
+          const errors = getFaqValidationErrors(sourceItems);
 
+          if (errors.length) {
+            setStatus({
+              type: "error",
+              message: buildCmsValidationMessage(errors),
+            });
+            return;
+          }
+
+          const nextVisible = !isFaqVisible;
+          const previousEnquiry = enquiry;
+          const nextEnquiry = {
+            ...enquiry,
+            faq_items: sourceItems,
+            show_faq_section: nextVisible,
+          };
+
+          setIsFaqVisible(nextVisible);
+          setEnquiry(nextEnquiry);
+          const didSave = await persistEnquiryContent(
+            nextEnquiry,
+            nextVisible
+              ? "FAQ section is now visible on the Enquiry page."
+              : "FAQ section is now hidden on the Enquiry page."
+          );
+
+          if (!didSave) {
+            setIsFaqVisible(!nextVisible);
+            setEnquiry(previousEnquiry);
+          }
+        }}
+      >
         <CmsPreviewLayout
           preview={
             <FaqPreview
+              content={enquiry}
               faqItems={draftFaqItems}
               editingId={editingId}
               onChangeItem={updateFaqItem}
               onDeleteItem={deleteFaqItem}
+              isVisible={isFaqVisible}
+              onSelectItem={setEditingId}
+              onChangeHeader={updateHeaderField}
+              onAddFaq={addFaqItem}
             />
           }
         />
-
-        <div className="mt-4 flex flex-wrap gap-3">
-          {draftFaqItems.map((faq) => (
-            <button
-              key={faq.id}
-              type="button"
-              onClick={() =>
-                editingId === faq.id ? toggleEditing() : setEditingId(faq.id)
-              }
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                editingId === faq.id
-                  ? "bg-[#4b8e9a] text-white hover:bg-[#3e7882]"
-                  : "border border-[#d8dfeb] bg-white text-[#42454c] hover:border-[#926ab9] hover:text-[#926ab9]"
-              }`}
-            >
-              {editingId === faq.id ? "Save FAQ item" : "Edit FAQ item"}
-            </button>
-          ))}
-        </div>
       </CmsEditableSection>
-
-      <div className="sticky bottom-4 z-10 flex flex-col gap-4 rounded-[2rem] border border-[#d8dfeb] bg-white/95 px-6 py-5 shadow-[0_24px_60px_rgba(66,69,76,0.12)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-        <p
-          className={`text-base font-medium ${
-            status.type === "error"
-              ? "text-[#b94a48]"
-              : status.type === "success"
-                ? "text-[#4b8e9a]"
-                : "text-[#5d6169]"
-          }`}
-        >
-          {status.message ||
-            "Update the FAQ section here, then save when you are ready."}
-        </p>
-
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="inline-flex items-center justify-center rounded-2xl bg-[#4b8e9a] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#3e7882] disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {isSaving ? "Saving..." : "Save Enquiry FAQ"}
-        </button>
-      </div>
-    </form>
+    </div>
   );
 }

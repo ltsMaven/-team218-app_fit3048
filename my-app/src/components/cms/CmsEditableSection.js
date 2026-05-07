@@ -8,6 +8,8 @@ export default function CmsEditableSection({
   isVisible,
   onToggleEditing,
   onToggleVisible,
+  stickyHeader = false,
+  centerContent = null,
   children,
 }) {
   return (
@@ -16,7 +18,13 @@ export default function CmsEditableSection({
         isVisible ? "" : "opacity-60"
       }`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div
+        className={`flex flex-wrap items-start justify-between gap-4 ${
+          stickyHeader
+            ? "sticky top-24 z-20 -mx-6 -mt-6 mb-6 rounded-t-[2rem] border-b border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,246,250,0.96))] px-6 py-5 shadow-sm backdrop-blur"
+            : ""
+        }`}
+      >
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-2xl font-semibold text-[#42454c]">{title}</h2>
@@ -33,6 +41,12 @@ export default function CmsEditableSection({
           ) : null}
           <p className="mt-3 text-sm text-[#6d7bbb]">{helperText}</p>
         </div>
+
+        {centerContent ? (
+          <div className="flex min-w-[220px] flex-1 items-center justify-center">
+            {centerContent}
+          </div>
+        ) : null}
 
         <div className="flex flex-wrap items-center gap-3">
           <label className="inline-flex items-center gap-3 rounded-full border border-[#d8dfeb] bg-white px-4 py-2 text-sm font-medium text-[#42454c]">

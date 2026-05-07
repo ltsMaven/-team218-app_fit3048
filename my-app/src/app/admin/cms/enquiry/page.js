@@ -65,7 +65,7 @@ export default async function AdminCmsEnquiryPage() {
     );
   }
 
-  const session = await requireAdminSession("/admin/cms/enquiry");
+  await requireAdminSession("/admin/cms/enquiry");
   const { enquiry, loadError } = await getEnquiryCmsContent();
 
   return (
@@ -73,17 +73,9 @@ export default async function AdminCmsEnquiryPage() {
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
-              CMS
-            </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#42454c]">
               Enquiry FAQ
             </h1>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]">
-              Signed in as {session.user.name || session.user.email}. This page
-              only edits the FAQ section on the Enquiry page, while the rest of
-              the page layout stays unchanged.
-            </p>
           </div>
 
           <Link

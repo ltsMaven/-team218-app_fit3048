@@ -292,10 +292,20 @@ export function normaliseAboutContent(input = {}) {
 export const ENQUIRY_CMS_TABLE = "cms_enquiry_page";
 export const ENQUIRY_CMS_SLUG = "main";
 export const ENQUIRY_BOOLEAN_FIELDS = ["show_faq_section"];
-export const ENQUIRY_CMS_FIELDS = ["faq_items", ...ENQUIRY_BOOLEAN_FIELDS];
+export const ENQUIRY_CMS_FIELDS = [
+  "faq_eyebrow",
+  "faq_heading",
+  "faq_intro",
+  "faq_items",
+  ...ENQUIRY_BOOLEAN_FIELDS,
+];
 
 export const fallbackEnquiryContent = {
   slug: ENQUIRY_CMS_SLUG,
+  faq_eyebrow: "FAQ",
+  faq_heading: "Common questions before reaching out",
+  faq_intro:
+    "Here are a few quick answers that may help you better understand the counselling process.",
   faq_items: [
     {
       question: "What happens after I submit an enquiry?",
@@ -331,6 +341,18 @@ export function normaliseEnquiryContent(input = {}) {
       typeof input.slug === "string" && input.slug.trim()
         ? input.slug.trim()
         : ENQUIRY_CMS_SLUG,
+    faq_eyebrow:
+      typeof input.faq_eyebrow === "string"
+        ? input.faq_eyebrow
+        : fallbackEnquiryContent.faq_eyebrow,
+    faq_heading:
+      typeof input.faq_heading === "string"
+        ? input.faq_heading
+        : fallbackEnquiryContent.faq_heading,
+    faq_intro:
+      typeof input.faq_intro === "string"
+        ? input.faq_intro
+        : fallbackEnquiryContent.faq_intro,
     faq_items: faqSource
       .map((item) => ({
         question:
