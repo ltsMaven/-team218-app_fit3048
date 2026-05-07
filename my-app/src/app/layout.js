@@ -82,14 +82,14 @@ export default async function RootLayout({ children }) {
             <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
               <Navbar authEnabled={hasAuth0Config} isAdmin={isAdmin} />
               <main>{children}</main>
-              <Footer />
+              <Footer isAdmin={isAdmin} />
             </div>
           </Auth0Provider>
         ) : (
           <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
             <Navbar authEnabled={hasAuth0Config} isAdmin={isAdmin} />
             <main>{children}</main>
-            <Footer />
+            <Footer isAdmin={isAdmin} />
           </div>
         )}
       </body>

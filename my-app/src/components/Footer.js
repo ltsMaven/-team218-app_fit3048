@@ -2,7 +2,46 @@ import Link from "next/link";
 import { Facebook, Instagram, Mail, Phone } from "lucide-react";
 import Image from "next/image";
 
-export default function Footer() {
+const publicFooterLinks = [
+  { href: "/about-me", label: "About Me", hoverClass: "hover:text-[#926ab9]" },
+  { href: "/services", label: "Services", hoverClass: "hover:text-[#6d7bbb]" },
+  { href: "/enquiry", label: "Enquiry", hoverClass: "hover:text-[#4b8e9a]" },
+  { href: "/blogs", label: "Blogs", hoverClass: "hover:text-[#4b8e9a]" },
+  {
+    href: "/booking",
+    label: "Book a Session",
+    hoverClass: "hover:text-[#926ab9]",
+  },
+];
+
+const adminFooterLinks = [
+  { href: "/admin", label: "Dashboard", hoverClass: "hover:text-[#926ab9]" },
+  {
+    href: "/admin/business-statistics",
+    label: "Business Statistics",
+    hoverClass: "hover:text-[#6d7bbb]",
+  },
+  {
+    href: "/admin/enquiry",
+    label: "Enquiries",
+    hoverClass: "hover:text-[#4b8e9a]",
+  },
+  { href: "/admin/cms", label: "CMS", hoverClass: "hover:text-[#926ab9]" },
+  {
+    href: "/admin/testimonial",
+    label: "Testimonial",
+    hoverClass: "hover:text-[#6d7bbb]",
+  },
+  {
+    href: "/admin/blogs",
+    label: "Blogs",
+    hoverClass: "hover:text-[#4b8e9a]",
+  },
+];
+
+export default function Footer({ isAdmin = false }) {
+  const footerLinks = isAdmin ? adminFooterLinks : publicFooterLinks;
+
   return (
     <footer className="bg-[#eeeff2] text-[#4b4b4b]">
       <div className="mx-auto w-full max-w-7xl px-6 py-16">
@@ -38,30 +77,18 @@ export default function Footer() {
 
           <div className="flex flex-col gap-5 lg:pl-8">
             <h3 className="text-xl font-semibold text-[#42454c]">
-              Quick Links
+              {isAdmin ? "Admin Links" : "Quick Links"}
             </h3>
             <nav className="flex flex-col gap-3 text-base text-[#5d6169]">
-              <Link
-                href="/about-me"
-                className="transition hover:text-[#926ab9]"
-              >
-                About Me
-              </Link>
-              <Link
-                href="/services"
-                className="transition hover:text-[#6d7bbb]"
-              >
-                Services
-              </Link>
-              <Link href="/enquiry" className="transition hover:text-[#4b8e9a]">
-                Enquiry
-              </Link>
-              <Link href="/blogs" className="transition hover:text-[#4b8e9a]">
-                Blogs
-              </Link>
-              <Link href="/booking" className="transition hover:text-[#926ab9]">
-                Book a Session
-              </Link>
+              {footerLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`transition ${link.hoverClass}`}
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
           </div>
 
