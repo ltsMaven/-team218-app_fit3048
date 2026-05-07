@@ -70,7 +70,11 @@ function getFieldError(name, value) {
 }
 
 export default function EnquiryForm({
+  faqEyebrow = fallbackEnquiryContent.faq_eyebrow,
+  faqHeading = fallbackEnquiryContent.faq_heading,
+  faqIntro = fallbackEnquiryContent.faq_intro,
   faqItems = fallbackEnquiryContent.faq_items,
+  showFaqSection = fallbackEnquiryContent.show_faq_section,
 }) {
   const [formData, setFormData] = useState(initialFormState);
   const [captchaToken, setCaptchaToken] = useState(null);
@@ -346,20 +350,20 @@ export default function EnquiryForm({
         </div>
       </section>
 
+      {showFaqSection ? (
       <section id="faq" className="bg-white px-6 py-24">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
-              FAQ
+              {faqEyebrow}
             </p>
 
             <h3 className="mt-4 text-3xl font-semibold tracking-tight text-[#42454c] sm:text-4xl">
-              Common questions before reaching out
+              {faqHeading}
             </h3>
 
             <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]">
-              Here are a few quick answers that may help you better understand
-              the counselling process.
+              {faqIntro}
             </p>
           </div>
 
@@ -389,6 +393,7 @@ export default function EnquiryForm({
           </div>
         </div>
       </section>
+      ) : null}
     </>
   );
 }

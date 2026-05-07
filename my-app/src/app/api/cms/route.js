@@ -311,28 +311,16 @@ export async function PUT(request) {
 
     if (hasEnquirySection) {
       assertValidCmsSection(
-        validateCmsFields(
-          enquiry.faq_items.flatMap((item) => [
+        validateCmsFields([
+          { field: "faq_eyebrow", value: enquiry.faq_eyebrow },
+          { field: "faq_heading", value: enquiry.faq_heading },
+          { field: "faq_intro", value: enquiry.faq_intro },
+          ...enquiry.faq_items.flatMap((item) => [
             { field: "faq_question", value: item.question },
             { field: "faq_answer", value: item.answer },
-          ])
-        )
+          ]),
+        ])
       );
-    }
-
-    if (hasBlogsSection) {
-      assertValidCmsSection(
-        validateCmsFields(
-          BLOGS_CMS_FIELDS.map((field) => ({
-            field,
-            value: blogs[field],
-          }))
-        )
-      );
-    }
-
-    if (hasServiceItemsSection) {
-      assertValidCmsSection(validateServiceItems(serviceItems));
     }
 
     const homepagePayload = {
@@ -363,7 +351,9 @@ export async function PUT(request) {
     const enquiryPayload = hasEnquirySection
       ? {
           slug: ENQUIRY_CMS_SLUG,
-          faq_items: enquiry.faq_items,
+          ...Object.fromEntries(
+            ENQUIRY_CMS_FIELDS.map((field) => [field, enquiry[field]])
+          ),
           updated_at: new Date().toISOString(),
         }
       : null;
@@ -376,6 +366,21 @@ export async function PUT(request) {
           updated_at: new Date().toISOString(),
         }
       : null;
+
+    if (hasBlogsSection) {
+      assertValidCmsSection(
+        validateCmsFields([
+          ...BLOGS_CMS_FIELDS.filter((field) => !field.startsWith("show_")).map((field) => ({
+            field,
+            value: blogs[field],
+          })),
+        ])
+      );
+    }
+
+    if (hasServiceItemsSection) {
+      assertValidCmsSection(validateServiceItems(serviceItems));
+    }
 
     let homepageData = homepage;
     let aboutData = about;
