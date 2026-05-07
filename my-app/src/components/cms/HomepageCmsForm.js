@@ -603,6 +603,10 @@ export default function HomepageCmsForm({
     setDraftServices(nextHomepage);
     setDraftValues(nextHomepage);
     setDraftCta(nextHomepage);
+    setIsAboutVisible(nextHomepage.show_about_section);
+    setIsServicesVisible(nextHomepage.show_services_section);
+    setIsValuesVisible(nextHomepage.show_values_section);
+    setIsCtaVisible(nextHomepage.show_cta_section);
     setIsAboutEditing(false);
     setIsServicesEditing(false);
     setIsValuesEditing(false);
@@ -643,6 +647,17 @@ export default function HomepageCmsForm({
       ...current,
       [name]: value,
     }));
+  }
+
+  function toggleSectionVisibility(fieldName, setter) {
+    setter((current) => {
+      const nextValue = !current;
+      setHomepage((currentHomepage) => ({
+        ...currentHomepage,
+        [fieldName]: nextValue,
+      }));
+      return nextValue;
+    });
   }
 
   function ensureValid(fields) {
@@ -1051,7 +1066,9 @@ export default function HomepageCmsForm({
         isEditing={isAboutEditing}
         isVisible={isAboutVisible}
         onToggleEditing={handleToggleAboutEditing}
-        onToggleVisible={() => setIsAboutVisible((current) => !current)}
+        onToggleVisible={() =>
+          toggleSectionVisibility("show_about_section", setIsAboutVisible)
+        }
       >
         <CmsPreviewLayout
           preview={
@@ -1074,7 +1091,9 @@ export default function HomepageCmsForm({
         isEditing={isServicesEditing}
         isVisible={isServicesVisible}
         onToggleEditing={handleToggleServicesEditing}
-        onToggleVisible={() => setIsServicesVisible((current) => !current)}
+        onToggleVisible={() =>
+          toggleSectionVisibility("show_services_section", setIsServicesVisible)
+        }
       >
         <CmsPreviewLayout
           preview={
@@ -1096,7 +1115,9 @@ export default function HomepageCmsForm({
         isEditing={isValuesEditing}
         isVisible={isValuesVisible}
         onToggleEditing={handleToggleValuesEditing}
-        onToggleVisible={() => setIsValuesVisible((current) => !current)}
+        onToggleVisible={() =>
+          toggleSectionVisibility("show_values_section", setIsValuesVisible)
+        }
       >
         <CmsPreviewLayout
           preview={
@@ -1118,7 +1139,9 @@ export default function HomepageCmsForm({
         isEditing={isCtaEditing}
         isVisible={isCtaVisible}
         onToggleEditing={handleToggleCtaEditing}
-        onToggleVisible={() => setIsCtaVisible((current) => !current)}
+        onToggleVisible={() =>
+          toggleSectionVisibility("show_cta_section", setIsCtaVisible)
+        }
       >
         <CmsPreviewLayout
           preview={

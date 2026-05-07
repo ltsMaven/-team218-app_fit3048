@@ -401,6 +401,14 @@ export default function AboutCmsForm({
     setIsBackgroundEditing(false);
     setIsFocusEditing(false);
     setIsStatsEditing(false);
+    setSectionVisibility({
+      hero: nextAbout.show_hero_section,
+      story: nextAbout.show_story_section,
+      philosophy: nextAbout.show_philosophy_section,
+      background: nextAbout.show_background_section,
+      focus: nextAbout.show_focus_section,
+      stats: nextAbout.show_stats_section,
+    });
   }, [initialAboutContent]);
 
   useEffect(() => {
@@ -413,11 +421,20 @@ export default function AboutCmsForm({
     };
   }, [backgroundImageUrl, heroImageUrl, philosophyImageUrl]);
 
-  function setSectionVisible(sectionKey) {
-    setSectionVisibility((current) => ({
-      ...current,
-      [sectionKey]: !current[sectionKey],
-    }));
+  function setSectionVisible(sectionKey, fieldName) {
+    setSectionVisibility((current) => {
+      const nextValue = !current[sectionKey];
+
+      setAbout((currentAbout) => ({
+        ...currentAbout,
+        [fieldName]: nextValue,
+      }));
+
+      return {
+        ...current,
+        [sectionKey]: nextValue,
+      };
+    });
   }
 
   async function uploadImage(event, folder, setter, fieldName) {
@@ -834,7 +851,7 @@ export default function AboutCmsForm({
         isEditing={isHeroEditing}
         isVisible={sectionVisibility.hero}
         onToggleEditing={handleToggleHeroEditing}
-        onToggleVisible={() => setSectionVisible("hero")}
+        onToggleVisible={() => setSectionVisible("hero", "show_hero_section")}
       >
         <CmsPreviewLayout
           preview={
@@ -860,7 +877,7 @@ export default function AboutCmsForm({
         isEditing={isStoryEditing}
         isVisible={sectionVisibility.story}
         onToggleEditing={handleToggleStoryEditing}
-        onToggleVisible={() => setSectionVisible("story")}
+        onToggleVisible={() => setSectionVisible("story", "show_story_section")}
       >
         <CmsPreviewLayout
           preview={
@@ -882,7 +899,9 @@ export default function AboutCmsForm({
         isEditing={isPhilosophyEditing}
         isVisible={sectionVisibility.philosophy}
         onToggleEditing={handleTogglePhilosophyEditing}
-        onToggleVisible={() => setSectionVisible("philosophy")}
+        onToggleVisible={() =>
+          setSectionVisible("philosophy", "show_philosophy_section")
+        }
       >
         <CmsPreviewLayout
           preview={
@@ -920,7 +939,9 @@ export default function AboutCmsForm({
         isEditing={isBackgroundEditing}
         isVisible={sectionVisibility.background}
         onToggleEditing={handleToggleBackgroundEditing}
-        onToggleVisible={() => setSectionVisible("background")}
+        onToggleVisible={() =>
+          setSectionVisible("background", "show_background_section")
+        }
       >
         <CmsPreviewLayout
           preview={
@@ -958,7 +979,7 @@ export default function AboutCmsForm({
         isEditing={isFocusEditing}
         isVisible={sectionVisibility.focus}
         onToggleEditing={handleToggleFocusEditing}
-        onToggleVisible={() => setSectionVisible("focus")}
+        onToggleVisible={() => setSectionVisible("focus", "show_focus_section")}
       >
         <CmsPreviewLayout
           preview={
@@ -981,7 +1002,7 @@ export default function AboutCmsForm({
         isEditing={isStatsEditing}
         isVisible={sectionVisibility.stats}
         onToggleEditing={handleToggleStatsEditing}
-        onToggleVisible={() => setSectionVisible("stats")}
+        onToggleVisible={() => setSectionVisible("stats", "show_stats_section")}
       >
         <CmsPreviewLayout
           preview={

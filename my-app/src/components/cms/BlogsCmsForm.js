@@ -119,6 +119,7 @@ export default function BlogsCmsForm({
     const nextContent = normaliseBlogsContent(initialBlogsContent);
     setBlogsContent(nextContent);
     setDraftContent(nextContent);
+    setIsVisible(nextContent.show_header_section);
     setIsEditing(false);
   }, [initialBlogsContent]);
 
@@ -253,7 +254,16 @@ export default function BlogsCmsForm({
         isEditing={isEditing}
         isVisible={isVisible}
         onToggleEditing={toggleEditing}
-        onToggleVisible={() => setIsVisible((current) => !current)}
+        onToggleVisible={() =>
+          setIsVisible((current) => {
+            const nextValue = !current;
+            setBlogsContent((currentContent) => ({
+              ...currentContent,
+              show_header_section: nextValue,
+            }));
+            return nextValue;
+          })
+        }
       >
         <CmsPreviewLayout
           preview={

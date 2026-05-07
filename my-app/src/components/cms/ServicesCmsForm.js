@@ -395,6 +395,8 @@ export default function ServicesCmsForm({
     setDraftServicesContent(nextContent);
     setServiceItems(nextItems);
     setDraftServiceItems(nextItems);
+    setIsIntroVisible(nextContent.show_intro_section);
+    setIsCardsVisible(nextContent.show_cards_section);
     setIsIntroEditing(false);
     setEditingCardId("");
   }, [initialServiceItems, initialServicesContent]);
@@ -414,6 +416,17 @@ export default function ServicesCmsForm({
       ...current,
       [name]: value,
     }));
+  }
+
+  function toggleSectionVisibility(fieldName, setter) {
+    setter((current) => {
+      const nextValue = !current;
+      setServicesContent((currentContent) => ({
+        ...currentContent,
+        [fieldName]: nextValue,
+      }));
+      return nextValue;
+    });
   }
 
   function ensureValid(errors) {
@@ -691,7 +704,9 @@ export default function ServicesCmsForm({
         isEditing={isIntroEditing}
         isVisible={isIntroVisible}
         onToggleEditing={handleToggleIntroEditing}
-        onToggleVisible={() => setIsIntroVisible((current) => !current)}
+        onToggleVisible={() =>
+          toggleSectionVisibility("show_intro_section", setIsIntroVisible)
+        }
       >
         <CmsPreviewLayout
           preview={
@@ -720,7 +735,9 @@ export default function ServicesCmsForm({
             saveEditingCard(editingCardId);
           }
         }}
-        onToggleVisible={() => setIsCardsVisible((current) => !current)}
+        onToggleVisible={() =>
+          toggleSectionVisibility("show_cards_section", setIsCardsVisible)
+        }
       >
         <div className="mb-4 flex justify-end">
           <button

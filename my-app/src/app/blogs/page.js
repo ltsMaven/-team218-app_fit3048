@@ -54,6 +54,7 @@ export default async function BlogsPage() {
   return (
     <section className="min-h-screen bg-[#f8f8f6] px-6 py-20 sm:py-24">
       <div className="mx-auto max-w-7xl">
+        {blogsContent.show_header_section ? (
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.8fr)] lg:items-start">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
@@ -91,6 +92,7 @@ export default async function BlogsPage() {
             </div>
           </aside>
         </div>
+        ) : null}
 
         {blogs.length ? (
           <BlogSearchSection blogs={blogs} />

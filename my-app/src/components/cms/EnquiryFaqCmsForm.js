@@ -116,6 +116,7 @@ export default function EnquiryFaqCmsForm({
         id: `faq-${index}`,
       }))
     );
+    setIsFaqVisible(nextEnquiry.show_faq_section);
     setEditingId("");
   }, [initialEnquiryContent]);
 
@@ -220,6 +221,7 @@ export default function EnquiryFaqCmsForm({
         body: JSON.stringify({
           enquiry: {
             faq_items: enquiry.faq_items,
+            show_faq_section: enquiry.show_faq_section,
           },
         }),
       });
@@ -285,7 +287,16 @@ export default function EnquiryFaqCmsForm({
         isEditing={Boolean(editingId)}
         isVisible={isFaqVisible}
         onToggleEditing={toggleEditing}
-        onToggleVisible={() => setIsFaqVisible((current) => !current)}
+        onToggleVisible={() =>
+          setIsFaqVisible((current) => {
+            const nextValue = !current;
+            setEnquiry((currentEnquiry) => ({
+              ...currentEnquiry,
+              show_faq_section: nextValue,
+            }));
+            return nextValue;
+          })
+        }
       >
         <div className="mb-4 flex justify-end">
           <button

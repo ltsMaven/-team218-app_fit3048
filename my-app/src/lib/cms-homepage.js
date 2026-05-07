@@ -1,5 +1,11 @@
 export const HOMEPAGE_CMS_TABLE = "cms_homepage";
 export const HOMEPAGE_CMS_SLUG = "main";
+export const HOMEPAGE_BOOLEAN_FIELDS = [
+  "show_about_section",
+  "show_services_section",
+  "show_values_section",
+  "show_cta_section",
+];
 
 export const HOMEPAGE_CMS_FIELDS = [
   "about_image_url",
@@ -41,6 +47,7 @@ export const HOMEPAGE_CMS_FIELDS = [
   "cta_heading",
   "cta_body",
   "cta_button_label",
+  ...HOMEPAGE_BOOLEAN_FIELDS,
 ];
 
 export const emptyHomepageContent = {
@@ -84,6 +91,10 @@ export const emptyHomepageContent = {
   cta_heading: "",
   cta_body: "",
   cta_button_label: "",
+  show_about_section: true,
+  show_services_section: true,
+  show_values_section: true,
+  show_cta_section: true,
 };
 
 export const fallbackHomepageContent = {
@@ -140,6 +151,10 @@ export const fallbackHomepageContent = {
   cta_body:
     "Schedule your consultation today and begin your journey toward healing and growth.",
   cta_button_label: "Book Your Session Now",
+  show_about_section: true,
+  show_services_section: true,
+  show_values_section: true,
+  show_cta_section: true,
 };
 
 export function normaliseHomepageContent(input = {}) {
@@ -149,16 +164,27 @@ export function normaliseHomepageContent(input = {}) {
         ? input.slug.trim()
         : HOMEPAGE_CMS_SLUG,
     ...Object.fromEntries(
-      HOMEPAGE_CMS_FIELDS.map((field) => [
-        field,
-        typeof input[field] === "string" ? input[field] : "",
-      ])
+      HOMEPAGE_CMS_FIELDS.map((field) => {
+        if (HOMEPAGE_BOOLEAN_FIELDS.includes(field)) {
+          return [field, input[field] !== false];
+        }
+
+        return [field, typeof input[field] === "string" ? input[field] : ""];
+      })
     ),
   };
 }
 
 export const ABOUT_CMS_TABLE = "cms_about_page";
 export const ABOUT_CMS_SLUG = "main";
+export const ABOUT_BOOLEAN_FIELDS = [
+  "show_hero_section",
+  "show_story_section",
+  "show_philosophy_section",
+  "show_background_section",
+  "show_focus_section",
+  "show_stats_section",
+];
 
 export const ABOUT_CMS_FIELDS = [
   "hero_image_url",
@@ -186,6 +212,7 @@ export const ABOUT_CMS_FIELDS = [
   "stat_3_label",
   "stat_3_body",
   "stat_3_button_label",
+  ...ABOUT_BOOLEAN_FIELDS,
 ];
 
 export const fallbackAboutContent = {
@@ -231,6 +258,12 @@ export const fallbackAboutContent = {
   stat_3_body:
     "A holistic approach to free yourself from the challenges that keep you stuck. Reach out today.",
   stat_3_button_label: "Book a session",
+  show_hero_section: true,
+  show_story_section: true,
+  show_philosophy_section: true,
+  show_background_section: true,
+  show_focus_section: true,
+  show_stats_section: true,
 };
 
 export function normaliseAboutContent(input = {}) {
@@ -246,6 +279,8 @@ export function normaliseAboutContent(input = {}) {
       content[field] = Array.isArray(input[field])
         ? input[field].filter((item) => typeof item === "string" && item.trim())
         : fallbackAboutContent.focus_tags;
+    } else if (ABOUT_BOOLEAN_FIELDS.includes(field)) {
+      content[field] = input[field] !== false;
     } else {
       content[field] = typeof input[field] === "string" ? input[field] : "";
     }
@@ -256,7 +291,8 @@ export function normaliseAboutContent(input = {}) {
 
 export const ENQUIRY_CMS_TABLE = "cms_enquiry_page";
 export const ENQUIRY_CMS_SLUG = "main";
-export const ENQUIRY_CMS_FIELDS = ["faq_items"];
+export const ENQUIRY_BOOLEAN_FIELDS = ["show_faq_section"];
+export const ENQUIRY_CMS_FIELDS = ["faq_items", ...ENQUIRY_BOOLEAN_FIELDS];
 
 export const fallbackEnquiryContent = {
   slug: ENQUIRY_CMS_SLUG,
@@ -282,6 +318,7 @@ export const fallbackEnquiryContent = {
         "Yes. You can use the enquiry form to ask about NDIS-related counselling, recovery coaching, or support options.",
     },
   ],
+  show_faq_section: true,
 };
 
 export function normaliseEnquiryContent(input = {}) {
@@ -301,11 +338,13 @@ export function normaliseEnquiryContent(input = {}) {
         answer: typeof item?.answer === "string" ? item.answer.trim() : "",
       }))
       .filter((item) => item.question && item.answer),
+    show_faq_section: input.show_faq_section !== false,
   };
 }
 
 export const BLOGS_CMS_TABLE = "cms_blogs_page";
 export const BLOGS_CMS_SLUG = "main";
+export const BLOGS_BOOLEAN_FIELDS = ["show_header_section"];
 export const BLOGS_CMS_FIELDS = [
   "eyebrow",
   "heading",
@@ -313,6 +352,7 @@ export const BLOGS_CMS_FIELDS = [
   "intro_body_2",
   "highlights_label",
   "highlights_body",
+  ...BLOGS_BOOLEAN_FIELDS,
 ];
 
 export const fallbackBlogsContent = {
@@ -326,6 +366,7 @@ export const fallbackBlogsContent = {
   highlights_label: "What You'll Find",
   highlights_body:
     "A thoughtful mix of reflections and practical reading designed to feel supportive, clear, and easy to return to.",
+  show_header_section: true,
 };
 
 export function normaliseBlogsContent(input = {}) {
@@ -335,10 +376,13 @@ export function normaliseBlogsContent(input = {}) {
         ? input.slug.trim()
         : BLOGS_CMS_SLUG,
     ...Object.fromEntries(
-      BLOGS_CMS_FIELDS.map((field) => [
-        field,
-        typeof input[field] === "string" ? input[field] : "",
-      ])
+      BLOGS_CMS_FIELDS.map((field) => {
+        if (BLOGS_BOOLEAN_FIELDS.includes(field)) {
+          return [field, input[field] !== false];
+        }
+
+        return [field, typeof input[field] === "string" ? input[field] : ""];
+      })
     ),
   };
 }
@@ -346,11 +390,16 @@ export function normaliseBlogsContent(input = {}) {
 export const SERVICES_CMS_TABLE = "cms_services_page";
 export const SERVICE_ITEMS_TABLE = "cms_service_items";
 export const SERVICES_CMS_SLUG = "main";
+export const SERVICES_BOOLEAN_FIELDS = [
+  "show_intro_section",
+  "show_cards_section",
+];
 
 export const SERVICES_CMS_FIELDS = [
   "heading",
   "intro",
   "cta_button_label",
+  ...SERVICES_BOOLEAN_FIELDS,
 ];
 
 export const SERVICE_ITEM_FIELDS = [
@@ -375,6 +424,8 @@ export const fallbackServicesContent = {
   intro:
     "Support options tailored to where you are now, with session pricing and a direct path to book.",
   cta_button_label: "Book a Session",
+  show_intro_section: true,
+  show_cards_section: true,
 };
 
 export const fallbackServiceItems = [
@@ -491,10 +542,13 @@ export function normaliseServicesContent(input = {}) {
         ? input.slug.trim()
         : SERVICES_CMS_SLUG,
     ...Object.fromEntries(
-      SERVICES_CMS_FIELDS.map((field) => [
-        field,
-        typeof input[field] === "string" ? input[field] : "",
-      ])
+      SERVICES_CMS_FIELDS.map((field) => {
+        if (SERVICES_BOOLEAN_FIELDS.includes(field)) {
+          return [field, input[field] !== false];
+        }
+
+        return [field, typeof input[field] === "string" ? input[field] : ""];
+      })
     ),
   };
 }

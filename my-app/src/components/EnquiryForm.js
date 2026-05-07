@@ -71,6 +71,7 @@ function getFieldError(name, value) {
 
 export default function EnquiryForm({
   faqItems = fallbackEnquiryContent.faq_items,
+  showFaqSection = fallbackEnquiryContent.show_faq_section,
 }) {
   const [formData, setFormData] = useState(initialFormState);
   const [captchaToken, setCaptchaToken] = useState(null);
@@ -346,6 +347,7 @@ export default function EnquiryForm({
         </div>
       </section>
 
+      {showFaqSection ? (
       <section id="faq" className="bg-white px-6 py-24">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
@@ -389,6 +391,7 @@ export default function EnquiryForm({
           </div>
         </div>
       </section>
+      ) : null}
     </>
   );
 }
