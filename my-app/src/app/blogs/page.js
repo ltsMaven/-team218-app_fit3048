@@ -17,12 +17,6 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-const blogHighlights = [
-  "Practical guidance for recovery, resilience, and everyday wellbeing.",
-  "Compassionate reflections on disability, addiction, and personal growth.",
-  "Grounded support you can read at your own pace and return to when needed.",
-];
-
 async function getBlogsHeaderContent() {
   try {
     const supabase = getServerSupabaseClient();
@@ -50,12 +44,17 @@ export default async function BlogsPage() {
     getPublishedBlogs(),
     getBlogsHeaderContent(),
   ]);
+  const blogHighlights = [
+    blogsContent.highlight_item_1,
+    blogsContent.highlight_item_2,
+    blogsContent.highlight_item_3,
+  ];
 
   return (
     <section className="min-h-screen bg-[#f8f8f6] px-6 py-20 sm:py-24">
       <div className="mx-auto max-w-7xl">
         {blogsContent.show_header_section ? (
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.8fr)] lg:items-start">
+        <div className="grid gap-10 xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.85fr)] xl:items-start">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
               {blogsContent.eyebrow}

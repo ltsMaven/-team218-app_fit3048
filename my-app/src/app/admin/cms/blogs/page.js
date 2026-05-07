@@ -72,18 +72,10 @@ export default async function AdminCmsBlogsPage() {
     <section className="rounded-[2rem] border border-[#d8dfeb] bg-white/90 p-8 shadow-[0_24px_60px_rgba(66,69,76,0.08)] backdrop-blur sm:p-10">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
-              CMS
-            </p>
+          <div>  
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#42454c]">
               Blogs Header
             </h1>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]">
-              Signed in as {session.user.name || session.user.email}. This page
-              only edits the public Blogs page header, while blog post
-              management stays in the existing blog admin.
-            </p>
           </div>
 
           <Link

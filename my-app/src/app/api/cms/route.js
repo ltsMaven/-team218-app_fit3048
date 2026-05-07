@@ -369,12 +369,12 @@ export async function PUT(request) {
 
     if (hasBlogsSection) {
       assertValidCmsSection(
-        validateCmsFields(
-          BLOGS_CMS_FIELDS.map((field) => ({
+        validateCmsFields([
+          ...BLOGS_CMS_FIELDS.filter((field) => !field.startsWith("show_")).map((field) => ({
             field,
             value: blogs[field],
-          }))
-        )
+          })),
+        ])
       );
     }
 

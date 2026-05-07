@@ -374,6 +374,9 @@ export const BLOGS_CMS_FIELDS = [
   "intro_body_2",
   "highlights_label",
   "highlights_body",
+  "highlight_item_1",
+  "highlight_item_2",
+  "highlight_item_3",
   ...BLOGS_BOOLEAN_FIELDS,
 ];
 
@@ -388,6 +391,12 @@ export const fallbackBlogsContent = {
   highlights_label: "What You'll Find",
   highlights_body:
     "A thoughtful mix of reflections and practical reading designed to feel supportive, clear, and easy to return to.",
+  highlight_item_1:
+    "Practical guidance for recovery, resilience, and everyday wellbeing.",
+  highlight_item_2:
+    "Compassionate reflections on disability, addiction, and personal growth.",
+  highlight_item_3:
+    "Grounded support you can read at your own pace and return to when needed.",
   show_header_section: true,
 };
 
