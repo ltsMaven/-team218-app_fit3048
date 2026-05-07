@@ -27,6 +27,24 @@ function getSearchParamValue(searchParams, key) {
   return Array.isArray(value) ? value[0] : value || "";
 }
 
+function getDateInputValue(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0",
+  )}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function getCurrentMonthDateRange() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  return {
+    startDate: getDateInputValue(start),
+    endDate: getDateInputValue(end),
+  };
+}
+
 export default async function AdminPage({ searchParams }) {
   if (!hasAuth0Config) {
     return (
@@ -56,14 +74,20 @@ export default async function AdminPage({ searchParams }) {
   const selectedEndDate = getSearchParamValue(resolvedSearchParams, "endDate");
 
   let report = null;
+  let historyReport = null;
   let reportError = "";
+  const currentMonthRange = getCurrentMonthDateRange();
 
   try {
-    report = await getCalendlyReport({
-      startDate: selectedStartDate,
-      endDate: selectedEndDate,
-      includeAllHistory: true,
-    });
+    [report, historyReport] = await Promise.all([
+      getCalendlyReport({
+        startDate: selectedStartDate || currentMonthRange.startDate,
+        endDate: selectedEndDate || currentMonthRange.endDate,
+      }),
+      getCalendlyReport({
+        includeAllHistory: true,
+      }),
+    ]);
   } catch (error) {
     reportError =
       error instanceof Error
@@ -71,7 +95,8 @@ export default async function AdminPage({ searchParams }) {
         : "Unable to load live Calendly data.";
   }
 
-  const todaysEvents = report?.todaysEvents || [];
+  const nextBooking = report?.upcomingEvents?.[0] || null;
+  const allHistoryEvents = historyReport?.recentHistory || [];
   return (
     <section className="rounded-[2rem] border border-[#d8dfeb] bg-white/90 p-8 shadow-[0_24px_60px_rgba(66,69,76,0.08)] backdrop-blur sm:p-10">
       <div className="mx-auto max-w-5xl">
@@ -81,43 +106,35 @@ export default async function AdminPage({ searchParams }) {
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#42454c]">
           Hello {session.user.name || session.user.email}
         </h1>
+        <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]">
+          Session counts below are for {report?.period?.label || "This month"}.
+        </p>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           <div className="rounded-3xl border border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,239,248,0.82))] p-6">
             <h2 className="text-xl font-semibold text-[#42454c]">
-              Created Events
+              Created Sessions
             </h2>
             <p className="mt-3 text-4xl font-semibold tracking-tight text-[#926ab9]">
               {report?.summary?.createdEvents ?? 0}
-            </p>
-            <p className="mt-2 text-sm leading-7 text-[#5d6169]">
-              Scheduled events in{" "}
-              {report?.period?.label || "the selected period"}.
             </p>
           </div>
 
           <div className="rounded-3xl border border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(234,243,245,0.82))] p-6">
             <h2 className="text-xl font-semibold text-[#42454c]">
-              Completed Events
+              Completed Sessions
             </h2>
             <p className="mt-3 text-4xl font-semibold tracking-tight text-[#926ab9]">
               {report?.summary?.completedEvents ?? 0}
-            </p>
-            <p className="mt-2 text-sm leading-7 text-[#5d6169]">
-              Active events whose start times have already passed.
             </p>
           </div>
 
           <div className="rounded-3xl border border-[#d8dfeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(238,239,242,0.82))] p-6">
             <h2 className="text-xl font-semibold text-[#42454c]">
-              Cancelled Events
+              Cancelled Sessions
             </h2>
             <p className="mt-3 text-4xl font-semibold tracking-tight text-[#926ab9]">
               {report?.summary?.canceledEvents ?? 0}
-            </p>
-            <p className="mt-2 text-sm leading-7 text-[#5d6169]">
-              Cancelled events in{" "}
-              {report?.period?.label || "the selected period"}.
             </p>
           </div>
         </div>
@@ -142,24 +159,24 @@ export default async function AdminPage({ searchParams }) {
             </div>
           ) : null}
 
-          {report ? (
+          {report || historyReport ? (
             <>
               <div className="mt-6">
                 <div className="rounded-2xl border border-[#d8dfeb] bg-white/80 p-5">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6d7bbb]">
-                    Today&apos;s Bookings
+                    Next Booking
                   </p>
-                  {todaysEvents.length ? (
+                  {nextBooking ? (
                     <div className="mt-3">
-                      <AdminRecentEvents events={todaysEvents} compact />
+                      <AdminRecentEvents events={[nextBooking]} compact />
                     </div>
                   ) : (
                     <>
                       <p className="mt-3 text-sm font-medium text-[#42454c]">
-                        No bookings today
+                        No upcoming booking
                       </p>
                       <p className="mt-2 text-sm text-[#5d6169]">
-                        No active event returned for today.
+                        No active upcoming event was returned by Calendly.
                       </p>
                     </>
                   )}
@@ -169,14 +186,14 @@ export default async function AdminPage({ searchParams }) {
               <div className="mt-6 rounded-3xl border border-[#d8dfeb] bg-white/80 p-6">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-xl font-semibold text-[#42454c]">
-                    Previous Event History
+                    Previous Session History
                   </h3>
                   <p className="text-sm text-[#5d6169]">
-                    {report.period.label}
+                    {historyReport?.period?.label || "All available events"}
                   </p>
                 </div>
                 <div className="mt-5">
-                  <AdminRecentEvents events={report.recentHistory} />
+                  <AdminRecentEvents events={allHistoryEvents} />
                 </div>
               </div>
             </>

@@ -194,7 +194,7 @@ export default function AdminRecentEvents({ events, compact = false }) {
               setSearchQuery(event.target.value);
               setCurrentPage(1);
             }}
-            placeholder="Search by service, client, email, status, date, or location"
+            placeholder="Search by service, client, email, or date"
             className="w-full rounded-2xl border border-[#d8dfeb] bg-white px-4 py-3 text-sm font-medium text-[#42454c] outline-none transition placeholder:text-[#8a90a0] focus:border-[#926ab9]"
           />
           <p className="mt-2 text-sm text-[#5d6169]">
