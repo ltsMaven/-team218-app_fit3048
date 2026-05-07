@@ -38,20 +38,37 @@ function EditableImage({ src, alt, isEditing, onSelectFile, heightClass }) {
   );
 }
 
-function ServicesHeroPreview({ content, isEditing, onFieldChange }) {
+function ServicesHeroPreview({
+  content,
+  isEditing,
+  isVisible,
+  onFieldChange,
+  onSelectImage,
+  onSelect,
+}) {
   return (
-    <div className="bg-[#f7f7f6] px-6 pb-20 pt-8">
+    <div
+      className={`bg-[#f7f7f6] px-6 pb-20 pt-8 transition ${
+        isVisible ? "" : "opacity-45"
+      }`}
+    >
       <div className="mx-auto max-w-7xl">
-        <div className="overflow-hidden rounded-[2rem]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/assets/services/hero-services.png"
-            alt="Services hero"
-            className="h-[220px] w-full object-cover sm:h-[280px] lg:h-[320px]"
-          />
-        </div>
+        <EditableImage
+          src={content.hero_image_url || "/assets/services/hero-services.png"}
+          alt="Services hero"
+          isEditing={isEditing}
+          onSelectFile={onSelectImage}
+          heightClass="h-[220px] sm:h-[280px] lg:h-[320px]"
+        />
 
-        <div className="mx-auto mt-10 max-w-4xl text-center">
+        <div
+          onClick={onSelect}
+          className={`mx-auto mt-10 max-w-4xl text-center transition ${
+            isEditing
+              ? "rounded-[1.6rem] border border-[#4b8e9a] p-4 ring-2 ring-[#4b8e9a]/15"
+              : "cursor-text rounded-[1.6rem] hover:border hover:border-[#926ab9] hover:p-4"
+          }`}
+        >
           <EditableText
             as="h2"
             value={content.heading}
@@ -107,10 +124,18 @@ function ServiceCardPreview({
   onSelectImage,
   imageUrl,
   onDelete,
+  onSelect,
   compact = false,
 }) {
   return (
-    <article className="overflow-hidden rounded-[2rem] border border-[#dde3ea] bg-white shadow-[0_4px_18px_rgba(0,0,0,0.04)]">
+    <article
+      onClick={onSelect}
+      className={`overflow-hidden rounded-[2rem] border bg-white shadow-[0_4px_18px_rgba(0,0,0,0.04)] transition ${
+        isEditing
+          ? "border-[#4b8e9a] ring-2 ring-[#4b8e9a]/15"
+          : "cursor-text border-[#dde3ea] hover:border-[#926ab9]"
+      }`}
+    >
       <div className="p-4 pb-0">
         <EditableImage
           src={imageUrl || `/assets/services/service-${compact ? index + 4 : index + 1}.png`}
@@ -183,7 +208,10 @@ function ServiceCardPreview({
             {isEditing ? (
               <button
                 type="button"
-                onClick={onDelete}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDelete();
+                }}
                 className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[#b94a48]"
               >
                 <Trash2 className="h-4 w-4" />
@@ -224,20 +252,20 @@ function ServiceCardPreview({
             <div>
               <EditableText
                 as="p"
-              value={service.price}
-              isEditing={isEditing}
-              onChange={(value) => onFieldChange("price", value)}
-              validationKey="price"
-              className="text-4xl font-semibold tracking-tight text-[#42454c]"
-            />
+                value={service.price}
+                isEditing={isEditing}
+                onChange={(value) => onFieldChange("price", value)}
+                validationKey="price"
+                className="text-4xl font-semibold tracking-tight text-[#42454c]"
+              />
               <EditableText
                 as="p"
-              value={service.price_detail}
-              isEditing={isEditing}
-              onChange={(value) => onFieldChange("price_detail", value)}
-              validationKey="price_detail"
-              className="mt-2 text-sm font-medium uppercase tracking-[0.14em] text-[#8f72bb]"
-            />
+                value={service.price_detail}
+                isEditing={isEditing}
+                onChange={(value) => onFieldChange("price_detail", value)}
+                validationKey="price_detail"
+                className="mt-2 text-sm font-medium uppercase tracking-[0.14em] text-[#8f72bb]"
+              />
             </div>
           </div>
 
@@ -250,7 +278,10 @@ function ServiceCardPreview({
           {isEditing ? (
             <button
               type="button"
-              onClick={onDelete}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete();
+              }}
               className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[#b94a48]"
             >
               <Trash2 className="h-4 w-4" />
@@ -266,14 +297,21 @@ function ServiceCardPreview({
 function ServicesCardsPreview({
   services,
   editingCardId,
+  isVisible,
   onFieldChange,
   onFeatureChange,
   onSelectImage,
   imagePreviews,
   onDelete,
+  onSelectCard,
+  onAddService,
 }) {
   return (
-    <div className="bg-[#f7f7f6] px-6 pb-20 pt-8">
+    <div
+      className={`bg-[#f7f7f6] px-6 pb-20 pt-8 transition ${
+        isVisible ? "" : "opacity-45"
+      }`}
+    >
       <div className="mx-auto max-w-7xl">
         <div className="mt-14 grid grid-cols-1 gap-8 xl:grid-cols-3">
           {services.slice(0, 3).map((service, index) => (
@@ -289,6 +327,7 @@ function ServicesCardsPreview({
               onSelectImage={(event) => onSelectImage(service.id, event)}
               imageUrl={imagePreviews[service.id] || service.image_url}
               onDelete={() => onDelete(service.id)}
+              onSelect={() => onSelectCard(service.id)}
             />
           ))}
         </div>
@@ -311,10 +350,22 @@ function ServicesCardsPreview({
                 onSelectImage={(event) => onSelectImage(service.id, event)}
                 imageUrl={imagePreviews[service.id] || service.image_url}
                 onDelete={() => onDelete(service.id)}
+                onSelect={() => onSelectCard(service.id)}
               />
             ))}
           </div>
         ) : null}
+
+        <div className="mt-8">
+          <button
+            type="button"
+            onClick={onAddService}
+            className="inline-flex items-center gap-2 rounded-full bg-[#926ab9] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
+          >
+            <Plus className="h-4 w-4" />
+            Add Service
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -365,7 +416,10 @@ export default function ServicesCmsForm({
     normaliseServicesContent(initialServicesContent)
   );
   const [serviceItems, setServiceItems] = useState(
-    normaliseServiceItems(initialServiceItems)
+    normaliseServiceItems(initialServiceItems).map((item, index) => ({
+      ...item,
+      id: item.id || `draft-${index}`,
+    }))
   );
   const [draftServiceItems, setDraftServiceItems] = useState(
     normaliseServiceItems(initialServiceItems).map((item, index) => ({
@@ -374,13 +428,25 @@ export default function ServicesCmsForm({
     }))
   );
   const [isIntroEditing, setIsIntroEditing] = useState(false);
-  const [isIntroVisible, setIsIntroVisible] = useState(true);
   const [editingCardId, setEditingCardId] = useState("");
+  const [isIntroVisible, setIsIntroVisible] = useState(true);
   const [isCardsVisible, setIsCardsVisible] = useState(true);
   const [imagePreviews, setImagePreviews] = useState({});
   const [status, setStatus] = useState({ type: "idle", message: "" });
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const statusBanner = status.message ? (
+    <div
+      className={`rounded-2xl border px-4 py-3 text-center ${
+        status.type === "error"
+          ? "border-[#e7c9c8] bg-[#fff6f5] text-[#8b3d3a]"
+          : "border-[#cfe5df] bg-[#f4fbf8] text-[#2f7a68]"
+      }`}
+    >
+      <p className="text-sm font-medium leading-6">{status.message}</p>
+    </div>
+  ) : null;
 
   useEffect(() => {
     const nextContent = normaliseServicesContent(initialServicesContent);
@@ -418,17 +484,6 @@ export default function ServicesCmsForm({
     }));
   }
 
-  function toggleSectionVisibility(fieldName, setter) {
-    setter((current) => {
-      const nextValue = !current;
-      setServicesContent((currentContent) => ({
-        ...currentContent,
-        [fieldName]: nextValue,
-      }));
-      return nextValue;
-    });
-  }
-
   function ensureValid(errors) {
     if (!errors.length) {
       return true;
@@ -441,72 +496,143 @@ export default function ServicesCmsForm({
     return false;
   }
 
-  function handleToggleIntroEditing() {
+  async function persistServicesContent(
+    nextContent,
+    successMessage,
+    { closeEditor = false } = {}
+  ) {
+    setIsSaving(true);
+    setStatus({ type: "idle", message: "" });
+
+    try {
+      const response = await fetch("/api/cms", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          services: nextContent,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to save Services content.");
+      }
+
+      const savedContent = normaliseServicesContent(
+        result.content?.services || nextContent
+      );
+
+      setServicesContent(savedContent);
+      setDraftServicesContent(savedContent);
+      setIsIntroVisible(savedContent.show_intro_section);
+      setIsCardsVisible(savedContent.show_cards_section);
+      if (closeEditor) {
+        setIsIntroEditing(false);
+      }
+      setStatus({
+        type: "success",
+        message: successMessage,
+      });
+      return true;
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Unable to save Services content.",
+      });
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function persistServiceCards(
+    nextItems,
+    successMessage,
+    { closeEditor = false } = {}
+  ) {
+    setIsSaving(true);
+    setStatus({ type: "idle", message: "" });
+
+    try {
+      const response = await fetch("/api/cms", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          serviceItems: prepareServiceItemsForSave(nextItems),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to save service cards.");
+      }
+
+      const savedItems = normaliseServiceItems(
+        result.content?.serviceItems || nextItems
+      ).map((item, index) => ({
+        ...item,
+        id: item.id || `draft-${index}`,
+      }));
+
+      setServiceItems(savedItems);
+      setDraftServiceItems(savedItems);
+      if (closeEditor) {
+        setEditingCardId("");
+      }
+      setStatus({
+        type: "success",
+        message: successMessage,
+      });
+      return true;
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Unable to save service cards.",
+      });
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleToggleIntroEditing() {
     if (isIntroEditing) {
-      if (
-        !ensureValid(
-          validateCmsFields([
-            { field: "heading", value: draftServicesContent.heading, label: "Services heading" },
-            { field: "intro", value: draftServicesContent.intro, label: "Services intro" },
-          ])
-        )
-      ) {
+      const errors = validateCmsFields([
+        {
+          field: "hero_image_url",
+          value: draftServicesContent.hero_image_url,
+          label: "Services hero image",
+        },
+        {
+          field: "heading",
+          value: draftServicesContent.heading,
+          label: "Services heading",
+        },
+        {
+          field: "intro",
+          value: draftServicesContent.intro,
+          label: "Services intro",
+        },
+      ]);
+
+      if (!ensureValid(errors)) {
         return;
       }
 
-      setServicesContent((current) => ({
-        ...current,
-        heading: draftServicesContent.heading,
-        intro: draftServicesContent.intro,
-      }));
-      setStatus({
-        type: "success",
-        message:
-          "Services page intro updated. Use the main save button below to store it in Supabase.",
+      await persistServicesContent(draftServicesContent, "Services intro saved successfully.", {
+        closeEditor: true,
       });
-      setIsIntroEditing(false);
       return;
     }
 
-    setDraftServicesContent((current) => ({
-      ...current,
-      heading: servicesContent.heading,
-      intro: servicesContent.intro,
-    }));
     setStatus({ type: "idle", message: "" });
     setIsIntroEditing(true);
-  }
-
-  function startEditingCard(id) {
-    setEditingCardId(id);
-    setStatus({ type: "idle", message: "" });
-  }
-
-  function saveEditingCard(id) {
-    const currentDraft =
-      draftServiceItems.find((draft) => draft.id === id) || null;
-
-    if (!currentDraft) {
-      return;
-    }
-
-    if (!ensureValid(validateServiceItems([currentDraft]))) {
-      return;
-    }
-
-    setServiceItems((current) =>
-      current.map((item) =>
-        item.id === id
-          ? draftServiceItems.find((draft) => draft.id === id) || item
-          : item
-      )
-    );
-    setEditingCardId("");
-    setStatus({
-      type: "success",
-      message:
-        "Service card updated. Use the main save button below to store all services in Supabase.",
-    });
   }
 
   function updateDraftCard(id, name, value) {
@@ -564,15 +690,9 @@ export default function ServicesCmsForm({
           item.id === id ? { ...item, image_url: result.imageUrl } : item
         )
       );
-      setServiceItems((current) =>
-        current.map((item) =>
-          item.id === id ? { ...item, image_url: result.imageUrl } : item
-        )
-      );
       setStatus({
         type: "success",
-        message:
-          "Service image uploaded. Save the page to store it in Supabase.",
+        message: "Service image uploaded. Save the section to keep it.",
       });
     } catch (error) {
       setStatus({
@@ -585,96 +705,89 @@ export default function ServicesCmsForm({
     }
   }
 
+  async function handleSelectIntroImage(event) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    setIsUploadingImage(true);
+    setStatus({ type: "idle", message: "" });
+
+    try {
+      const uploadPayload = new FormData();
+      uploadPayload.append("file", file);
+      uploadPayload.append("folder", "services");
+
+      const response = await fetch("/api/cms-images", {
+        method: "POST",
+        body: uploadPayload,
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to upload services hero image.");
+      }
+
+      setDraftServicesContent((current) => ({
+        ...current,
+        hero_image_url: result.imageUrl,
+      }));
+      setStatus({
+        type: "success",
+        message: "Services intro image uploaded. Save the section to keep it.",
+      });
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Unable to upload services hero image.",
+      });
+    } finally {
+      event.target.value = "";
+      setIsUploadingImage(false);
+    }
+  }
+
   function addServiceCard() {
     const newCard = createNewServiceCard(draftServiceItems.length);
     setDraftServiceItems((current) => [...current, newCard]);
-    setServiceItems((current) => [...current, newCard]);
     setEditingCardId(newCard.id);
     setStatus({
       type: "success",
-      message:
-        "New service card added. Update it in the preview, then save the page to store it in Supabase.",
+      message: "New service card added. Click into it to finish editing, then save.",
     });
   }
 
   function deleteServiceCard(id) {
     setDraftServiceItems((current) => current.filter((item) => item.id !== id));
-    setServiceItems((current) => current.filter((item) => item.id !== id));
     setEditingCardId((current) => (current === id ? "" : current));
     setStatus({
       type: "success",
-      message:
-        "Service card removed from the current CMS state. Save the page to apply the change in Supabase.",
+      message: "Service card removed. Save the section to apply the change.",
     });
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const validationErrors = [
-      ...validateCmsFields([
-        { field: "heading", value: servicesContent.heading, label: "Services heading" },
-        { field: "intro", value: servicesContent.intro, label: "Services intro" },
-      ]),
-      ...validateServiceItems(serviceItems),
-    ];
+  async function handleToggleCardsEditing() {
+    if (editingCardId) {
+      if (!ensureValid(validateServiceItems(draftServiceItems))) {
+        return;
+      }
 
-    if (!ensureValid(validationErrors)) {
+      await persistServiceCards(draftServiceItems, "Service cards saved successfully.", {
+        closeEditor: true,
+      });
       return;
     }
 
-    setIsSaving(true);
-    setStatus({ type: "idle", message: "" });
-
-    try {
-      const response = await fetch("/api/cms", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          services: servicesContent,
-          serviceItems: prepareServiceItemsForSave(serviceItems),
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Unable to save Services content.");
-      }
-
-      const nextContent = normaliseServicesContent(
-        result.content?.services || servicesContent
-      );
-      const nextItems = normaliseServiceItems(
-        result.content?.serviceItems || serviceItems
-      );
-
-      setServicesContent(nextContent);
-      setDraftServicesContent(nextContent);
-      setServiceItems(nextItems);
-      setDraftServiceItems(
-        nextItems.map((item, index) => ({
-          ...item,
-          id: item.id || `draft-${index}`,
-        }))
-      );
-      setStatus({
-        type: "success",
-        message: "Services CMS content saved to Supabase.",
-      });
-    } catch (error) {
-      setStatus({
-        type: "error",
-        message: error.message || "Unable to save Services content.",
-      });
-    } finally {
-      setIsSaving(false);
+    if (draftServiceItems.length) {
+      setStatus({ type: "idle", message: "" });
+      setEditingCardId(draftServiceItems[0].id);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-10 space-y-8" noValidate>
+    <div className="mt-10 space-y-8">
       {loadError ? (
         <div className="rounded-3xl border border-[#e7c9c8] bg-[#fff6f5] px-6 py-5 text-[#8b3d3a]">
           <p className="text-sm font-semibold uppercase tracking-[0.2em]">
@@ -684,36 +797,75 @@ export default function ServicesCmsForm({
         </div>
       ) : null}
 
-      <div className="rounded-[2rem] border border-[#d8dfeb] bg-white/90 p-6 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6d7bbb]">
-          Services Editor
-        </p>
-        <h2 className="mt-2 text-2xl font-semibold text-[#42454c]">
-          Edit the real page layout
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-7 text-[#5d6169]">
-          This editor follows the current Services page design. The page layout
-          stays fixed while the intro and service cards remain easy to update.
-        </p>
-      </div>
-
       <CmsEditableSection
         title="Services Intro"
-        description="Hero image, page heading, and intro text."
-        helperText="Click Edit, then update the services heading and introduction directly in the preview."
+        description=""
+        helperText=""
         isEditing={isIntroEditing}
         isVisible={isIntroVisible}
         onToggleEditing={handleToggleIntroEditing}
-        onToggleVisible={() =>
-          toggleSectionVisibility("show_intro_section", setIsIntroVisible)
-        }
+        stickyHeader
+        centerContent={statusBanner}
+        onToggleVisible={async () => {
+          const errors = validateCmsFields([
+            {
+              field: "hero_image_url",
+              value: draftServicesContent.hero_image_url,
+              label: "Services hero image",
+            },
+            {
+              field: "heading",
+              value: draftServicesContent.heading,
+              label: "Services heading",
+            },
+            {
+              field: "intro",
+              value: draftServicesContent.intro,
+              label: "Services intro",
+            },
+          ]);
+
+          if (!ensureValid(errors)) {
+            return;
+          }
+
+          const nextVisible = !isIntroVisible;
+          const previousContent = servicesContent;
+          const nextContent = {
+            ...draftServicesContent,
+            show_intro_section: nextVisible,
+            show_cards_section: servicesContent.show_cards_section,
+          };
+
+          setIsIntroVisible(nextVisible);
+          setDraftServicesContent(nextContent);
+          setServicesContent(nextContent);
+          const didSave = await persistServicesContent(
+            nextContent,
+            nextVisible
+              ? "Services intro is now visible on the Services page."
+              : "Services intro is now hidden on the Services page."
+          );
+
+          if (!didSave) {
+            setIsIntroVisible(!nextVisible);
+            setServicesContent(previousContent);
+            setDraftServicesContent(previousContent);
+          }
+        }}
       >
         <CmsPreviewLayout
           preview={
             <ServicesHeroPreview
               content={draftServicesContent}
               isEditing={isIntroEditing}
+              isVisible={isIntroVisible}
               onFieldChange={updateDraftServicesContent}
+              onSelectImage={handleSelectIntroImage}
+              onSelect={() => {
+                setStatus({ type: "idle", message: "" });
+                setIsIntroEditing(true);
+              }}
             />
           }
         />
@@ -721,99 +873,63 @@ export default function ServicesCmsForm({
 
       <CmsEditableSection
         title="Service Cards"
-        description="Editable cards for the current services page layout."
-        helperText="Use Edit on a card to update it, Add Service to create a new one, and Save Page below to store all card changes."
+        description=""
+        helperText=""
         isEditing={Boolean(editingCardId)}
         isVisible={isCardsVisible}
-        onToggleEditing={() => {
-          if (!editingCardId && draftServiceItems.length) {
-            setEditingCardId(draftServiceItems[0].id);
+        onToggleEditing={handleToggleCardsEditing}
+        stickyHeader
+        centerContent={statusBanner}
+        onToggleVisible={async () => {
+          if (!ensureValid(validateServiceItems(draftServiceItems))) {
             return;
           }
 
-          if (editingCardId) {
-            saveEditingCard(editingCardId);
+          const nextVisible = !isCardsVisible;
+          const previousContent = servicesContent;
+          const nextContent = {
+            ...servicesContent,
+            show_intro_section: isIntroVisible,
+            show_cards_section: nextVisible,
+          };
+
+          setIsCardsVisible(nextVisible);
+          setServicesContent(nextContent);
+          setDraftServicesContent(nextContent);
+          const didSave = await persistServicesContent(
+            nextContent,
+            nextVisible
+              ? "Service cards are now visible on the Services page."
+              : "Service cards are now hidden on the Services page."
+          );
+
+          if (!didSave) {
+            setIsCardsVisible(!nextVisible);
+            setServicesContent(previousContent);
+            setDraftServicesContent(previousContent);
           }
         }}
-        onToggleVisible={() =>
-          toggleSectionVisibility("show_cards_section", setIsCardsVisible)
-        }
       >
-        <div className="mb-4 flex justify-end">
-          <button
-            type="button"
-            onClick={addServiceCard}
-            className="inline-flex items-center gap-2 rounded-full bg-[#926ab9] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#7d58a3]"
-          >
-            <Plus className="h-4 w-4" />
-            Add Service
-          </button>
-        </div>
-
         <CmsPreviewLayout
           preview={
             <ServicesCardsPreview
               services={draftServiceItems}
               editingCardId={editingCardId}
+              isVisible={isCardsVisible}
               onFieldChange={updateDraftCard}
               onFeatureChange={updateDraftFeature}
               onSelectImage={handleSelectImage}
               imagePreviews={imagePreviews}
               onDelete={deleteServiceCard}
+              onSelectCard={(id) => {
+                setStatus({ type: "idle", message: "" });
+                setEditingCardId(id);
+              }}
+              onAddService={addServiceCard}
             />
           }
         />
-
-        <div className="mt-4 flex flex-wrap gap-3">
-          {draftServiceItems.map((service) => (
-            <button
-              key={service.id}
-              type="button"
-              onClick={() =>
-                editingCardId === service.id
-                  ? saveEditingCard(service.id)
-                  : startEditingCard(service.id)
-              }
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                editingCardId === service.id
-                  ? "bg-[#4b8e9a] text-white hover:bg-[#3e7882]"
-                  : "border border-[#d8dfeb] bg-white text-[#42454c] hover:border-[#926ab9] hover:text-[#926ab9]"
-              }`}
-            >
-              {editingCardId === service.id
-                ? `Save ${service.title || "Service"}`
-                : `Edit ${service.title || "Service"}`}
-            </button>
-          ))}
-        </div>
       </CmsEditableSection>
-
-      <div className="sticky bottom-4 z-10 flex flex-col gap-4 rounded-[2rem] border border-[#d8dfeb] bg-white/95 px-6 py-5 shadow-[0_24px_60px_rgba(66,69,76,0.12)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-        <p
-          className={`text-base font-medium ${
-            status.type === "error"
-              ? "text-[#b94a48]"
-              : status.type === "success"
-                ? "text-[#4b8e9a]"
-                : "text-[#5d6169]"
-          }`}
-        >
-          {status.message ||
-            "Update the Services page here, then save when you are ready."}
-        </p>
-
-        <button
-          type="submit"
-          disabled={isSaving || isUploadingImage}
-          className="inline-flex items-center justify-center rounded-2xl bg-[#4b8e9a] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#3e7882] disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {isUploadingImage
-            ? "Uploading image..."
-            : isSaving
-              ? "Saving..."
-              : "Save Services Content"}
-        </button>
-      </div>
-    </form>
+    </div>
   );
 }

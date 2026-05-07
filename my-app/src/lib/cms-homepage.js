@@ -418,6 +418,7 @@ export const SERVICES_BOOLEAN_FIELDS = [
 ];
 
 export const SERVICES_CMS_FIELDS = [
+  "hero_image_url",
   "heading",
   "intro",
   "cta_button_label",
@@ -442,6 +443,7 @@ export const SERVICE_ITEM_FIELDS = [
 
 export const fallbackServicesContent = {
   slug: SERVICES_CMS_SLUG,
+  hero_image_url: "/assets/services/hero-services.png",
   heading: "Services",
   intro:
     "Support options tailored to where you are now, with session pricing and a direct path to book.",

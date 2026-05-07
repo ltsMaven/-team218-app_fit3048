@@ -155,7 +155,7 @@ export default function ServiceClient({
           <>
           <div className="overflow-hidden rounded-[2rem]">
             <img
-              src="/assets/services/hero-services.png"
+              src={content.hero_image_url || "/assets/services/hero-services.png"}
               alt="Services hero"
               className="h-[220px] w-full object-cover sm:h-[280px] lg:h-[320px]"
             />
