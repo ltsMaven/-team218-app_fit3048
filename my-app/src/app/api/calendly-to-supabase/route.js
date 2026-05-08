@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
+
+export const runtime = "nodejs";
+
+const SIGNATURE_TOLERANCE_SECONDS = 300;
 
 function getCalendlyToken() {
   const token = process.env.CALENDLY_API_TOKEN;
@@ -9,6 +14,96 @@ function getCalendlyToken() {
   }
 
   return token;
+}
+
+function getCalendlyWebhookSigningKey() {
+  const signingKey =
+    process.env.CALENDLY_WEBHOOK_SIGNING_KEY ||
+    process.env.CALENDLY_WEBHOOK_SIGNING_SECRET;
+
+  if (!signingKey) {
+    throw new Error("Missing CALENDLY_WEBHOOK_SIGNING_KEY environment variable.");
+  }
+
+  return signingKey;
+}
+
+function parseCalendlySignatureHeader(header = "") {
+  return header.split(",").reduce(
+    (parts, item) => {
+      const [key, value] = item.split("=").map((part) => part.trim());
+
+      if (key === "t") {
+        return {
+          ...parts,
+          timestamp: value,
+        };
+      }
+
+      if (key === "v1" && value) {
+        return {
+          ...parts,
+          signatures: [...parts.signatures, value],
+        };
+      }
+
+      return parts;
+    },
+    { timestamp: "", signatures: [] }
+  );
+}
+
+function timingSafeHexEqual(expected, received) {
+  if (!/^[a-f0-9]+$/i.test(received)) {
+    return false;
+  }
+
+  const expectedBuffer = Buffer.from(expected, "hex");
+  const receivedBuffer = Buffer.from(received, "hex");
+
+  if (expectedBuffer.length !== receivedBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+}
+
+function verifyCalendlyWebhookSignature(request, rawBody) {
+  const signatureHeader = request.headers.get("calendly-webhook-signature");
+
+  if (!signatureHeader) {
+    return false;
+  }
+
+  const { timestamp, signatures } =
+    parseCalendlySignatureHeader(signatureHeader);
+  const timestampSeconds = Number(timestamp);
+
+  if (
+    !timestamp ||
+    !Number.isFinite(timestampSeconds) ||
+    signatures.length === 0
+  ) {
+    return false;
+  }
+
+  const currentSeconds = Math.floor(Date.now() / 1000);
+
+  if (
+    Math.abs(currentSeconds - timestampSeconds) > SIGNATURE_TOLERANCE_SECONDS
+  ) {
+    return false;
+  }
+
+  const signedPayload = `${timestamp}.${rawBody}`;
+  const expectedSignature = crypto
+    .createHmac("sha256", getCalendlyWebhookSigningKey())
+    .update(signedPayload, "utf8")
+    .digest("hex");
+
+  return signatures.some((signature) =>
+    timingSafeHexEqual(expectedSignature, signature)
+  );
 }
 
 async function fetchCalendlyResource(uri) {
@@ -109,7 +204,16 @@ async function saveAppointment(record) {
 
 export async function POST(request) {
   try {
-    const body = await request.json();
+    const rawBody = await request.text();
+
+    if (!verifyCalendlyWebhookSignature(request, rawBody)) {
+      return NextResponse.json(
+        { error: "Invalid Calendly webhook signature." },
+        { status: 401 }
+      );
+    }
+
+    const body = JSON.parse(rawBody);
 
     if (body?.event && body.event !== "invitee.created") {
       return NextResponse.json({ ignored: true }, { status: 200 });
@@ -129,6 +233,15 @@ export async function POST(request) {
     );
   } catch (error) {
     console.error("Calendly sync failed:", error);
+
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(
+        {
+          error: "Invalid JSON payload.",
+        },
+        { status: 400 }
+      );
+    }
 
     return NextResponse.json(
       {
