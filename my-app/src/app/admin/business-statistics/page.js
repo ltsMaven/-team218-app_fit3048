@@ -119,7 +119,7 @@ export default async function BusinessStatisticsPage({ searchParams }) {
           Business Statistics
         </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#42454c]">
-          Website and service performance
+          Website and Service Performance
         </h1>
 
         <div className="mt-10 space-y-8">

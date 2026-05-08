@@ -163,6 +163,7 @@ export default async function Home() {
 
       <HeroSlider />
 
+      {homepageContent.show_about_section ? (
       <section id="about-me" className="bg-transparent px-6 py-24 lg:py-28">
         <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-12">
           <div className="lg:col-span-5">
@@ -225,7 +226,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      ) : null}
 
+      {homepageContent.show_services_section ? (
       <section id="my-work" className="bg-white/75 px-6 py-24 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
@@ -302,7 +305,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      ) : null}
 
+      {homepageContent.show_values_section ? (
       <section className="bg-transparent px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
@@ -372,6 +377,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      ) : null}
 
       <section id="testimonials" className="bg-transparent px-6 py-24">
         <div className="mx-auto max-w-7xl">
@@ -423,6 +429,7 @@ export default async function Home() {
         </div>
       </section>
 
+      {homepageContent.show_cta_section ? (
       <section className="bg-[#42454c] px-6 py-24 text-center text-white">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -444,6 +451,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      ) : null}
     </>
   );
 }

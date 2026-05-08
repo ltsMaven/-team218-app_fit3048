@@ -53,9 +53,8 @@ export default async function AdminEnquiryPage() {
           Enquiry Inbox
         </h1>
         <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]">
-          Signed in as {session.user.name || session.user.email}. View enquiry
-          messages received from the public enquiry form. To reply to an
-          enquiry, open Gmail and respond from the business email account.
+          View enquiry messages received from the public enquiry form. To reply
+          to an enquiry, open Gmail and respond from the business email account.
         </p>
 
         <AdminEnquiriesManager

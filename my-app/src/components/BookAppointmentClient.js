@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import { useState } from "react";
 import { InlineWidget, useCalendlyEventListener } from "react-calendly";
 import { ChevronLeft, Clock, DollarSign } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -55,7 +55,6 @@ const SERVICES = [
 export default function BookingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const syncedInviteesRef = useRef(new Set());
   const [syncStatus, setSyncStatus] = useState({
     type: "idle",
     message: "",
@@ -74,63 +73,12 @@ export default function BookingPage() {
   };
 
   useCalendlyEventListener({
-    onEventScheduled: async (event) => {
-      const eventUri = event.data?.payload?.event?.uri;
-      const inviteeUri = event.data?.payload?.invitee?.uri;
-
-      if (!eventUri || !inviteeUri) {
-        setSyncStatus({
-          type: "error",
-          message:
-            "Booking was created, but the database sync payload was incomplete.",
-        });
-        return;
-      }
-
-      if (syncedInviteesRef.current.has(inviteeUri)) {
-        return;
-      }
-
-      syncedInviteesRef.current.add(inviteeUri);
+    onEventScheduled: () => {
       setSyncStatus({
-        type: "loading",
-        message: "Saving your booking details...",
+        type: "success",
+        message:
+          "Booking confirmed. Calendly will securely sync the appointment details.",
       });
-
-      try {
-        const response = await fetch("/api/calendly-to-supabase", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            eventUri,
-            inviteeUri,
-          }),
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            result.error || "Unable to sync booking to the database.",
-          );
-        }
-
-        setSyncStatus({
-          type: "success",
-          message: result.duplicate
-            ? "Booking already exists in the database."
-            : "Booking saved successfully.",
-        });
-      } catch (error) {
-        syncedInviteesRef.current.delete(inviteeUri);
-        setSyncStatus({
-          type: "error",
-          message:
-            error.message || "Booking completed, but database sync failed.",
-        });
-      }
     },
   });
 

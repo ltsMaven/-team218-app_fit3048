@@ -42,7 +42,13 @@ export default async function EnquiryPage() {
 
   return (
     <div className="min-h-screen bg-[#f8f8f6] pt-12">
-      <EnquiryForm faqItems={enquiryContent.faq_items} />
+      <EnquiryForm
+        faqEyebrow={enquiryContent.faq_eyebrow}
+        faqHeading={enquiryContent.faq_heading}
+        faqIntro={enquiryContent.faq_intro}
+        faqItems={enquiryContent.faq_items}
+        showFaqSection={enquiryContent.show_faq_section}
+      />
     </div>
   );
 }

@@ -151,9 +151,11 @@ export default function ServiceClient({
     <div className="min-h-screen bg-[#f7f7f6] pb-24">
       <section className="px-6 pb-20 pt-8">
         <div className="mx-auto max-w-7xl">
+          {content.show_intro_section ? (
+          <>
           <div className="overflow-hidden rounded-[2rem]">
             <img
-              src="/assets/services/hero-services.png"
+              src={content.hero_image_url || "/assets/services/hero-services.png"}
               alt="Services hero"
               className="h-[220px] w-full object-cover sm:h-[280px] lg:h-[320px]"
             />
@@ -167,7 +169,10 @@ export default function ServiceClient({
               {content.intro}
             </p>
           </div>
+          </>
+          ) : null}
 
+          {content.show_cards_section ? (
           <div className="mx-auto mt-14 max-w-7xl">
             {totalSlides > 1 ? (
               <div className="mb-6 flex justify-end">
@@ -234,6 +239,7 @@ export default function ServiceClient({
               </div>
             ) : null}
           </div>
+          ) : null}
 
           <div className="mt-10 flex justify-center">
             <Link

@@ -7,6 +7,8 @@ import { fallbackAboutContent } from "@/lib/cms-homepage";
 export default function AboutMeClient({ content = fallbackAboutContent }) {
   return (
     <div className="min-h-screen bg-[#f7f7f6] text-[#42454c] pb-24">
+      {content.show_hero_section ? (
+      <>
       {/* HERO IMAGE */}
       <section className="px-6 pt-24 lg:pt-8">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.5rem]">
@@ -29,8 +31,10 @@ export default function AboutMeClient({ content = fallbackAboutContent }) {
         </p>
       </div>
     </section>
+    </>
+      ) : null}
 
-      {/* STORY / INTRO EDITORIAL LAYOUT */}
+      {content.show_story_section ? (
       <section className="px-6 mt-8">
         <div className="mx-auto max-w-7xl">
 
@@ -61,8 +65,9 @@ export default function AboutMeClient({ content = fallbackAboutContent }) {
 
         </div>
       </section>
+      ) : null}
 
-      {/* PHILOSOPHY */}
+      {content.show_philosophy_section ? (
       <section className="px-6 mt-24">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
@@ -99,8 +104,9 @@ export default function AboutMeClient({ content = fallbackAboutContent }) {
           </div>
         </div>
       </section>
+      ) : null}
 
-      {/* BACKGROUND */}
+      {content.show_background_section ? (
       <section className="px-6 mt-24">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
@@ -131,8 +137,9 @@ export default function AboutMeClient({ content = fallbackAboutContent }) {
           </div>
         </div>
       </section>
+      ) : null}
 
-      {/* FOCUS AREAS */}
+      {content.show_focus_section ? (
       <section className="px-6 mt-24">
         <div className="mx-auto max-w-7xl rounded-[2.5rem] bg-[#edf0f7] px-8 py-10 lg:px-12 lg:py-12">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.8fr_1.2fr]">
@@ -155,8 +162,9 @@ export default function AboutMeClient({ content = fallbackAboutContent }) {
           </div>
         </div>
       </section>
+      ) : null}
 
-      {/* STATS / SUPPORT */}
+      {content.show_stats_section ? (
       <section className="px-6 mt-24">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.9fr_0.9fr_1.2fr]">
@@ -198,6 +206,7 @@ export default function AboutMeClient({ content = fallbackAboutContent }) {
           </div>
         </div>
       </section>
+      ) : null}
 
       {/* FULL-WIDTH IMAGE TEXT SECTION */}
       <section className="mt-24">

@@ -59,6 +59,23 @@ function EditableImage({
   );
 }
 
+function PreviewFrame({ isEditing, isVisible, onSelect, children }) {
+  return (
+    <div
+      onClick={onSelect}
+      className={`rounded-[2rem] p-4 transition ${
+        isVisible ? "" : "opacity-45"
+      } ${
+        isEditing
+          ? "border border-[#4b8e9a] ring-2 ring-[#4b8e9a]/15"
+          : "cursor-text hover:border hover:border-[#926ab9]"
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
 function HomepageAboutPreview({
   content,
   isEditing = false,
@@ -66,77 +83,76 @@ function HomepageAboutPreview({
   imagePreviewUrl = "",
   onSelectImage = () => {},
   isVisible = true,
+  onSelect = () => {},
 }) {
   return (
-    <div
-      className={`grid gap-0 lg:grid-cols-[0.92fr_1.08fr] ${
-        isVisible ? "" : "pointer-events-none"
-      }`}
-    >
-      <div className="flex min-h-[320px] items-center justify-center bg-[linear-gradient(160deg,rgba(238,239,242,0.9),rgba(220,233,248,0.9))] p-8">
-        <EditableImage
-          src={
-            imagePreviewUrl ||
-            content.about_image_url ||
-            fallbackHomepageContent.about_image_url
-          }
-          alt="Homepage section image preview"
-          isEditing={isEditing}
-          onSelectFile={onSelectImage}
-        />
-      </div>
-
-      <div className="p-8">
-        <EditableText
-          as="p"
-          value={content.about_badge || fallbackHomepageContent.about_badge}
-          isEditing={isEditing}
-          onChange={(value) => onFieldChange("about_badge", value)}
-          validationKey="about_badge"
-          className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6d7bbb]"
-        />
-        <EditableText
-          as="h4"
-          value={content.about_heading || "Homepage heading preview"}
-          isEditing={isEditing}
-          onChange={(value) => onFieldChange("about_heading", value)}
-          validationKey="about_heading"
-          className="mt-4 text-3xl font-semibold leading-tight text-[#42454c]"
-        />
-        <div className="mt-6 space-y-4 text-sm leading-7 text-[#5d6169]">
-          <EditableText
-            value={content.about_intro || "Introductory copy will appear here."}
-            isEditing={isEditing}
-            onChange={(value) => onFieldChange("about_intro", value)}
-            validationKey="about_intro"
-            className="whitespace-pre-wrap"
-          />
-          <EditableText
-            value={
-              content.about_highlight ||
-              "A second supporting paragraph will appear here."
+    <PreviewFrame isEditing={isEditing} isVisible={isVisible} onSelect={onSelect}>
+      <div className="grid gap-0 lg:grid-cols-[0.92fr_1.08fr]">
+        <div className="flex min-h-[320px] items-center justify-center bg-[linear-gradient(160deg,rgba(238,239,242,0.9),rgba(220,233,248,0.9))] p-8">
+          <EditableImage
+            src={
+              imagePreviewUrl ||
+              content.about_image_url ||
+              fallbackHomepageContent.about_image_url
             }
+            alt="Homepage section image preview"
             isEditing={isEditing}
-            onChange={(value) => onFieldChange("about_highlight", value)}
-            validationKey="about_highlight"
-            className="whitespace-pre-wrap"
-          />
-          <EditableText
-            value={
-              content.about_closing || "A short closing line will appear here."
-            }
-            isEditing={isEditing}
-            onChange={(value) => onFieldChange("about_closing", value)}
-            validationKey="about_closing"
-            className="whitespace-pre-wrap font-medium text-[#42454c]"
+            onSelectFile={onSelectImage}
           />
         </div>
+
+        <div className="p-8">
+          <EditableText
+            as="p"
+            value={content.about_badge || fallbackHomepageContent.about_badge}
+            isEditing={isEditing}
+            onChange={(value) => onFieldChange("about_badge", value)}
+            validationKey="about_badge"
+            className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6d7bbb]"
+          />
+          <EditableText
+            as="h4"
+            value={content.about_heading || "Homepage heading preview"}
+            isEditing={isEditing}
+            onChange={(value) => onFieldChange("about_heading", value)}
+            validationKey="about_heading"
+            className="mt-4 text-3xl font-semibold leading-tight text-[#42454c]"
+          />
+          <div className="mt-6 space-y-4 text-sm leading-7 text-[#5d6169]">
+            <EditableText
+              value={content.about_intro || "Introductory copy will appear here."}
+              isEditing={isEditing}
+              onChange={(value) => onFieldChange("about_intro", value)}
+              validationKey="about_intro"
+              className="whitespace-pre-wrap"
+            />
+            <EditableText
+              value={
+                content.about_highlight ||
+                "A second supporting paragraph will appear here."
+              }
+              isEditing={isEditing}
+              onChange={(value) => onFieldChange("about_highlight", value)}
+              validationKey="about_highlight"
+              className="whitespace-pre-wrap"
+            />
+            <EditableText
+              value={
+                content.about_closing || "A short closing line will appear here."
+              }
+              isEditing={isEditing}
+              onChange={(value) => onFieldChange("about_closing", value)}
+              validationKey="about_closing"
+              className="whitespace-pre-wrap font-medium text-[#42454c]"
+            />
+          </div>
+        </div>
       </div>
-    </div>
+    </PreviewFrame>
   );
 }
 
-function HomepageServicesPreview({ content }) {
+function HomepageServicesPreview({ content, isVisible = true, onSelect = () => {} }) {
   const cards = [
     {
       number: "01",
@@ -202,6 +218,7 @@ function HomepageServicesPreview({ content }) {
   ];
 
   return (
+    <PreviewFrame isEditing={content.isEditing} isVisible={isVisible} onSelect={onSelect}>
     <div className="bg-white/75 px-6 py-10 backdrop-blur-sm">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
@@ -341,6 +358,7 @@ function HomepageServicesPreview({ content }) {
         </div>
       </div>
     </div>
+    </PreviewFrame>
   );
 }
 
@@ -387,8 +405,9 @@ function TimelineItem({ label, heading, body, toneClass }) {
   );
 }
 
-function HomepageValuesPreview({ content }) {
+function HomepageValuesPreview({ content, isVisible = true, onSelect = () => {} }) {
   return (
+    <PreviewFrame isEditing={content.isEditing} isVisible={isVisible} onSelect={onSelect}>
     <div className="bg-transparent px-6 py-10">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
@@ -517,11 +536,13 @@ function HomepageValuesPreview({ content }) {
         </div>
       </div>
     </div>
+    </PreviewFrame>
   );
 }
 
-function HomepageCtaPreview({ content }) {
+function HomepageCtaPreview({ content, isVisible = true, onSelect = () => {} }) {
   return (
+    <PreviewFrame isEditing={content.isEditing} isVisible={isVisible} onSelect={onSelect}>
     <div className="bg-[#42454c] px-6 py-14 text-center text-white">
       <div className="mx-auto max-w-4xl text-center">
         <EditableText
@@ -561,6 +582,7 @@ function HomepageCtaPreview({ content }) {
         </div>
       </div>
     </div>
+    </PreviewFrame>
   );
 }
 
@@ -593,8 +615,20 @@ export default function HomepageCmsForm({
   const [isCtaEditing, setIsCtaEditing] = useState(false);
   const [isCtaVisible, setIsCtaVisible] = useState(true);
   const [status, setStatus] = useState({ type: "idle", message: "" });
-  const [isSaving, setIsSaving] = useState(false);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [, setIsSaving] = useState(false);
+  const [, setIsUploadingImage] = useState(false);
+
+  const statusBanner = status.message ? (
+    <div
+      className={`max-w-[28rem] rounded-2xl border px-4 py-3 text-center ${
+        status.type === "error"
+          ? "border-[#e7c9c8] bg-[#fff6f5] text-[#8b3d3a]"
+          : "border-[#cfe5df] bg-[#f4fbf8] text-[#2f7a68]"
+      }`}
+    >
+      <p className="text-sm font-medium leading-6">{status.message}</p>
+    </div>
+  ) : null;
 
   useEffect(() => {
     const nextHomepage = normaliseHomepageContent(initialHomepageContent);
@@ -603,6 +637,10 @@ export default function HomepageCmsForm({
     setDraftServices(nextHomepage);
     setDraftValues(nextHomepage);
     setDraftCta(nextHomepage);
+    setIsAboutVisible(nextHomepage.show_about_section);
+    setIsServicesVisible(nextHomepage.show_services_section);
+    setIsValuesVisible(nextHomepage.show_values_section);
+    setIsCtaVisible(nextHomepage.show_cta_section);
     setIsAboutEditing(false);
     setIsServicesEditing(false);
     setIsValuesEditing(false);
@@ -659,6 +697,81 @@ export default function HomepageCmsForm({
     return false;
   }
 
+  async function persistHomepageContent(nextHomepage, successMessage, options = {}) {
+    const { closeEditors = [] } = options;
+
+    setIsSaving(true);
+    setStatus({ type: "idle", message: "" });
+
+    try {
+      const response = await fetch("/api/cms", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          homepage: nextHomepage,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to save homepage content.");
+      }
+
+      const savedHomepage = normaliseHomepageContent(
+        result.content?.homepage || nextHomepage
+      );
+      setHomepage(savedHomepage);
+      setDraftAbout(savedHomepage);
+      setDraftServices(savedHomepage);
+      setDraftValues(savedHomepage);
+      setDraftCta(savedHomepage);
+      setIsAboutVisible(savedHomepage.show_about_section);
+      setIsServicesVisible(savedHomepage.show_services_section);
+      setIsValuesVisible(savedHomepage.show_values_section);
+      setIsCtaVisible(savedHomepage.show_cta_section);
+
+      if (closeEditors.includes("about")) setIsAboutEditing(false);
+      if (closeEditors.includes("services")) setIsServicesEditing(false);
+      if (closeEditors.includes("values")) setIsValuesEditing(false);
+      if (closeEditors.includes("cta")) setIsCtaEditing(false);
+
+      setStatus({
+        type: "success",
+        message: successMessage,
+      });
+      return true;
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Unable to save homepage content.",
+      });
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function toggleHomepageSection(fieldName, setter, nextHomepage, successCopy) {
+    const nextVisible = !nextHomepage[fieldName];
+    const previousHomepage = homepage;
+    const payload = {
+      ...nextHomepage,
+      [fieldName]: nextVisible,
+    };
+
+    setter(nextVisible);
+    setHomepage(payload);
+    const didSave = await persistHomepageContent(payload, successCopy(nextVisible));
+
+    if (!didSave) {
+      setter(!nextVisible);
+      setHomepage(previousHomepage);
+    }
+  }
+
   function handleToggleAboutEditing() {
     if (isAboutEditing) {
       if (
@@ -673,21 +786,19 @@ export default function HomepageCmsForm({
         return;
       }
 
-      setHomepage((current) => ({
-        ...current,
-        about_image_url: draftAbout.about_image_url,
-        about_badge: draftAbout.about_badge,
-        about_heading: draftAbout.about_heading,
-        about_intro: draftAbout.about_intro,
-        about_highlight: draftAbout.about_highlight,
-        about_closing: draftAbout.about_closing,
-      }));
-      setStatus({
-        type: "success",
-        message:
-          "About Practice preview updated. Use the main save button below to store it in Supabase.",
-      });
-      setIsAboutEditing(false);
+      persistHomepageContent(
+        {
+          ...homepage,
+          about_image_url: draftAbout.about_image_url,
+          about_badge: draftAbout.about_badge,
+          about_heading: draftAbout.about_heading,
+          about_intro: draftAbout.about_intro,
+          about_highlight: draftAbout.about_highlight,
+          about_closing: draftAbout.about_closing,
+        },
+        "About Practice section saved successfully.",
+        { closeEditors: ["about"] }
+      );
       return;
     }
 
@@ -730,32 +841,30 @@ export default function HomepageCmsForm({
         return;
       }
 
-      setHomepage((current) => ({
-        ...current,
-        services_label: draftServices.services_label,
-        services_heading: draftServices.services_heading,
-        services_subheading: draftServices.services_subheading,
-        services_support_body: draftServices.services_support_body,
-        service_1_title: draftServices.service_1_title,
-        service_1_description: draftServices.service_1_description,
-        service_1_tags: draftServices.service_1_tags,
-        service_2_title: draftServices.service_2_title,
-        service_2_description: draftServices.service_2_description,
-        service_2_tags: draftServices.service_2_tags,
-        service_3_title: draftServices.service_3_title,
-        service_3_description: draftServices.service_3_description,
-        service_3_tags: draftServices.service_3_tags,
-        services_card_1_title: draftServices.services_card_1_title,
-        services_card_1_body: draftServices.services_card_1_body,
-        services_card_2_title: draftServices.services_card_2_title,
-        services_card_2_body: draftServices.services_card_2_body,
-      }));
-      setStatus({
-        type: "success",
-        message:
-          "How I Can Help preview updated. Use the main save button below to store it in Supabase.",
-      });
-      setIsServicesEditing(false);
+      persistHomepageContent(
+        {
+          ...homepage,
+          services_label: draftServices.services_label,
+          services_heading: draftServices.services_heading,
+          services_subheading: draftServices.services_subheading,
+          services_support_body: draftServices.services_support_body,
+          service_1_title: draftServices.service_1_title,
+          service_1_description: draftServices.service_1_description,
+          service_1_tags: draftServices.service_1_tags,
+          service_2_title: draftServices.service_2_title,
+          service_2_description: draftServices.service_2_description,
+          service_2_tags: draftServices.service_2_tags,
+          service_3_title: draftServices.service_3_title,
+          service_3_description: draftServices.service_3_description,
+          service_3_tags: draftServices.service_3_tags,
+          services_card_1_title: draftServices.services_card_1_title,
+          services_card_1_body: draftServices.services_card_1_body,
+          services_card_2_title: draftServices.services_card_2_title,
+          services_card_2_body: draftServices.services_card_2_body,
+        },
+        "How I Can Help section saved successfully.",
+        { closeEditors: ["services"] }
+      );
       return;
     }
 
@@ -804,27 +913,25 @@ export default function HomepageCmsForm({
         return;
       }
 
-      setHomepage((current) => ({
-        ...current,
-        about_section_label: draftValues.about_section_label,
-        about_section_heading_line_1: draftValues.about_section_heading_line_1,
-        about_section_heading_line_2: draftValues.about_section_heading_line_2,
-        goals_label: draftValues.goals_label,
-        goals_heading: draftValues.goals_heading,
-        goals_body: draftValues.goals_body,
-        vision_label: draftValues.vision_label,
-        vision_heading: draftValues.vision_heading,
-        vision_body: draftValues.vision_body,
-        values_label: draftValues.values_label,
-        values_heading: draftValues.values_heading,
-        values_body: draftValues.values_body,
-      }));
-      setStatus({
-        type: "success",
-        message:
-          "Goals, Vision, and Values preview updated. Use the main save button below to store it in Supabase.",
-      });
-      setIsValuesEditing(false);
+      persistHomepageContent(
+        {
+          ...homepage,
+          about_section_label: draftValues.about_section_label,
+          about_section_heading_line_1: draftValues.about_section_heading_line_1,
+          about_section_heading_line_2: draftValues.about_section_heading_line_2,
+          goals_label: draftValues.goals_label,
+          goals_heading: draftValues.goals_heading,
+          goals_body: draftValues.goals_body,
+          vision_label: draftValues.vision_label,
+          vision_heading: draftValues.vision_heading,
+          vision_body: draftValues.vision_body,
+          values_label: draftValues.values_label,
+          values_heading: draftValues.values_heading,
+          values_body: draftValues.values_body,
+        },
+        "Goals, Vision, and Values section saved successfully.",
+        { closeEditors: ["values"] }
+      );
       return;
     }
 
@@ -859,18 +966,16 @@ export default function HomepageCmsForm({
         return;
       }
 
-      setHomepage((current) => ({
-        ...current,
-        cta_heading: draftCta.cta_heading,
-        cta_body: draftCta.cta_body,
-        cta_button_label: draftCta.cta_button_label,
-      }));
-      setStatus({
-        type: "success",
-        message:
-          "Call to action preview updated. Use the main save button below to store it in Supabase.",
-      });
-      setIsCtaEditing(false);
+      persistHomepageContent(
+        {
+          ...homepage,
+          cta_heading: draftCta.cta_heading,
+          cta_body: draftCta.cta_body,
+          cta_button_label: draftCta.cta_button_label,
+        },
+        "Call to action section saved successfully.",
+        { closeEditors: ["cta"] }
+      );
       return;
     }
 
@@ -916,8 +1021,7 @@ export default function HomepageCmsForm({
       setAboutImagePreviewUrl(result.imageUrl);
       setStatus({
         type: "success",
-        message:
-          "Homepage image uploaded. Use the main save button below to store it in Supabase.",
+        message: "Homepage image uploaded. Save the section to keep it.",
       });
     } catch (error) {
       setStatus({
@@ -930,91 +1034,8 @@ export default function HomepageCmsForm({
     }
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    if (
-      !ensureValid([
-        { field: "about_badge", value: homepage.about_badge, label: "About badge" },
-        { field: "about_heading", value: homepage.about_heading, label: "About heading" },
-        { field: "about_intro", value: homepage.about_intro, label: "About intro" },
-        { field: "about_highlight", value: homepage.about_highlight, label: "About highlight" },
-        { field: "about_closing", value: homepage.about_closing, label: "About closing line" },
-        { field: "services_label", value: homepage.services_label, label: "Services label" },
-        { field: "services_heading", value: homepage.services_heading, label: "Services heading" },
-        { field: "services_subheading", value: homepage.services_subheading, label: "Services subheading" },
-        { field: "services_support_body", value: homepage.services_support_body, label: "Services support body" },
-        { field: "service_1_title", value: homepage.service_1_title, label: "Service 1 title" },
-        { field: "service_1_description", value: homepage.service_1_description, label: "Service 1 description" },
-        { field: "service_1_tags", value: homepage.service_1_tags, label: "Service 1 tags" },
-        { field: "service_2_title", value: homepage.service_2_title, label: "Service 2 title" },
-        { field: "service_2_description", value: homepage.service_2_description, label: "Service 2 description" },
-        { field: "service_2_tags", value: homepage.service_2_tags, label: "Service 2 tags" },
-        { field: "service_3_title", value: homepage.service_3_title, label: "Service 3 title" },
-        { field: "service_3_description", value: homepage.service_3_description, label: "Service 3 description" },
-        { field: "service_3_tags", value: homepage.service_3_tags, label: "Service 3 tags" },
-        { field: "services_card_1_title", value: homepage.services_card_1_title, label: "Services card 1 title" },
-        { field: "services_card_1_body", value: homepage.services_card_1_body, label: "Services card 1 body" },
-        { field: "services_card_2_title", value: homepage.services_card_2_title, label: "Services card 2 title" },
-        { field: "services_card_2_body", value: homepage.services_card_2_body, label: "Services card 2 body" },
-        { field: "about_section_label", value: homepage.about_section_label, label: "About section label" },
-        { field: "about_section_heading_line_1", value: homepage.about_section_heading_line_1, label: "About section heading line 1" },
-        { field: "about_section_heading_line_2", value: homepage.about_section_heading_line_2, label: "About section heading line 2" },
-        { field: "goals_label", value: homepage.goals_label, label: "Goals label" },
-        { field: "goals_heading", value: homepage.goals_heading, label: "Goals heading" },
-        { field: "goals_body", value: homepage.goals_body, label: "Goals body" },
-        { field: "vision_label", value: homepage.vision_label, label: "Vision label" },
-        { field: "vision_heading", value: homepage.vision_heading, label: "Vision heading" },
-        { field: "vision_body", value: homepage.vision_body, label: "Vision body" },
-        { field: "values_label", value: homepage.values_label, label: "Values label" },
-        { field: "values_heading", value: homepage.values_heading, label: "Values heading" },
-        { field: "values_body", value: homepage.values_body, label: "Values body" },
-        { field: "cta_heading", value: homepage.cta_heading, label: "CTA heading" },
-        { field: "cta_body", value: homepage.cta_body, label: "CTA body" },
-        { field: "cta_button_label", value: homepage.cta_button_label, label: "CTA button label" },
-      ])
-    ) {
-      return;
-    }
-
-    setIsSaving(true);
-    setStatus({ type: "idle", message: "" });
-
-    try {
-      const response = await fetch("/api/cms", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          homepage,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Unable to save homepage content.");
-      }
-
-      setHomepage(
-        normaliseHomepageContent(result.content?.homepage || homepage)
-      );
-      setStatus({
-        type: "success",
-        message: "Homepage CMS content saved to Supabase.",
-      });
-    } catch (error) {
-      setStatus({
-        type: "error",
-        message: error.message || "Unable to save homepage content.",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="mt-10 space-y-8" noValidate>
+    <div className="mt-10 space-y-8">
       {loadError ? (
         <div className="rounded-3xl border border-[#e7c9c8] bg-[#fff6f5] px-6 py-5 text-[#8b3d3a]">
           <p className="text-sm font-semibold uppercase tracking-[0.2em]">
@@ -1024,34 +1045,46 @@ export default function HomepageCmsForm({
         </div>
       ) : null}
 
-      <div className="rounded-[2rem] border border-[#d8dfeb] bg-white/90 p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6d7bbb]">
-              Homepage Editor
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#42454c]">
-              Edit by website section
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-7 text-[#5d6169]">
-              Each section previews like a small website slice so you can see
-              the content shape while you edit.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-dashed border-[#c9d3e2] bg-[#f8f8fb] px-4 py-3 text-sm text-[#5d6169]">
-            Homepage section image uploads now save to Supabase storage.
-          </div>
-        </div>
-      </div>
-
       <CmsEditableSection
         title="About Practice"
-        description="Main introductory content shown near the top of the homepage."
-        helperText="Click Edit, then click text or image areas to update this section."
+        description=""
+        helperText=""
         isEditing={isAboutEditing}
         isVisible={isAboutVisible}
         onToggleEditing={handleToggleAboutEditing}
-        onToggleVisible={() => setIsAboutVisible((current) => !current)}
+        stickyHeader
+        centerContent={statusBanner}
+        onToggleVisible={async () => {
+          if (
+            !ensureValid([
+              { field: "about_badge", value: draftAbout.about_badge, label: "About badge" },
+              { field: "about_heading", value: draftAbout.about_heading, label: "About heading" },
+              { field: "about_intro", value: draftAbout.about_intro, label: "About intro" },
+              { field: "about_highlight", value: draftAbout.about_highlight, label: "About highlight" },
+              { field: "about_closing", value: draftAbout.about_closing, label: "About closing line" },
+            ])
+          ) {
+            return;
+          }
+
+          await toggleHomepageSection(
+            "show_about_section",
+            setIsAboutVisible,
+            {
+              ...homepage,
+              about_image_url: draftAbout.about_image_url,
+              about_badge: draftAbout.about_badge,
+              about_heading: draftAbout.about_heading,
+              about_intro: draftAbout.about_intro,
+              about_highlight: draftAbout.about_highlight,
+              about_closing: draftAbout.about_closing,
+            },
+            (isVisible) =>
+              isVisible
+                ? "About Practice section is now visible on the homepage."
+                : "About Practice section is now hidden on the homepage."
+          );
+        }}
       >
         <CmsPreviewLayout
           preview={
@@ -1062,6 +1095,10 @@ export default function HomepageCmsForm({
               imagePreviewUrl={aboutImagePreviewUrl}
               onFieldChange={updateDraftAboutField}
               onSelectImage={handleAboutImageSelect}
+              onSelect={() => {
+                setStatus({ type: "idle", message: "" });
+                setIsAboutEditing(true);
+              }}
             />
           }
         />
@@ -1069,12 +1106,67 @@ export default function HomepageCmsForm({
 
       <CmsEditableSection
         title="How I Can Help"
-        description="Short introduction before people explore the full services page."
-        helperText="Click Edit, then update the heading and introduction directly inside the preview."
+        description=""
+        helperText=""
         isEditing={isServicesEditing}
         isVisible={isServicesVisible}
         onToggleEditing={handleToggleServicesEditing}
-        onToggleVisible={() => setIsServicesVisible((current) => !current)}
+        stickyHeader
+        centerContent={statusBanner}
+        onToggleVisible={async () => {
+          if (
+            !ensureValid([
+              { field: "services_label", value: draftServices.services_label, label: "Services label" },
+              { field: "services_heading", value: draftServices.services_heading, label: "Services heading" },
+              { field: "services_subheading", value: draftServices.services_subheading, label: "Services subheading" },
+              { field: "services_support_body", value: draftServices.services_support_body, label: "Services support body" },
+              { field: "service_1_title", value: draftServices.service_1_title, label: "Service 1 title" },
+              { field: "service_1_description", value: draftServices.service_1_description, label: "Service 1 description" },
+              { field: "service_1_tags", value: draftServices.service_1_tags, label: "Service 1 tags" },
+              { field: "service_2_title", value: draftServices.service_2_title, label: "Service 2 title" },
+              { field: "service_2_description", value: draftServices.service_2_description, label: "Service 2 description" },
+              { field: "service_2_tags", value: draftServices.service_2_tags, label: "Service 2 tags" },
+              { field: "service_3_title", value: draftServices.service_3_title, label: "Service 3 title" },
+              { field: "service_3_description", value: draftServices.service_3_description, label: "Service 3 description" },
+              { field: "service_3_tags", value: draftServices.service_3_tags, label: "Service 3 tags" },
+              { field: "services_card_1_title", value: draftServices.services_card_1_title, label: "Services card 1 title" },
+              { field: "services_card_1_body", value: draftServices.services_card_1_body, label: "Services card 1 body" },
+              { field: "services_card_2_title", value: draftServices.services_card_2_title, label: "Services card 2 title" },
+              { field: "services_card_2_body", value: draftServices.services_card_2_body, label: "Services card 2 body" },
+            ])
+          ) {
+            return;
+          }
+
+          await toggleHomepageSection(
+            "show_services_section",
+            setIsServicesVisible,
+            {
+              ...homepage,
+              services_label: draftServices.services_label,
+              services_heading: draftServices.services_heading,
+              services_subheading: draftServices.services_subheading,
+              services_support_body: draftServices.services_support_body,
+              service_1_title: draftServices.service_1_title,
+              service_1_description: draftServices.service_1_description,
+              service_1_tags: draftServices.service_1_tags,
+              service_2_title: draftServices.service_2_title,
+              service_2_description: draftServices.service_2_description,
+              service_2_tags: draftServices.service_2_tags,
+              service_3_title: draftServices.service_3_title,
+              service_3_description: draftServices.service_3_description,
+              service_3_tags: draftServices.service_3_tags,
+              services_card_1_title: draftServices.services_card_1_title,
+              services_card_1_body: draftServices.services_card_1_body,
+              services_card_2_title: draftServices.services_card_2_title,
+              services_card_2_body: draftServices.services_card_2_body,
+            },
+            (isVisible) =>
+              isVisible
+                ? "How I Can Help section is now visible on the homepage."
+                : "How I Can Help section is now hidden on the homepage."
+          );
+        }}
       >
         <CmsPreviewLayout
           preview={
@@ -1084,6 +1176,11 @@ export default function HomepageCmsForm({
                 isEditing: isServicesEditing,
                 onFieldChange: updateDraftServicesField,
               }}
+              isVisible={isServicesVisible}
+              onSelect={() => {
+                setStatus({ type: "idle", message: "" });
+                setIsServicesEditing(true);
+              }}
             />
           }
         />
@@ -1091,12 +1188,57 @@ export default function HomepageCmsForm({
 
       <CmsEditableSection
         title="Goals, Vision, and Values"
-        description="Three stacked content blocks that explain the practice direction and tone."
-        helperText="Click Edit, then update each card directly inside the preview."
+        description=""
+        helperText=""
         isEditing={isValuesEditing}
         isVisible={isValuesVisible}
         onToggleEditing={handleToggleValuesEditing}
-        onToggleVisible={() => setIsValuesVisible((current) => !current)}
+        stickyHeader
+        centerContent={statusBanner}
+        onToggleVisible={async () => {
+          if (
+            !ensureValid([
+              { field: "about_section_label", value: draftValues.about_section_label, label: "About section label" },
+              { field: "about_section_heading_line_1", value: draftValues.about_section_heading_line_1, label: "About section heading line 1" },
+              { field: "about_section_heading_line_2", value: draftValues.about_section_heading_line_2, label: "About section heading line 2" },
+              { field: "goals_label", value: draftValues.goals_label, label: "Goals label" },
+              { field: "goals_heading", value: draftValues.goals_heading, label: "Goals heading" },
+              { field: "goals_body", value: draftValues.goals_body, label: "Goals body" },
+              { field: "vision_label", value: draftValues.vision_label, label: "Vision label" },
+              { field: "vision_heading", value: draftValues.vision_heading, label: "Vision heading" },
+              { field: "vision_body", value: draftValues.vision_body, label: "Vision body" },
+              { field: "values_label", value: draftValues.values_label, label: "Values label" },
+              { field: "values_heading", value: draftValues.values_heading, label: "Values heading" },
+              { field: "values_body", value: draftValues.values_body, label: "Values body" },
+            ])
+          ) {
+            return;
+          }
+
+          await toggleHomepageSection(
+            "show_values_section",
+            setIsValuesVisible,
+            {
+              ...homepage,
+              about_section_label: draftValues.about_section_label,
+              about_section_heading_line_1: draftValues.about_section_heading_line_1,
+              about_section_heading_line_2: draftValues.about_section_heading_line_2,
+              goals_label: draftValues.goals_label,
+              goals_heading: draftValues.goals_heading,
+              goals_body: draftValues.goals_body,
+              vision_label: draftValues.vision_label,
+              vision_heading: draftValues.vision_heading,
+              vision_body: draftValues.vision_body,
+              values_label: draftValues.values_label,
+              values_heading: draftValues.values_heading,
+              values_body: draftValues.values_body,
+            },
+            (isVisible) =>
+              isVisible
+                ? "Goals, Vision, and Values section is now visible on the homepage."
+                : "Goals, Vision, and Values section is now hidden on the homepage."
+          );
+        }}
       >
         <CmsPreviewLayout
           preview={
@@ -1106,6 +1248,11 @@ export default function HomepageCmsForm({
                 isEditing: isValuesEditing,
                 onFieldChange: updateDraftValuesField,
               }}
+              isVisible={isValuesVisible}
+              onSelect={() => {
+                setStatus({ type: "idle", message: "" });
+                setIsValuesEditing(true);
+              }}
             />
           }
         />
@@ -1113,12 +1260,39 @@ export default function HomepageCmsForm({
 
       <CmsEditableSection
         title="Call To Action"
-        description="Final homepage booking prompt. Testimonial management stays separate."
-        helperText="Click Edit, then update the CTA heading, body, and button label directly inside the preview."
+        description=""
+        helperText=""
         isEditing={isCtaEditing}
         isVisible={isCtaVisible}
         onToggleEditing={handleToggleCtaEditing}
-        onToggleVisible={() => setIsCtaVisible((current) => !current)}
+        stickyHeader
+        centerContent={statusBanner}
+        onToggleVisible={async () => {
+          if (
+            !ensureValid([
+              { field: "cta_heading", value: draftCta.cta_heading, label: "CTA heading" },
+              { field: "cta_body", value: draftCta.cta_body, label: "CTA body" },
+              { field: "cta_button_label", value: draftCta.cta_button_label, label: "CTA button label" },
+            ])
+          ) {
+            return;
+          }
+
+          await toggleHomepageSection(
+            "show_cta_section",
+            setIsCtaVisible,
+            {
+              ...homepage,
+              cta_heading: draftCta.cta_heading,
+              cta_body: draftCta.cta_body,
+              cta_button_label: draftCta.cta_button_label,
+            },
+            (isVisible) =>
+              isVisible
+                ? "Call To Action section is now visible on the homepage."
+                : "Call To Action section is now hidden on the homepage."
+          );
+        }}
       >
         <CmsPreviewLayout
           preview={
@@ -1128,37 +1302,15 @@ export default function HomepageCmsForm({
                 isEditing: isCtaEditing,
                 onFieldChange: updateDraftCtaField,
               }}
+              isVisible={isCtaVisible}
+              onSelect={() => {
+                setStatus({ type: "idle", message: "" });
+                setIsCtaEditing(true);
+              }}
             />
           }
         />
       </CmsEditableSection>
-
-      <div className="sticky bottom-4 z-10 flex flex-col gap-4 rounded-[2rem] border border-[#d8dfeb] bg-white/95 px-6 py-5 shadow-[0_24px_60px_rgba(66,69,76,0.12)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-        <p
-          className={`text-base font-medium ${
-            status.type === "error"
-              ? "text-[#b94a48]"
-              : status.type === "success"
-                ? "text-[#4b8e9a]"
-                : "text-[#5d6169]"
-          }`}
-        >
-          {status.message ||
-            "Update the homepage sections here, then save when you are ready."}
-        </p>
-
-        <button
-          type="submit"
-          disabled={isSaving || isUploadingImage}
-          className="inline-flex items-center justify-center rounded-2xl bg-[#4b8e9a] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#3e7882] disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {isUploadingImage
-            ? "Uploading image..."
-            : isSaving
-              ? "Saving..."
-              : "Save Homepage Content"}
-        </button>
-      </div>
-    </form>
+    </div>
   );
 }

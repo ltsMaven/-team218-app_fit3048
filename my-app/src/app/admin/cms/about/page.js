@@ -65,7 +65,7 @@ export default async function AdminCmsAboutPage() {
     );
   }
 
-  const session = await requireAdminSession("/admin/cms/about");
+  await requireAdminSession("/admin/cms/about");
   const { about, loadError } = await getAboutCmsContent();
 
   return (
@@ -73,17 +73,9 @@ export default async function AdminCmsAboutPage() {
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#6d7bbb]">
-              CMS
-            </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#42454c]">
               About Content
             </h1>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5d6169]">
-              Signed in as {session.user.name || session.user.email}. This page
-              follows the real About page layout so you can edit the current
-              content without changing the public design.
-            </p>
           </div>
 
           <Link
