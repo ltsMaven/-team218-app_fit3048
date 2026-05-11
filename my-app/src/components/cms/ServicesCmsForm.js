@@ -162,7 +162,6 @@ function ServiceCardPreview({
   imageUrl,
   onDelete,
   onSelect,
-  compact = false,
 }) {
   return (
     <article
@@ -175,166 +174,86 @@ function ServiceCardPreview({
     >
       <div className="p-4 pb-0">
         <EditableImage
-          src={imageUrl || `/assets/services/service-${compact ? index + 4 : index + 1}.png`}
+          src={imageUrl || `/assets/services/service-${index + 1}.png`}
           alt={service.title}
           isEditing={isEditing}
           onSelectFile={onSelectImage}
-          heightClass={compact ? "h-36" : "h-44"}
+          heightClass="h-44"
         />
       </div>
 
-      {compact ? (
-        <div className="grid gap-6 p-8 pt-5 md:grid-cols-[1.25fr_auto_0.9fr]">
+      <div className="p-8 pt-5">
+        <EditableText
+          as="p"
+          value={service.label}
+          isEditing={isEditing}
+          onChange={(value) => onFieldChange("label", value)}
+          validationKey="label"
+          className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7a85c4]"
+        />
+        <EditableText
+          as="h3"
+          value={service.title}
+          isEditing={isEditing}
+          onChange={(value) => onFieldChange("title", value)}
+          validationKey="title"
+          className="mt-3 text-[2rem] font-semibold leading-tight text-[#42454c]"
+        />
+        <EditableText
+          value={service.description}
+          isEditing={isEditing}
+          onChange={(value) => onFieldChange("description", value)}
+          validationKey="description"
+          className="mt-5 whitespace-pre-wrap text-base leading-8 text-[#5d6169]"
+        />
+
+        <div className="mt-6 h-px w-full bg-[#e2e7ee]" />
+
+        <div className="mt-6 flex items-end justify-between gap-4">
           <div>
             <EditableText
               as="p"
-              value={service.label}
+              value={service.price}
               isEditing={isEditing}
-              onChange={(value) => onFieldChange("label", value)}
-              validationKey="label"
-              className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7a85c4]"
+              onChange={(value) => onFieldChange("price", value)}
+              validationKey="price"
+              className="text-4xl font-semibold tracking-tight text-[#42454c]"
             />
             <EditableText
-              as="h3"
-              value={service.title}
+              as="p"
+              value={service.price_detail}
               isEditing={isEditing}
-              onChange={(value) => onFieldChange("title", value)}
-              validationKey="title"
-              className="mt-3 text-[2rem] font-semibold leading-tight text-[#42454c]"
+              onChange={(value) => onFieldChange("price_detail", value)}
+              validationKey="price_detail"
+              className="mt-2 text-sm font-medium uppercase tracking-[0.14em] text-[#8f72bb]"
             />
-            <EditableText
-              value={service.description}
-              isEditing={isEditing}
-              onChange={(value) => onFieldChange("description", value)}
-              validationKey="description"
-              className="mt-5 whitespace-pre-wrap text-base leading-8 text-[#5d6169]"
-            />
-          </div>
-
-          <div className="hidden w-px bg-[#e2e7ee] md:block" />
-
-          <div className="flex flex-col justify-between">
-            <div>
-              <div className="h-px w-full bg-[#e2e7ee] md:hidden" />
-              <div className="mt-1 md:mt-0">
-                <EditableText
-                  as="p"
-                  value={service.price}
-                  isEditing={isEditing}
-                  onChange={(value) => onFieldChange("price", value)}
-                  validationKey="price"
-                  className="text-4xl font-semibold tracking-tight text-[#42454c]"
-                />
-                <EditableText
-                  as="p"
-                  value={service.price_detail}
-                  isEditing={isEditing}
-                  onChange={(value) => onFieldChange("price_detail", value)}
-                  validationKey="price_detail"
-                  className="mt-2 text-sm font-medium uppercase tracking-[0.14em] text-[#8f72bb]"
-                />
-              </div>
-            </div>
-
-            <FeatureEditor
-              features={service.features || []}
-              isEditing={isEditing}
-              onChange={onFeatureChange}
-              onAddFeature={() => onAddFeature(service.id)}
-              onRemoveFeature={(featureIndex) =>
-                onRemoveFeature(service.id, featureIndex)
-              }
-            />
-
-            {isEditing ? (
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onDelete();
-                }}
-                className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[#b94a48]"
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete service
-              </button>
-            ) : null}
           </div>
         </div>
-      ) : (
-        <div className="p-8 pt-5">
-          <EditableText
-            as="p"
-            value={service.label}
-            isEditing={isEditing}
-            onChange={(value) => onFieldChange("label", value)}
-            validationKey="label"
-            className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7a85c4]"
-          />
-          <EditableText
-            as="h3"
-            value={service.title}
-            isEditing={isEditing}
-            onChange={(value) => onFieldChange("title", value)}
-            validationKey="title"
-            className="mt-3 text-[2rem] font-semibold leading-tight text-[#42454c]"
-          />
-          <EditableText
-            value={service.description}
-            isEditing={isEditing}
-            onChange={(value) => onFieldChange("description", value)}
-            validationKey="description"
-            className="mt-5 whitespace-pre-wrap text-base leading-8 text-[#5d6169]"
-          />
 
-          <div className="mt-6 h-px w-full bg-[#e2e7ee]" />
+        <FeatureEditor
+          features={service.features || []}
+          isEditing={isEditing}
+          onChange={onFeatureChange}
+          onAddFeature={() => onAddFeature(service.id)}
+          onRemoveFeature={(featureIndex) =>
+            onRemoveFeature(service.id, featureIndex)
+          }
+        />
 
-          <div className="mt-6 flex items-end justify-between gap-4">
-            <div>
-              <EditableText
-                as="p"
-                value={service.price}
-                isEditing={isEditing}
-                onChange={(value) => onFieldChange("price", value)}
-                validationKey="price"
-                className="text-4xl font-semibold tracking-tight text-[#42454c]"
-              />
-              <EditableText
-                as="p"
-                value={service.price_detail}
-                isEditing={isEditing}
-                onChange={(value) => onFieldChange("price_detail", value)}
-                validationKey="price_detail"
-                className="mt-2 text-sm font-medium uppercase tracking-[0.14em] text-[#8f72bb]"
-              />
-            </div>
-          </div>
-
-          <FeatureEditor
-            features={service.features || []}
-            isEditing={isEditing}
-            onChange={onFeatureChange}
-            onAddFeature={() => onAddFeature(service.id)}
-            onRemoveFeature={(featureIndex) =>
-              onRemoveFeature(service.id, featureIndex)
-            }
-          />
-
-          {isEditing ? (
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                onDelete();
-              }}
-              className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[#b94a48]"
-            >
-              <Trash2 className="h-4 w-4" />
-              Delete service
-            </button>
-          ) : null}
-        </div>
-      )}
+        {isEditing ? (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onDelete();
+            }}
+            className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[#b94a48]"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete service
+          </button>
+        ) : null}
+      </div>
     </article>
   );
 }
@@ -361,7 +280,7 @@ function ServicesCardsPreview({
     >
       <div className="mx-auto max-w-7xl">
         <div className="mt-14 grid grid-cols-1 gap-8 xl:grid-cols-3">
-          {services.slice(0, 3).map((service, index) => (
+          {services.map((service, index) => (
             <ServiceCardPreview
               key={service.id || service.title}
               service={service}
@@ -380,32 +299,6 @@ function ServicesCardsPreview({
             />
           ))}
         </div>
-
-        {services.length > 3 ? (
-          <div className="mx-auto mt-8 grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-2">
-            {services.slice(3).map((service, index) => (
-              <ServiceCardPreview
-                key={service.id || service.title}
-                service={service}
-                index={index}
-                compact
-                isEditing={editingCardId === service.id}
-                onFieldChange={(name, value) =>
-                  onFieldChange(service.id, name, value)
-                }
-                onFeatureChange={(featureIndex, value) =>
-                  onFeatureChange(service.id, featureIndex, value)
-                }
-                onAddFeature={onAddFeature}
-                onRemoveFeature={onRemoveFeature}
-                onSelectImage={(event) => onSelectImage(service.id, event)}
-                imageUrl={imagePreviews[service.id] || service.image_url}
-                onDelete={() => onDelete(service.id)}
-                onSelect={() => onSelectCard(service.id)}
-              />
-            ))}
-          </div>
-        ) : null}
 
         <div className="mt-8">
           <button

@@ -88,7 +88,7 @@ function HomepageAboutPreview({
   return (
     <PreviewFrame isEditing={isEditing} isVisible={isVisible} onSelect={onSelect}>
       <div className="grid gap-0 lg:grid-cols-[0.92fr_1.08fr]">
-        <div className="flex min-h-[320px] items-center justify-center bg-[linear-gradient(160deg,rgba(238,239,242,0.9),rgba(220,233,248,0.9))] p-8">
+        <div className="flex min-h-[320px] items-center justify-center p-8">
           <EditableImage
             src={
               imagePreviewUrl ||

@@ -167,7 +167,7 @@ export default async function Home() {
       <section id="about-me" className="bg-transparent px-6 py-24 lg:py-28">
         <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <div className="flex h-[420px] items-center justify-center rounded-[32px]">
+            <div className="flex h-[420px] items-center justify-center">
               <img
                 src={homepageContent.about_image_url || "/assets/attLogoNB.png"}
                 alt="Ability To Thrive logo"

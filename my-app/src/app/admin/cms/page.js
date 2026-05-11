@@ -14,7 +14,6 @@ const cmsCards = [
     description:
       "Manage homepage sections with a live preview and section-based editing.",
     href: "/admin/cms/home",
-    status: "Ready now",
     icon: LayoutTemplate,
     accent: "from-[#eef6f7] to-[#dcecf0]",
   },
@@ -23,7 +22,6 @@ const cmsCards = [
     description:
       "Prepare the About page content editor as a separate CMS workspace.",
     href: "/admin/cms/about",
-    status: "Ready now",
     icon: LayoutTemplate,
     accent: "from-[#f4eff8] to-[#ece6f5]",
   },
@@ -32,7 +30,6 @@ const cmsCards = [
     description:
       "Split services intro and service card editing into a dedicated route.",
     href: "/admin/cms/services",
-    status: "Ready now",
     icon: LayoutTemplate,
     accent: "from-[#eef1f8] to-[#e0e7f5]",
   },
@@ -40,7 +37,6 @@ const cmsCards = [
     title: "Edit Enquiry FAQ",
     description: "Manage the FAQ section shown on the public enquiry page.",
     href: "/admin/cms/enquiry",
-    status: "Ready now",
     icon: LayoutTemplate,
     accent: "from-[#f7f3ec] to-[#efe6d8]",
   },
@@ -49,7 +45,6 @@ const cmsCards = [
     description:
       "Update the blog listing page heading and intro without touching blog posts.",
     href: "/admin/cms/blogs",
-    status: "Ready now",
     icon: LayoutTemplate,
     accent: "from-[#f4f0ec] to-[#ece4dc]",
   },
@@ -100,13 +95,10 @@ export default async function AdminCmsPage() {
                   key={card.title}
                   className={`rounded-[2rem] border border-[#d8dfeb] bg-gradient-to-br ${card.accent} p-6 opacity-90`}
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-[#42454c] shadow-sm">
                       <Icon className="h-6 w-6" />
                     </div>
-                    <span className="rounded-full bg-white/85 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#6d7bbb]">
-                      {card.status}
-                    </span>
                   </div>
 
                   <h2 className="mt-6 text-2xl font-semibold text-[#42454c]">
@@ -129,13 +121,10 @@ export default async function AdminCmsPage() {
                 href={card.href}
                 className={`group rounded-[2rem] border border-[#d8dfeb] bg-gradient-to-br ${card.accent} p-6 transition hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(66,69,76,0.12)]`}
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-[#42454c] shadow-sm">
                     <Icon className="h-6 w-6" />
                   </div>
-                  <span className="rounded-full bg-white/85 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#6d7bbb]">
-                    {card.status}
-                  </span>
                 </div>
 
                 <h2 className="mt-6 text-2xl font-semibold text-[#42454c]">
