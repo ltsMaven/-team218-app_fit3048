@@ -10,6 +10,13 @@ import {
   validateCmsFields,
 } from "@/lib/cms-validation";
 
+function parseTagList(value = "") {
+  return String(value)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function EditableImage({ src, alt, isEditing, onSelectFile, heightClass }) {
   return (
     <label
@@ -33,18 +40,27 @@ function EditableImage({ src, alt, isEditing, onSelectFile, heightClass }) {
 
 function FocusTagsEditor({ tags, isEditing, onChange }) {
   return (
-    <div className="flex flex-wrap gap-3">
-      {tags.map((tag, index) => (
-        <EditableText
-          key={`${tag}-${index}`}
-          as="span"
-          value={tag}
-          isEditing={isEditing}
-          onChange={(value) => onChange(index, value)}
-          validationKey="focus_tag"
-          className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-medium text-[#42454c] shadow-sm"
-        />
-      ))}
+    <div>
+      <EditableText
+        value={tags.join(", ")}
+        isEditing={isEditing}
+        onChange={(value) => onChange(parseTagList(value))}
+        validationKey="focus_tags"
+        className="text-sm leading-7 text-[#5c6069]"
+      />
+      <p className="mt-2 text-xs leading-5 text-[#6d7280]">
+        Type a comma to add a new tag.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        {tags.map((tag, index) => (
+          <span
+            key={`${tag}-${index}`}
+            className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-medium text-[#42454c] shadow-sm"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -260,7 +276,7 @@ function AboutFocusPreview({
   isEditing,
   isVisible,
   onFieldChange,
-  onTagChange,
+  onTagsChange,
   onSelect,
 }) {
   return (
@@ -282,7 +298,7 @@ function AboutFocusPreview({
             <FocusTagsEditor
               tags={content.focus_tags || []}
               isEditing={isEditing}
-              onChange={onTagChange}
+              onChange={onTagsChange}
             />
           </div>
         </div>
@@ -466,12 +482,10 @@ export default function AboutCmsForm({
     }));
   }
 
-  function updateFocusTag(index, value) {
+  function updateFocusTags(tags) {
     setDraftFocus((current) => ({
       ...current,
-      focus_tags: current.focus_tags.map((tag, tagIndex) =>
-        tagIndex === index ? value : tag
-      ),
+      focus_tags: tags,
     }));
   }
 
@@ -1121,7 +1135,7 @@ export default function AboutCmsForm({
               isEditing={isFocusEditing}
               isVisible={sectionVisibility.focus}
               onFieldChange={(name, value) => updateDraft(setDraftFocus, name, value)}
-              onTagChange={updateFocusTag}
+              onTagsChange={updateFocusTags}
               onSelect={() => {
                 setStatus({ type: "idle", message: "" });
                 setIsFocusEditing(true);

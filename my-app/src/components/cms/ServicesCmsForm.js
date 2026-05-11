@@ -90,7 +90,13 @@ function ServicesHeroPreview({
   );
 }
 
-function FeatureEditor({ features, isEditing, onChange }) {
+function FeatureEditor({
+  features,
+  isEditing,
+  onChange,
+  onAddFeature,
+  onRemoveFeature,
+}) {
   return (
     <div className="mt-6 space-y-3">
       {features.map((feature, index) => (
@@ -109,8 +115,37 @@ function FeatureEditor({ features, isEditing, onChange }) {
             validationKey="feature"
             className="block"
           />
+          {isEditing ? (
+            <button
+              type="button"
+              onClick={
+                onRemoveFeature
+                  ? (event) => {
+                      event.stopPropagation();
+                      onRemoveFeature(index);
+                    }
+                  : undefined
+              }
+              className="rounded-full border border-[#d8dfeb] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#7b8088] transition hover:border-[#b94a48] hover:text-[#b94a48]"
+            >
+              Delete
+            </button>
+          ) : null}
         </div>
       ))}
+      {isEditing ? (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onAddFeature();
+          }}
+          className="inline-flex items-center gap-2 rounded-full border border-dashed border-[#926ab9]/45 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6d7bbb] transition hover:border-[#926ab9] hover:bg-white/80"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Add feature
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -121,6 +156,8 @@ function ServiceCardPreview({
   isEditing,
   onFieldChange,
   onFeatureChange,
+  onAddFeature,
+  onRemoveFeature,
   onSelectImage,
   imageUrl,
   onDelete,
@@ -203,6 +240,10 @@ function ServiceCardPreview({
               features={service.features || []}
               isEditing={isEditing}
               onChange={onFeatureChange}
+              onAddFeature={() => onAddFeature(service.id)}
+              onRemoveFeature={(featureIndex) =>
+                onRemoveFeature(service.id, featureIndex)
+              }
             />
 
             {isEditing ? (
@@ -273,6 +314,10 @@ function ServiceCardPreview({
             features={service.features || []}
             isEditing={isEditing}
             onChange={onFeatureChange}
+            onAddFeature={() => onAddFeature(service.id)}
+            onRemoveFeature={(featureIndex) =>
+              onRemoveFeature(service.id, featureIndex)
+            }
           />
 
           {isEditing ? (
@@ -300,6 +345,8 @@ function ServicesCardsPreview({
   isVisible,
   onFieldChange,
   onFeatureChange,
+  onAddFeature,
+  onRemoveFeature,
   onSelectImage,
   imagePreviews,
   onDelete,
@@ -324,6 +371,8 @@ function ServicesCardsPreview({
               onFeatureChange={(featureIndex, value) =>
                 onFeatureChange(service.id, featureIndex, value)
               }
+              onAddFeature={onAddFeature}
+              onRemoveFeature={onRemoveFeature}
               onSelectImage={(event) => onSelectImage(service.id, event)}
               imageUrl={imagePreviews[service.id] || service.image_url}
               onDelete={() => onDelete(service.id)}
@@ -347,6 +396,8 @@ function ServicesCardsPreview({
                 onFeatureChange={(featureIndex, value) =>
                   onFeatureChange(service.id, featureIndex, value)
                 }
+                onAddFeature={onAddFeature}
+                onRemoveFeature={onRemoveFeature}
                 onSelectImage={(event) => onSelectImage(service.id, event)}
                 imageUrl={imagePreviews[service.id] || service.image_url}
                 onDelete={() => onDelete(service.id)}
@@ -656,6 +707,38 @@ export default function ServicesCmsForm({
     );
   }
 
+  function addDraftFeature(id) {
+    setDraftServiceItems((current) =>
+      current.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              features: [...(item.features || []), "Add a service feature"],
+            }
+          : item
+      )
+    );
+  }
+
+  function removeDraftFeature(id, featureIndex) {
+    setDraftServiceItems((current) =>
+      current.map((item) => {
+        if (item.id !== id) {
+          return item;
+        }
+
+        const nextFeatures = (item.features || []).filter(
+          (_, index) => index !== featureIndex
+        );
+
+        return {
+          ...item,
+          features: nextFeatures.length ? nextFeatures : [""],
+        };
+      })
+    );
+  }
+
   async function handleSelectImage(id, event) {
     const file = event.target.files?.[0];
 
@@ -918,6 +1001,8 @@ export default function ServicesCmsForm({
               isVisible={isCardsVisible}
               onFieldChange={updateDraftCard}
               onFeatureChange={updateDraftFeature}
+              onAddFeature={addDraftFeature}
+              onRemoveFeature={removeDraftFeature}
               onSelectImage={handleSelectImage}
               imagePreviews={imagePreviews}
               onDelete={deleteServiceCard}

@@ -133,7 +133,7 @@ export default function BookingPage() {
               Back to all services
             </button>
 
-            <div className="h-[700px] w-full overflow-hidden rounded-xl border border-[#cfd6e2] bg-white shadow-2xl">
+            <div className="h-[800px] w-full overflow-hidden rounded-xl border border-[#cfd6e2] bg-white shadow-2xl">
               <InlineWidget
                 url={`${selectedService.url}?hide_landing_page_details=1&hide_gdpr_banner=1`}
                 pageSettings={{
