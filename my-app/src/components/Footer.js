@@ -101,7 +101,7 @@ export default function Footer({ isAdmin = false }) {
               >
                 <Mail className="mt-1 h-4 w-4 shrink-0" />
                 <span className="break-all leading-relaxed">
-                  abilitytothrive@bigpond.com
+                  hello@abilitytothrive.com.au
                 </span>
               </a>
               <a
@@ -118,23 +118,43 @@ export default function Footer({ isAdmin = false }) {
             <h3 className="text-xl font-semibold text-[#42454c]">
               Accreditation
             </h3>
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex h-16 w-24 items-center justify-center rounded-xl bg-white p-2 shadow-sm border border-[#cfd6e2]">
-                <Image
-                  src="/assets/badges/ndis-logo.png"
-                  alt="NDIS Logo"
-                  width={96}
-                  height={64}
-                  className="object-contain"
-                />
+            <div className="flex w-full max-w-[22rem] flex-col gap-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="flex h-16 min-w-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm border border-[#cfd6e2]">
+                  <Image
+                    src="/assets/badges/ndis-logo.png"
+                    alt="NDIS Logo"
+                    width={96}
+                    height={64}
+                    className="max-h-full w-auto object-contain"
+                  />
+                </div>
+                <div className="flex h-16 min-w-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm border border-[#cfd6e2]">
+                  <Image
+                    src="/assets/badges/aca-logo.png"
+                    alt="ACA Logo"
+                    width={96}
+                    height={64}
+                    className="max-h-full w-auto object-contain"
+                  />
+                </div>
+                <div className="flex h-16 min-w-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm border border-[#cfd6e2]">
+                  <Image
+                    src="/assets/badges/College%20of%20Supervisors.png"
+                    alt="College of Supervisors Logo"
+                    width={64}
+                    height={64}
+                    className="max-h-full w-auto object-contain"
+                  />
+                </div>
               </div>
-              <div className="flex h-16 w-24 items-center justify-center rounded-xl bg-white p-2 shadow-sm border border-[#cfd6e2]">
+              <div className="flex h-14 w-full items-center justify-center rounded-xl bg-white px-3 py-2 shadow-sm border border-[#cfd6e2]">
                 <Image
-                  src="/assets/badges/aca-logo.png"
-                  alt="ACA Logo"
-                  width={96}
-                  height={64}
-                  className="object-contain"
+                  src="/assets/badges/Inclusion%20Logos.jpg"
+                  alt="Inclusion logos"
+                  width={157}
+                  height={29}
+                  className="h-auto max-h-full max-w-full object-contain"
                 />
               </div>
             </div>
