@@ -1,8 +1,19 @@
 import { sendEnquiryEmail } from "../../../lib/send-enquiry-email";
 import { saveEnquirySubmission } from "../../../lib/enquiry-submissions";
+import { checkRateLimit, rateLimitResponse } from "../../../lib/rate-limit";
 
 export async function POST(request) {
   try {
+    const rateLimit = checkRateLimit(request, {
+      namespace: "enquiry",
+      limit: 5,
+      windowMs: 10 * 60 * 1000,
+    });
+
+    if (rateLimit.limited) {
+      return rateLimitResponse(rateLimit);
+    }
+
     const payload = await request.json();
 
     const { captchaToken } = payload;

@@ -44,11 +44,7 @@ export default async function BlogsPage() {
     getPublishedBlogs(),
     getBlogsHeaderContent(),
   ]);
-  const blogHighlights = [
-    blogsContent.highlight_item_1,
-    blogsContent.highlight_item_2,
-    blogsContent.highlight_item_3,
-  ];
+  const blogHighlights = blogsContent.highlight_items || [];
 
   return (
     <section className="min-h-screen bg-[#f8f8f6] px-6 py-20 sm:py-24">
@@ -79,7 +75,7 @@ export default async function BlogsPage() {
             <div className="mt-6 space-y-3">
               {blogHighlights.map((item, index) => (
                 <div
-                  key={item}
+                  key={`${item}-${index}`}
                   className="flex items-start gap-3 rounded-2xl bg-white/72 px-4 py-3"
                 >
                   <span className="mt-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#eef1f6] text-xs font-semibold text-[#6d7bbb]">

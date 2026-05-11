@@ -1,8 +1,19 @@
 import { sendTestimonialEmail } from "@/lib/send-testimonial-email";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { saveTestimonialSubmission } from "@/lib/testimonial-submissions";
 
 export async function POST(request) {
   try {
+    const rateLimit = checkRateLimit(request, {
+      namespace: "testimonials",
+      limit: 5,
+      windowMs: 10 * 60 * 1000,
+    });
+
+    if (rateLimit.limited) {
+      return rateLimitResponse(rateLimit);
+    }
+
     const payload = await request.json();
     const { captchaToken } = payload;
 

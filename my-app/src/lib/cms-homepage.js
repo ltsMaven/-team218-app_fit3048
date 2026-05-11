@@ -374,9 +374,7 @@ export const BLOGS_CMS_FIELDS = [
   "intro_body_2",
   "highlights_label",
   "highlights_body",
-  "highlight_item_1",
-  "highlight_item_2",
-  "highlight_item_3",
+  "highlight_items",
   ...BLOGS_BOOLEAN_FIELDS,
 ];
 
@@ -391,30 +389,43 @@ export const fallbackBlogsContent = {
   highlights_label: "What You'll Find",
   highlights_body:
     "A thoughtful mix of reflections and practical reading designed to feel supportive, clear, and easy to return to.",
-  highlight_item_1:
+  highlight_items: [
     "Practical guidance for recovery, resilience, and everyday wellbeing.",
-  highlight_item_2:
     "Compassionate reflections on disability, addiction, and personal growth.",
-  highlight_item_3:
     "Grounded support you can read at your own pace and return to when needed.",
+  ],
   show_header_section: true,
 };
 
 export function normaliseBlogsContent(input = {}) {
+  const fallbackHighlightItems = fallbackBlogsContent.highlight_items;
+  const legacyHighlightItems = [
+    input.highlight_item_1,
+    input.highlight_item_2,
+    input.highlight_item_3,
+  ].filter((item) => typeof item === "string" && item.trim());
+
   return {
     slug:
       typeof input.slug === "string" && input.slug.trim()
         ? input.slug.trim()
         : BLOGS_CMS_SLUG,
-    ...Object.fromEntries(
-      BLOGS_CMS_FIELDS.map((field) => {
-        if (BLOGS_BOOLEAN_FIELDS.includes(field)) {
-          return [field, input[field] !== false];
-        }
-
-        return [field, typeof input[field] === "string" ? input[field] : ""];
-      })
-    ),
+    eyebrow: typeof input.eyebrow === "string" ? input.eyebrow : "",
+    heading: typeof input.heading === "string" ? input.heading : "",
+    intro_body_1: typeof input.intro_body_1 === "string" ? input.intro_body_1 : "",
+    intro_body_2: typeof input.intro_body_2 === "string" ? input.intro_body_2 : "",
+    highlights_label:
+      typeof input.highlights_label === "string" ? input.highlights_label : "",
+    highlights_body:
+      typeof input.highlights_body === "string" ? input.highlights_body : "",
+    highlight_items: Array.isArray(input.highlight_items)
+      ? input.highlight_items.filter(
+          (item) => typeof item === "string" && item.trim()
+        )
+      : legacyHighlightItems.length
+        ? legacyHighlightItems
+        : fallbackHighlightItems,
+    show_header_section: input.show_header_section !== false,
   };
 }
 

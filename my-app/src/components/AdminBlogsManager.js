@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { slugify } from "@/lib/blogs";
 import RichTextEditor from "@/components/RichTextEditor";
 
 const BLOGS_PAGE_SIZE = 5;
@@ -51,7 +50,6 @@ function stripEditorHtml(value = "") {
 function validateBlogForm(formData) {
   const fieldErrors = {};
   const title = String(formData.title || "").trim();
-  const slug = String(formData.slug || "").trim();
   const category = String(formData.category || "").trim();
   const excerpt = String(formData.excerpt || "").trim();
   const contentText = stripEditorHtml(formData.content || "");
@@ -72,11 +70,6 @@ function validateBlogForm(formData) {
   if (!contentText && !hasContentImage) {
     fieldErrors.content =
       "Article content is required. Add text, or insert an image inside the editor.";
-  }
-
-  if (slug && !slugify(slug)) {
-    fieldErrors.slug =
-      "Slug is invalid. Use letters, numbers, or hyphens only.";
   }
 
   return fieldErrors;
@@ -116,7 +109,6 @@ export default function AdminBlogsManager({
   const [formData, setFormData] = useState(
     initialBlogs[0] ? { ...initialBlogs[0] } : createEmptyBlog()
   );
-  const [hasCustomSlug, setHasCustomSlug] = useState(Boolean(initialBlogs[0]?.slug));
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -136,7 +128,6 @@ export default function AdminBlogsManager({
   function handleCreateNew() {
     setSelectedBlogId("new");
     setFormData(createEmptyBlog());
-    setHasCustomSlug(false);
     setFieldErrors({});
     setStatus({ type: "idle", message: "" });
   }
@@ -146,7 +137,6 @@ export default function AdminBlogsManager({
     setSelectedBlogId(id);
     if (selectedBlog) {
       setFormData({ ...selectedBlog });
-      setHasCustomSlug(true);
     }
     setFieldErrors({});
     setStatus({ type: "idle", message: "" });
@@ -156,30 +146,15 @@ export default function AdminBlogsManager({
     const { name, type, value, checked } = event.target;
     const nextValue = type === "checkbox" ? checked : value;
 
-    if (name === "slug") {
-      setHasCustomSlug(true);
-    }
-
     setFieldErrors((currentErrors) => ({
       ...currentErrors,
       [name]: "",
-      ...(name === "title" && !hasCustomSlug ? { slug: "" } : {}),
     }));
 
-    setFormData((current) => {
-      if (name === "title") {
-        return {
-          ...current,
-          title: value,
-          slug: hasCustomSlug ? current.slug : slugify(value),
-        };
-      }
-
-      return {
-        ...current,
-        [name]: nextValue,
-      };
-    });
+    setFormData((current) => ({
+      ...current,
+      [name]: nextValue,
+    }));
   }
 
   function handleContentChange(nextContent) {
@@ -294,7 +269,6 @@ export default function AdminBlogsManager({
       setCurrentPage(1);
       setSelectedBlogId(savedBlog.id);
       setFormData(savedBlog);
-      setHasCustomSlug(true);
       setFieldErrors({});
       setStatus({
         type: "success",
@@ -314,7 +288,6 @@ export default function AdminBlogsManager({
     if (!formData.id) {
       setFormData(createEmptyBlog());
       setSelectedBlogId("new");
-      setHasCustomSlug(false);
       return;
     }
 
@@ -344,7 +317,6 @@ export default function AdminBlogsManager({
       setCurrentPage(1);
       setSelectedBlogId(remainingBlogs[0]?.id || "new");
       setFormData(remainingBlogs[0] ? { ...remainingBlogs[0] } : createEmptyBlog());
-      setHasCustomSlug(Boolean(remainingBlogs[0]?.slug));
       setStatus({
         type: "success",
         message: "Blog deleted.",
@@ -536,27 +508,7 @@ export default function AdminBlogsManager({
             ) : null}
           </label>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-[#42454c]">
-              Slug
-            </span>
-            <input
-              type="text"
-              name="slug"
-              value={formData.slug}
-              onChange={handleChange}
-              aria-invalid={Boolean(fieldErrors.slug)}
-              className={getInputClasses(Boolean(fieldErrors.slug))}
-            />
-            <p className="mt-2 text-sm text-[#6a6e77]">
-              Optional. Leave it as-is to use the title-based slug.
-            </p>
-            {fieldErrors.slug ? (
-              <p className="mt-2 text-sm text-[#b94a48]">{fieldErrors.slug}</p>
-            ) : null}
-          </label>
-
-          <label className="block">
+          <label className="block md:col-span-2">
             <span className="mb-2 block text-sm font-medium text-[#42454c]">
               Category *
             </span>

@@ -13,18 +13,21 @@ import {
   validateCmsFields,
 } from "@/lib/cms-validation";
 
+function createEmptyHighlightItem() {
+  return "";
+}
+
 function BlogsHeaderPreview({
   content,
   isEditing,
   isVisible,
   onFieldChange,
+  onHighlightItemChange,
+  onAddHighlightItem,
+  onRemoveHighlightItem,
   onSelect,
 }) {
-  const highlightItems = [
-    content.highlight_item_1,
-    content.highlight_item_2,
-    content.highlight_item_3,
-  ];
+  const highlightItems = content.highlight_items || [];
 
   return (
     <section
@@ -101,15 +104,37 @@ function BlogsHeaderPreview({
                 <EditableText
                   value={item}
                   isEditing={isEditing}
-                  onChange={(value) =>
-                    onFieldChange(`highlight_item_${index + 1}`, value)
-                  }
-                  validationKey={`highlight_item_${index + 1}`}
+                  onChange={(value) => onHighlightItemChange(index, value)}
+                  validationKey="highlight_item"
                   className="w-full text-[0.92rem] leading-5 text-[#5d6169]"
                 />
+                {isEditing ? (
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onRemoveHighlightItem(index);
+                    }}
+                    className="rounded-full border border-[#d8dfeb] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#7b8088] transition hover:border-[#b94a48] hover:text-[#b94a48]"
+                  >
+                    Delete
+                  </button>
+                ) : null}
               </div>
             ))}
           </div>
+          {isEditing ? (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onAddHighlightItem();
+              }}
+              className="mt-4 rounded-full border border-dashed border-[#926ab9]/45 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6d7bbb] transition hover:border-[#926ab9] hover:bg-white/80"
+            >
+              Add highlight
+            </button>
+          ) : null}
         </aside>
       </div>
     </section>
@@ -158,6 +183,40 @@ export default function BlogsCmsForm({
     }));
   }
 
+  function updateHighlightItem(index, value) {
+    setDraftContent((current) => ({
+      ...current,
+      highlight_items: current.highlight_items.map((item, itemIndex) =>
+        itemIndex === index ? value : item
+      ),
+    }));
+  }
+
+  function addHighlightItem() {
+    setDraftContent((current) => ({
+      ...current,
+      highlight_items: [
+        ...(current.highlight_items || []),
+        createEmptyHighlightItem(),
+      ],
+    }));
+  }
+
+  function removeHighlightItem(index) {
+    setDraftContent((current) => {
+      const nextItems = (current.highlight_items || []).filter(
+        (_, itemIndex) => itemIndex !== index
+      );
+
+      return {
+        ...current,
+        highlight_items: nextItems.length
+          ? nextItems
+          : [createEmptyHighlightItem()],
+      };
+    });
+  }
+
   function getValidationErrors(content) {
     return validateCmsFields([
       { field: "eyebrow", value: content.eyebrow, label: "Blogs eyebrow" },
@@ -182,21 +241,11 @@ export default function BlogsCmsForm({
         value: content.highlights_body,
         label: "Highlights body",
       },
-      {
-        field: "highlight_item_1",
-        value: content.highlight_item_1,
-        label: "Highlight item 1",
-      },
-      {
-        field: "highlight_item_2",
-        value: content.highlight_item_2,
-        label: "Highlight item 2",
-      },
-      {
-        field: "highlight_item_3",
-        value: content.highlight_item_3,
-        label: "Highlight item 3",
-      },
+      ...(content.highlight_items || []).map((item, index) => ({
+        field: "highlight_item",
+        value: item,
+        label: `Highlight item ${index + 1}`,
+      })),
     ]);
   }
 
@@ -333,6 +382,9 @@ export default function BlogsCmsForm({
               content={draftContent}
               isEditing={isEditing}
               onFieldChange={updateField}
+              onHighlightItemChange={updateHighlightItem}
+              onAddHighlightItem={addHighlightItem}
+              onRemoveHighlightItem={removeHighlightItem}
               isVisible={isVisible}
               onSelect={() => {
                 setStatus({ type: "idle", message: "" });
